@@ -139,7 +139,7 @@ python manage.py runserver
 * Payload: { "title": "...", "full_text": "...", "orientation_preference": "..." }
 
 ### Get Project Details
-* Endpoint: /scripts/<id>/
+* Endpoint: /scripts/&lt;id&gt;/
 
 * Method: GET
 
