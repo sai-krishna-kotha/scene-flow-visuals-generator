@@ -1,0 +1,38 @@
+venv/
+.env
+db.sqlite3
+docker-compose.yml
+**__pycache__
+JSZip/
+
+# Secrets
+.env
+frontend/
+# Environments
+venv/
+.venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Django
+db.sqlite3
+media/
+static_root/
+*.log
+
+# AI/ML
+# Ignore models if you downloaded them to a folder
+# nltk_data/
+
+# OS/IDE
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Generated files
+*.zip
