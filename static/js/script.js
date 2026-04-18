@@ -7,12 +7,11 @@ document.addEventListener('DOMContentLoaded', () => {
         fetchScripts(nextUrl);
     }
 
-    // --- FIXED: LOAD MORE EVENT LISTENER ---
     const loadBtn = document.getElementById('load-more-btn');
     if (loadBtn) {
         loadBtn.addEventListener('click', () => {
             if (nextUrl) {
-                fetchScripts(nextUrl, true); // true = append data
+                fetchScripts(nextUrl, true); 
             }
         });
     }
@@ -37,13 +36,14 @@ async function fetchScripts(url, append = false) {
                 <small>Generated: ${new Date(s.created_at).toLocaleDateString()}</small>
             `;
             
-            // Open separate detailed page in a new tab
+            // FIX: Ensure trailing slash matches Django urls.py
             card.onclick = () => window.open(`/project/${s.id}/`, '_blank');
             grid.appendChild(card);
         });
 
         nextUrl = data.next;
-        document.getElementById('load-more-btn').style.display = nextUrl ? 'block' : 'none';
+        const loadMoreBtn = document.getElementById('load-more-btn');
+        if(loadMoreBtn) loadMoreBtn.style.display = nextUrl ? 'block' : 'none';
     } catch (err) {
         console.error("API Fetch Error:", err);
     }
@@ -52,48 +52,71 @@ async function fetchScripts(url, append = false) {
 // 2. Submit New Script (POST)
 document.getElementById('submit-btn').onclick = async () => {
     const btn = document.getElementById('submit-btn');
-    const text = document.getElementById('script-text').value;
-    
-    if (!text) return alert("Please enter your script text, bro.");
+    const titleInput = document.getElementById('script-title');
+    const textInput = document.getElementById('script-text');
+    const orientInput = document.getElementById('orientation-input');
 
+    if (!textInput.value) return alert("Please enter your script text, bro.");
+
+    // Visual feedback
     btn.innerText = "Processing AI Logic...";
     btn.disabled = true;
 
     const payload = {
-        title: document.getElementById('script-title').value || "Untitled Asset Set",
-        full_text: text,
-        orientation_preference: document.getElementById('orientation-input').value
+        title: titleInput.value || "Untitled Asset Set",
+        full_text: textInput.value,
+        orientation_preference: orientInput.value
     };
-
-    const res = await fetch('/api/scripts/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
-        body: JSON.stringify(payload)
-    });
-
-    if (res.ok) {
-        const newScript = await res.json();
-        btn.innerText = "Generate Assets";
-        btn.disabled = false;
+    console.log(payload);
+    
+    try {
+        const res = await fetch('/api/scripts/', {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json', 
+                'X-CSRFToken': CSRF_TOKEN 
+            },
+            body: JSON.stringify(payload)
+        });
+        console.log(`Res is ${res}`);
         
-        // Open the result immediately in a new tab
-        window.open(`/project/${newScript.id}/`, '_blank');
-        
-        // Reset dashboard
-        document.getElementById('script-text').value = '';
-        document.getElementById('script-title').value = '';
-        fetchScripts('/api/scripts/', false);
-    } else {
-        alert("Server error. Check if 'full_text' is being sent correctly.");
+        if (res.ok) {
+            const newScript = await res.json();
+            console.log(`newScript is ${newScript}`);
+            
+            // FIX: Resetting button state immediately
+            btn.innerText = "Generate Assets";
+            btn.disabled = false;
+            
+            // Open the result page
+            if (newScript.id) {
+                window.open(`/project/${newScript.id}/`, '_blank');
+            }
+            
+            // Clear inputs and refresh dashboard list
+            textInput.value = '';
+            titleInput.value = '';
+            fetchScripts('/api/scripts/', false);
+        } else {
+            const errorData = await res.json();
+            console.error("Server Error:", errorData);
+            alert("Error: " + JSON.stringify(errorData));
+            btn.innerText = "Generate Assets";
+            btn.disabled = false;
+        }
+    } catch (err) {
+        console.error("Network Error:", err);
+        alert("Network error. Is the Django server running?");
         btn.innerText = "Generate Assets";
         btn.disabled = false;
     }
 };
 
-// 3. Search Handler
+// 3. Search Handler - FIXED URL
 function searchScripts() {
     const query = document.getElementById('search-input').value;
-    fetchScripts(`/scripts/${query}`, false);
+    // API filtering usually uses ?search= query parameter in DRF
+    fetchScripts(`/api/scripts/?search=${query}`, false);
 }
 
 document.getElementById('nav-logo').onclick = () => window.location.href = "/";
