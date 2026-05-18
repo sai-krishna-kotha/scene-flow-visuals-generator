@@ -1,0 +1,109 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asset Generator | Create Account</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        .auth-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 80vh;
+        }
+        .auth-card {
+            width: 100%;
+            max-width: 400px;
+            padding: 2.5rem;
+        }
+        .auth-card input {
+            width: 100%;
+            margin-bottom: 1.2rem;
+            padding: 0.8rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .auth-card button {
+            width: 100%;
+            padding: 0.8rem;
+            margin-bottom: 1rem;
+        }
+        .toggle-link {
+            display: block;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #555;
+            text-decoration: none;
+        }
+        .toggle-link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h2>Semantic Visual Asset Generator</h2>
+        </div>
+    </nav>
+
+    <main class="container auth-wrapper">
+        <section class="card auth-card">
+            <h3 style="margin-bottom: 1.5rem; text-align: center;">Create Account</h3>
+            
+            <input type="text" id="username-input" placeholder="Choose a username" required>
+            <input type="password" id="password-input" placeholder="Create a password" required>
+            <input type="password" id="confirm-password-input" placeholder="Confirm your password" required>
+            
+            <button id="signup-btn" class="btn-primary" onclick="submitSignup()">Sign Up</button>
+            
+            <a href="/login/" class="toggle-link">Already have an account? Sign In</a>
+        </section>
+    </main>
+
+    <script>
+        const CSRF_TOKEN = "{{ csrf_token }}";
+
+        async function submitSignup() {
+            const btn = document.getElementById('signup-btn');
+            const username = document.getElementById('username-input').value;
+            const password = document.getElementById('password-input').value;
+            const confirm_password = document.getElementById('confirm-password-input').value;
+
+            if (!username || !password || !confirm_password) {
+                return alert("Please fill out all information fields.");
+            }
+
+            btn.innerText = "Creating Account...";
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/api/signup/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': CSRF_TOKEN
+                    },
+                    body: JSON.stringify({ username, password, confirm_password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert("Account created successfully! Welcome onboard.");
+                    window.location.href = "/"; // Instantly goes to dashboard via session auto-login
+                } else {
+                    alert(data.error || "Registration encountered an issue.");
+                    btn.innerText = "Sign Up";
+                    btn.disabled = false;
+                }
+            } catch (err) {
+                console.error("Signup Error:", err);
+                alert("Network error during signup process.");
+                btn.innerText = "Sign Up";
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,5 +1,6 @@
 from rest_framework import viewsets, status, filters
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated  # NEW IMPORT
 from django_filters.rest_framework import DjangoFilterBackend
 from nltk import sent_tokenize
 import nltk
@@ -16,21 +17,33 @@ except LookupError:
     nltk.download('punkt', quiet=True)
 
 class ScriptViewSet(viewsets.ModelViewSet):
-    queryset = Script.objects.all().order_by('-created_at')
     serializer_class = ScriptSerializer
     pagination_class = StandardResultsSetPagination
+    permission_classes = [IsAuthenticated]  # LOCK: Enforces that the user must be logged in
     
-    # Filters and Search (Merged from the second class)
+    # Filters and Search
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ['orientation_preference']
     search_fields = ['title']
+
+    def get_queryset(self):
+        """
+        DATA ISOLATION: Overriding the default queryset so users can ONLY 
+        see and access their own created scripts.
+        """
+        if self.request.user.is_authenticated:
+            return Script.objects.filter(user=self.request.user).order_by('-created_at')
+        return Script.objects.none()
 
     def create(self, request, *args, **kwargs):
         print("--- DEBUG: Entering Create Method ---")
         
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        script = serializer.save() 
+        
+        # FIX: Pass the logged-in user instance into the save method
+        script = serializer.save(user=self.request.user) 
+        print(f"--- DEBUG: Script Saved with ID: {script.id} for User: {request.user.username} ---")
 
         try:
             sentences = sent_tokenize(script.full_text)

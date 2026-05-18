@@ -6,7 +6,7 @@ class Script(models.Model):
     title = models.CharField(max_length=255, help_text="A title for this script")
     full_text = models.TextField(help_text="The complete transcript or text")
     created_at = models.DateTimeField(auto_now_add=True)
-
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='scripts', null=True, blank=True)    
     ORIENTATION_CHOICES = [
         ('all', 'All Orientations'),
         ('landscape', 'Landscape'),

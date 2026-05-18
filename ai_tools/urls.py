@@ -7,4 +7,5 @@ urlpatterns = [
     path("", views.index),
     path('project/<int:pk>/', views.storyboard_detail),
     path('api/', include('image_fetcher.urls')), 
+    path('',include('accounts.urls')),
 ]

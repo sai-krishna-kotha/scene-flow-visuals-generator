@@ -1,0 +1,113 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asset Generator | Login</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        /* Minimalist styling to center the box */
+        .auth-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 80vh;
+        }
+        .auth-card {
+            width: 100%;
+            max-width: 400px;
+            padding: 2.5rem;
+        }
+        .auth-card input {
+            width: 100%;
+            margin-bottom: 1.2rem;
+            padding: 0.8rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .auth-card button {
+            width: 100%;
+            padding: 0.8rem;
+            margin-bottom: 1rem;
+        }
+        /* Style for the signup transition link */
+        .toggle-link {
+            display: block;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #555;
+            text-decoration: none;
+        }
+        .toggle-link:hover { 
+            text-decoration: underline; 
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h2>Semantic Visual Asset Generator</h2>
+        </div>
+    </nav>
+
+    <main class="container auth-wrapper">
+        <section class="card auth-card">
+            <h3 style="margin-bottom: 1.5rem; text-align: center;">Welcome Back, Creator</h3>
+            
+            <input type="text" id="username-input" placeholder="Enter your username" required>
+            <input type="password" id="password-input" placeholder="Enter your password" required>
+            
+            <button id="login-btn" class="btn-primary" onclick="submitLogin()">Sign In</button>
+            
+            <!-- FIXED: Added transition link to signup page -->
+            <a href="/signup/" class="toggle-link">New creator? Create an account</a>
+        </section>
+    </main>
+
+    <script>
+        // Injecting the Django CSRF token directly into JS context
+        const CSRF_TOKEN = "{{ csrf_token }}";
+
+        async function submitLogin() {
+            const btn = document.getElementById('login-btn');
+            const username = document.getElementById('username-input').value;
+            const password = document.getElementById('password-input').value;
+
+            if (!username || !password) {
+                return alert("Fill in all fields, bro.");
+            }
+
+            btn.innerText = "Authenticating...";
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/api/login/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': CSRF_TOKEN
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Redirect to the main dashboard upon success
+                    window.location.href = "/";
+                } else {
+                    alert(data.error || "Authentication failed.");
+                    btn.innerText = "Sign In";
+                    btn.disabled = false;
+                }
+            } catch (err) {
+                console.error("Auth Error:", err);
+                alert("Network error during login.");
+                btn.innerText = "Sign In";
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
