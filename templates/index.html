@@ -8,58 +8,41 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <script src="{% static 'dependencies/jszip.min.js' %}"></script>
     <style>
-        /* Profile Layout Utilities */
-        .navbar-flex {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-        }
-        .user-profile-widget {
+        .navbar-flex { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        /* Clean Icon Styling */
+        .profile-nav-trigger {
             display: flex;
             align-items: center;
-            gap: 1rem;
-            background: rgba(255,255,255,0.1);
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.9rem;
-        }
-        .profile-badge {
-            background-color: #2563eb;
-            color: #fff;
-            padding: 0.2rem 0.6rem;
-            border-radius: 12px;
-            font-weight: bold;
-            font-size: 0.8rem;
-        }
-        .logout-link {
-            color: #ef4444;
+            gap: 0.5rem;
             text-decoration: none;
-            cursor: pointer;
+            color: #fff;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 0.5rem 1.2rem;
+            border-radius: 20px;
             font-weight: 500;
+            transition: background 0.2s ease;
         }
-        .logout-link:hover {
-            text-decoration: underline;
+        .profile-nav-trigger:hover {
+            background: rgba(255, 255, 255, 0.25);
         }
     </style>
 </head>
 <body>
     <nav class="navbar">
         <div class="container navbar-flex">
-            <h2 id="nav-logo" style="cursor:pointer">Semantic Visual Asset Generator</h2>
+            <h2 id="nav-logo" onclick="switchView('dashboard')" style="cursor:pointer">Semantic Visual Asset Generator</h2>
             
-            <!-- NEW: Dynamic User Profile Container -->
-            <div class="user-profile-widget">
-                <span>Creator: <strong id="profile-username">...</strong></span>
-                <span class="profile-badge">Generations: <span id="profile-count">0</span></span>
-                <span>|</span>
-                <a onclick="triggerLogout()" class="logout-link">Logout</a>
-            </div>
+            <!-- NEW: Clean, Minimal Profile Entrypoint -->
+            <a href="/profile/" class="profile-nav-trigger">
+                <span>👤</span>
+                <span>{{ request.user.username }}</span>
+            </a>
         </div>
     </nav>
 
     <main class="container">
-        <div id="view-dashboard" style="display:none">
+        <!-- VIEW 1: PROCESSING DASHBOARD -->
+        <div id="view-dashboard" style="display:block">
             <section class="card creation-form">
                 <h3>Generate New Visual Assets</h3>
                 <input type="text" id="script-title" placeholder="Project Title (e.g., Autumn Marketing Campaign)">
@@ -86,6 +69,7 @@
             </section>
         </div>
 
+        <!-- VIEW 2: STORYBOARD DETAILS -->
         <div id="view-detail" style="display:none">
             <div class="detail-header">
                 <div>
@@ -101,36 +85,15 @@
     <script>
         const CSRF_TOKEN = "{{ csrf_token }}";
 
-        // Fetch and map user profile information on load
-        document.addEventListener('DOMContentLoaded', async () => {
-            try {
-                const response = await fetch('/api/profile/');
-                if (response.ok) {
-                    const data = await response.json();
-                    document.getElementById('profile-username').innerText = data.username;
-                    document.getElementById('profile-count').innerText = data.total_generations;
-                }
-            } catch (err) {
-                console.error("Error loading user profile widget stats:", err);
-            }
-        });
+        function switchView(viewName) {
+            document.getElementById('view-dashboard').style.display = 'none';
+            document.getElementById('view-detail').style.display = 'none';
 
-        // Trigger safe session logout
-        async function triggerLogout() {
-            if(!confirm("Are you sure you want to log out, bro?")) return;
-            try {
-                const response = await fetch('/api/logout/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': CSRF_TOKEN
-                    }
-                });
-                if(response.ok) {
-                    window.location.href = '/login/';
-                }
-            } catch (err) {
-                console.error("Logout error:", err);
+            if (viewName === 'dashboard') {
+                document.getElementById('view-dashboard').style.display = 'block';
+                if(typeof loadDashboard === 'function') loadDashboard();
+            } else if (viewName === 'detail') {
+                document.getElementById('view-detail').style.display = 'block';
             }
         }
     </script>

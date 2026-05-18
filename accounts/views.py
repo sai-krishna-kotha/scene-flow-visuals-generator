@@ -1,10 +1,11 @@
 from django.shortcuts import render
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.models import User
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
+from accounts.models import UserProfile
 
 # Add this new endpoint to accounts/views.py
 from django.db import IntegrityError
@@ -97,3 +98,83 @@ def dynamic_profile_view(request):
         "date_joined": user.date_joined.strftime("%B %d, %Y"),
         "total_generations": total_generations
     }, status=status.HTTP_200_OK)
+    
+
+@api_view(['GET', 'PUT'])
+@permission_classes([IsAuthenticated])
+def profile_settings_view(request):
+    user = request.user
+    # Defensive programming: fetch or generate a profile instance if it doesn't exist
+    profile, created = UserProfile.objects.get_or_create(user=user)
+
+    if request.method == 'GET':
+        return Response({
+            "username": user.username,
+            "email": user.email,
+            "first_name": profile.first_name,
+            "last_name": profile.last_name,
+            "pexels_key": "••••••••" if profile.pexels_api_key else "",
+            "pixabay_key": "••••••••" if profile.pixabay_api_key else "",
+            "default_orientation": profile.default_orientation,
+            "total_generations": user.scripts.count()
+        }, status=status.HTTP_200_OK)
+
+    elif request.method == 'PUT':
+        data = request.data
+        
+        # 1. Update core Django user model fields
+        user.email = data.get('email', user.email)
+        user.save()
+
+        # 2. Update extended Profile information
+        profile.first_name = data.get('first_name', profile.first_name)
+        profile.last_name = data.get('last_name', profile.last_name)
+        profile.default_orientation = data.get('default_orientation', profile.default_orientation)
+        
+        # Security Guard: Only update keys if the user typed over the mask placeholder
+        pexels_key = data.get('pexels_key')
+        if pexels_key and pexels_key != "••••••••":
+            profile.pexels_api_key = pexels_key
+            
+        pixabay_key = data.get('pixabay_key')
+        if pixabay_key and pixabay_key != "••••••••":
+            profile.pixabay_api_key = pixabay_key
+
+        profile.save()
+        return Response({"message": "Settings updated successfully, bro!"}, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def update_password_view(request):
+    user = request.user
+    old_password = request.data.get('old_password')
+    new_password = request.data.get('new_password')
+
+    if not old_password or not new_password:
+        return Response({"error": "Missing input entries."}, status=status.HTTP_400_BAD_REQUEST)
+
+    if not user.check_password(old_password):
+        return Response({"error": "Current password confirmation failed."}, status=status.HTTP_400_BAD_REQUEST)
+
+    if len(new_password) < 6:
+        return Response({"error": "New password security check failed (too short)."}, status=status.HTTP_400_BAD_REQUEST)
+
+    user.set_password(new_password)
+    user.save()
+    
+    # CRITICAL: Keeps the session session hash aligned so the browser doesn't force logout
+    update_session_auth_hash(request, user)
+    
+    return Response({"message": "Password updated successfully!"}, status=status.HTTP_200_OK)
+
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+
+@login_required(login_url='/login/')
+def profile_page_view(request):
+    """
+    Renders the dedicated standalone profile and configuration dashboard.
+    """
+    return render(request, 'accounts/profile.html')
