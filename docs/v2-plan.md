@@ -23,17 +23,18 @@ The core scope remains focused on the semantic visual asset workflow: taking scr
 - [x] **Phase 3:** PostgreSQL domain model and migrations
 - [x] **Phase 4:** FastAPI application layer + Gemini Scene Intelligence
 - [x] **Phase 5:** Async provider aggregation + Asset retrieval foundations
-- [ ] **Phase 6:** Semantic Vector Search + Authentication
+- [x] **Phase 6:** Semantic Vector Search + Qdrant Integration
+- [x] **Phase 7:** Deterministic Semantic Reranking + Explainable Scoring
 
 ## Completed Phases
 
-**Phase 1, 2, 3, 4, 5, & 6** are finalized. The V2 backend is cleanly layered (Router -> Service -> Repository), interacts dynamically with PostgreSQL, natively integrates with Google GenAI for structured AI Storyboard Scene Intelligence, and executes highly-concurrent async provider searches across Pexels, Pixabay, and Openverse with normalized Postgres persistence.
+**Phase 1, 2, 3, 4, 5, 6 & 7** are finalized. The V2 backend is cleanly layered (Router -> Service -> Repository), interacts dynamically with PostgreSQL, natively integrates with Google GenAI for structured AI Storyboard Scene Intelligence, executes highly-concurrent async provider searches, vectorizes text using Sentence Transformers, retrieves candidates from Qdrant, and deterministically reranks candidates using a pure heuristic algorithm (Semantic + Resolution + Orientation).
 
-## Next Phase: Phase 7 — Semantic Reranking & Authentication
+## Next Phase: Phase 8 — Authentication & Background Processing
 
-- [ ] Add Cross-Encoder or Learning-to-Rank for re-ranking Qdrant results
 - [ ] Add JWT authentication
-- [ ] Implement Redis-backed rate limiting / Celery task queues the V2 backend fully for user-scoped workflows.
+- [ ] Implement Redis-backed rate limiting / Celery task queues for background asset ingestion and long-running provider fetches.
+- [ ] Introduce React frontend layer.
 
 ## Phase 2: FastAPI Backend Foundation
 Phase 2 establishes the core FastAPI backend layout. It introduces a modular-monolith directory structure, integrating FastAPI, Pydantic settings, SQLAlchemy 2.x, and Alembic. The backend is placed in a separate `backend/` directory alongside the legacy Django app to allow for incremental feature migration. The foundational API exposes basic routing and health checks while maintaining a PostgreSQL-ready connection dependency.

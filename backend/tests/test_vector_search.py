@@ -132,13 +132,13 @@ def test_semantic_search_service(mock_embed, mock_store):
     
     mock_store_instance.search.assert_called_with(
         query_vector=[0.1]*384,
-        top_k=5,
+        top_k=50,
         filters={"orientation": "landscape"}
     )
 
 @patch('app.services.semantic_search_service.AssetVectorStore')
-@patch('app.services.semantic_search_service.SemanticSearchService.search')
-def test_search_multi_query(mock_search, mock_store):
+@patch('app.services.semantic_search_service.SemanticSearchService._retrieve_candidates')
+def test_search_multi_query(mock_retrieve, mock_store):
     mock_store_instance = MagicMock()
     mock_store.return_value = mock_store_instance
 
@@ -146,24 +146,20 @@ def test_search_multi_query(mock_search, mock_store):
     service = SemanticSearchService(mock_db)
     
     # Mock returns from two different queries
-    from app.schemas.semantic_search import SemanticSearchResponse, SemanticSearchResultItem
-    from app.schemas.provider import ProviderAsset
+    from app.models.asset import Asset
     
-    asset_a = ProviderAsset(provider="pexels", provider_asset_id="A", image_url="A", thumbnail_url="A")
-    asset_b = ProviderAsset(provider="pixabay", provider_asset_id="B", image_url="B", thumbnail_url="B")
+    asset_a = Asset(provider_name="pexels", provider_asset_id="A", asset_url="A", width=1920, height=1080)
+    asset_a.id = uuid.uuid4()
+    
+    asset_b = Asset(provider_name="pixabay", provider_asset_id="B", asset_url="B", width=1920, height=1080)
+    asset_b.id = uuid.uuid4()
     
     # Query 1 returns A (0.9) and B (0.7)
     # Query 2 returns A (0.8) and B (0.95)
     
-    mock_search.side_effect = [
-        SemanticSearchResponse(query="q1", results=[
-            SemanticSearchResultItem(asset=asset_a, similarity=0.9),
-            SemanticSearchResultItem(asset=asset_b, similarity=0.7)
-        ]),
-        SemanticSearchResponse(query="q2", results=[
-            SemanticSearchResultItem(asset=asset_a, similarity=0.8),
-            SemanticSearchResultItem(asset=asset_b, similarity=0.95)
-        ])
+    mock_retrieve.side_effect = [
+        [(asset_a, 0.9), (asset_b, 0.7)],
+        [(asset_a, 0.8), (asset_b, 0.95)]
     ]
     
     resp = service.search_multi_query(["q1", "q2"])
@@ -172,7 +168,4 @@ def test_search_multi_query(mock_search, mock_store):
     
     # Sorted by similarity
     assert resp.results[0].asset.provider_asset_id == "B"
-    assert resp.results[0].similarity == 0.95
-    
     assert resp.results[1].asset.provider_asset_id == "A"
-    assert resp.results[1].similarity == 0.9

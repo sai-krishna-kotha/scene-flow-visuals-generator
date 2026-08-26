@@ -18,9 +18,9 @@ Qdrant (Top-K candidates)
     ↓
 PostgreSQL (Authoritative Hydration)
     ↓
-SQLAlchemy
+RankingService (Heuristic Reranking)
     ↓
-PostgreSQL
+Final Result
 ```
 
 ### HTTP Router (`app/api/routes/`)
@@ -71,3 +71,13 @@ PostgreSQL Persistence (via `SearchService`)
 1. **Isolated Service:** Gemini is isolated to prevent leakage of LLM-specific exception handling or prompt manipulation into the HTTP routers or the DB repository.
 2. **Structured Output:** We explicitly enforce Google GenAI's `response_schema` feature to force Gemini to output a strict Pydantic `SceneAnalysis` model (summary, subjects, actions, mood, visual queries). This completely eliminates the fragility of parsing free-form LLM text.
 3. **Stateless Intelligence:** The Gemini service is responsible *only* for natural language scene intelligence. It does NOT generate images, search the web, or persist to PostgreSQL. It simply accepts a string and returns a typed visual blueprint.
+
+---
+
+## Retrieval & Ranking
+
+### Semantic Search Service (`app/services/semantic_search_service.py`)
+Responsible for orchestrating the multi-query logic (e.g. searching Qdrant with multiple queries from a Gemini response). It retrieves candidates, fetches the PostgreSQL source models, max-pools the vector similarities to avoid duplicates, and passes the candidates to the Ranking Service.
+
+### Ranking Service (`app/services/ranking/ranking_service.py`)
+Responsible for sorting and refining vector candidates using strict deterministic business logic rather than pure AI semantics. It calculates a weighted score (70% Semantic, 15% Resolution, 15% Orientation) and relies heavily on exact tie-breaking heuristics to guarantee consistent ordering for the frontend.
