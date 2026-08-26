@@ -36,14 +36,12 @@ class ScriptViewSet(viewsets.ModelViewSet):
         return Script.objects.none()
 
     def create(self, request, *args, **kwargs):
-        print("--- DEBUG: Entering Create Method ---")
         
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         
         # FIX: Pass the logged-in user instance into the save method
         script = serializer.save(user=self.request.user) 
-        print(f"--- DEBUG: Script Saved with ID: {script.id} for User: {request.user.username} ---")
 
         try:
             sentences = sent_tokenize(script.full_text)
@@ -58,11 +56,8 @@ class ScriptViewSet(viewsets.ModelViewSet):
                 order=i
             )
             scenes_created.append(scene)
-        
-        print(f"--- DEBUG: Created {len(scenes_created)} scenes in DB ---")
             
         for scene in scenes_created:
-            print(f"--- DEBUG: Triggering Celery for Scene ID: {scene.id} ---")
             find_images_for_scene.delay(scene.id) 
             
         headers = self.get_success_headers(serializer.data)

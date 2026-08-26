@@ -178,7 +178,6 @@ def search_openverse(query, orientation='all'):
         params['aspect_ratio'] = 'square'
 
     try:
-        print(f"!!! DEBUG OPENVERSE: Sending params: {params} !!!")
         r = requests.get(url, headers=headers, params=params, timeout=15)
         r.raise_for_status()
         data = r.json().get("results", [])

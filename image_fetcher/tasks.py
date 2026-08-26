@@ -10,7 +10,6 @@ def find_images_for_scene(scene_id):
         scene.status = 'PROCESSING'
         scene.save()
         orientation_pref = scene.script.orientation_preference
-        print(f"!!! DEBUG: Scene {scene.id} is using orientation: '{orientation_pref}' !!!")
         keywords = services.extract_keywords(scene.sentence_text)
         if not keywords:
             scene.status = 'FAILED'
@@ -20,13 +19,8 @@ def find_images_for_scene(scene_id):
         query = " ".join(keywords)
 
         all_candidates = []
-        print(f"Searching Pexels for: {query} (Orientation: {orientation_pref})")
         all_candidates.extend(services.search_pexels(query, orientation=orientation_pref))
-        
-        print(f"Searching Pixabay for: {query} (Orientation: {orientation_pref})")
         all_candidates.extend(services.search_pixabay(query, orientation=orientation_pref))
-        
-        print(f"Searching Openverse for: {query} (Orientation: {orientation_pref})")
         all_candidates.extend(services.search_openverse(query, orientation=orientation_pref))
     
         if not all_candidates:
