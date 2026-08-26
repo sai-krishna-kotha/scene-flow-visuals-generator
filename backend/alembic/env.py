@@ -21,6 +21,7 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from app.db.base import Base
 from app.config import settings
+import app.models  # noqa: F401 (Registers all models with Base.metadata)
 
 target_metadata = Base.metadata
 

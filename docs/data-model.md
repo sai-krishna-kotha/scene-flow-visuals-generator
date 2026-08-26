@@ -1,0 +1,32 @@
+# V2 Data Model
+
+## Why PostgreSQL?
+The system utilizes PostgreSQL as the core relational database to replace SQLite. PostgreSQL provides robust concurrency capabilities that safely allow multiple Celery workers to read/write Scene statuses and Candidate Assets simultaneously without encountering database lock errors. It also natively supports UUID types, ENUM constraints, and can later integrate with vector extensions (`pgvector`) if Qdrant isn't used for auxiliary embeddings.
+
+## Schema Changes from Django
+- **User and Project:** The legacy model coupled `Script` directly to the `User`. The V2 model introduces a `Project` entity to allow users to group multiple scripts under a single semantic project bucket.
+- **SearchJob:** The legacy model placed execution status directly on the `Scene`. V2 extracts this into a `SearchJob` entity, decoupling the domain text (Scene) from the background task execution (SearchJob).
+- **Asset Normalization:** `ImageCandidate` is renamed to `Asset` and placed under the `SearchJob`. It includes explicitly typed integer constraints for width/height and retains provider identification for modular expansion.
+
+## Entities and Relationships
+- **User** (1) -> (M) **Project**: Cascade delete.
+- **Project** (1) -> (M) **Script**: Cascade delete.
+- **Script** (1) -> (M) **Scene**: Cascade delete.
+- **Scene** (1) -> (M) **SearchJob**: Cascade delete.
+- **SearchJob** (1) -> (M) **Asset**: Cascade delete.
+
+## Important Constraints & Indexes
+- Foreign Keys all use `ON DELETE CASCADE` to prevent orphaned entities and maintain referential integrity.
+- `UUID` type is used natively for primary keys to prevent ID scraping.
+- **Indexes:**
+  - `ix_users_email`: For fast login and user lookups.
+  - `ix_projects_user_id`: Essential for fetching all projects for a specific user dashboard.
+  - `ix_scripts_project_id`: Essential for loading a project's scripts.
+  - `ix_scenes_script_id`: Essential for loading scenes in order.
+  - `ix_search_jobs_scene_id` & `ix_search_jobs_status`: Enables fast polling for pending/running jobs.
+  - `ix_assets_search_job_id` & `ix_assets_provider_name`: Speeds up filtering candidate assets by job and filtering/ranking them by provider.
+
+## Status Enums
+Strict PostgreSQL ENUM types replace arbitrary strings:
+- **Orientation:** `ALL`, `LANDSCAPE`, `PORTRAIT`, `SQUARE`
+- **JobStatus:** `PENDING`, `RUNNING`, `COMPLETED`, `FAILED`
