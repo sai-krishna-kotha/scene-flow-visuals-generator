@@ -23,6 +23,14 @@ RankingService (Heuristic Reranking)
 Final Result
 ```
 
+### API Layer (FastAPI) & Background Tasks (Celery + Redis)
+
+- Built with modern Python `FastAPI`.
+- Uses `Pydantic` for schema validation.
+- Long-running workflows (Gemini analysis, asset search, indexing) are enqueued to a **Celery** worker pool using **Redis** as a broker.
+- Architecture flow:
+  FastAPI -> SearchJob(PENDING) -> Redis -> Celery Worker -> Gemini -> Providers -> PostgreSQL / Qdrant -> Ranking -> SearchJob(COMPLETED)
+
 ### HTTP Router (`app/api/routes/`)
 - **Responsibilities:** Handles only HTTP concerns.
 - Deals with request parsing, status codes, Pydantic HTTP schema validation, dependency injection (FastAPI `Depends`), and mapping HTTP methods to Service layer methods.

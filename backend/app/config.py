@@ -30,6 +30,7 @@ class Settings(BaseSettings):
     EMBEDDING_MODEL: str = "all-MiniLM-L6-v2"
     QDRANT_URL: str = "http://localhost:6333"
     QDRANT_COLLECTION: str = "semantic_assets_v2"
+    REDIS_URL: str = "redis://localhost:6379/0"
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 

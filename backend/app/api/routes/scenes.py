@@ -41,20 +41,38 @@ def update_scene(scene_id: uuid.UUID, scene_in: SceneUpdate, service: SceneServi
 def delete_scene(scene_id: uuid.UUID, service: SceneService = Depends(get_scene_service)):
     service.delete_scene(scene_id)
 
-@router.post("/scenes/{scene_id}/search", response_model=SearchResponse)
+from app.worker.tasks import process_search_job
+from app.models.search_job import SearchJob, JobStatus
+from app.schemas.search_job import SearchJobResponse
+from fastapi import HTTPException
+
+@router.post("/scenes/{scene_id}/search", response_model=SearchJobResponse, status_code=status.HTTP_202_ACCEPTED)
 async def search_scene_assets(
     scene_id: uuid.UUID,
     request: SearchRequest,
-    service: SearchService = Depends(get_search_service),
+    db: Session = Depends(get_db),
     user_id: uuid.UUID = Depends(get_current_user)
 ):
     """
-    Executes a multi-provider asset search for a scene and persists the candidates.
+    Enqueues a background job to perform multi-provider asset search for a scene.
     """
-    return await service.search_assets_for_scene(
+    repo = SceneRepository(db)
+    scene = repo.get_by_id(scene_id)
+    if not scene:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Scene not found")
+    if scene.script.project.user_id != user_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to access this scene")
+
+    job = SearchJob(scene_id=scene_id, status=JobStatus.PENDING)
+    db.add(job)
+    db.commit()
+    db.refresh(job)
+
+    # Enqueue celery task
+    process_search_job.delay(str(job.id))
+
+    return SearchJobResponse(
+        job_id=job.id,
         scene_id=scene_id,
-        query=request.query,
-        orientation=request.orientation,
-        limit=request.limit,
-        user_id=user_id
+        status=job.status
     )
