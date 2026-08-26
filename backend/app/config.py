@@ -11,6 +11,10 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "Semantic Visual Asset Generator API"
     PROJECT_VERSION: str = "2.0.0"
 
+    # Gemini
+    GEMINI_API_KEY: str | None = None
+    GEMINI_MODEL: str = "gemini-2.5-flash"
+
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
 settings = Settings()
