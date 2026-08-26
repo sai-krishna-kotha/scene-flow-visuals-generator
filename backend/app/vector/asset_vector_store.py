@@ -19,22 +19,17 @@ class AssetVectorStore:
 
     def ensure_collection(self):
         """Creates the collection if it doesn't exist with the required dimension and Cosine metric."""
-        try:
-            # Check if exists
-            self.client.get_collection(self.collection_name)
-            logger.info(f"Qdrant collection '{self.collection_name}' already exists.")
-        except UnexpectedResponse as e:
-            if e.status_code == 404:
-                logger.info(f"Creating Qdrant collection '{self.collection_name}' with dimension {self.dimension}")
-                self.client.create_collection(
-                    collection_name=self.collection_name,
-                    vectors_config=qmodels.VectorParams(
-                        size=self.dimension,
-                        distance=qmodels.Distance.COSINE
-                    )
+        if not self.client.collection_exists(self.collection_name):
+            logger.info(f"Creating Qdrant collection '{self.collection_name}' with dimension {self.dimension}")
+            self.client.create_collection(
+                collection_name=self.collection_name,
+                vectors_config=qmodels.VectorParams(
+                    size=self.dimension,
+                    distance=qmodels.Distance.COSINE
                 )
-            else:
-                raise
+            )
+        else:
+            logger.info(f"Qdrant collection '{self.collection_name}' already exists.")
 
     def _determine_orientation(self, width: int, height: int) -> str:
         if not width or not height:
@@ -108,15 +103,15 @@ class AssetVectorStore:
         if qdrant_filters:
             filter_obj = qmodels.Filter(must=qdrant_filters)
 
-        search_result = self.client.search(
+        search_result = self.client.query_points(
             collection_name=self.collection_name,
-            query_vector=query_vector,
+            query=query_vector,
             query_filter=filter_obj,
             limit=top_k,
             with_payload=False # We don't need payload back, just the ID to query PostgreSQL
         )
 
-        return [{"asset_id": hit.id, "score": hit.score} for hit in search_result]
+        return [{"asset_id": hit.id, "score": hit.score} for hit in search_result.points]
 
     def delete_asset(self, asset_id: uuid.UUID):
         """Removes an asset vector from Qdrant by its ID."""

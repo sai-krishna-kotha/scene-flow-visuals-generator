@@ -38,6 +38,8 @@ class EmbeddingService:
         """
         self._ensure_model_loaded()
         
-        # We ensure it returns standard python floats not numpy arrays for serialization
-        embeddings = self._model.encode(text, convert_to_numpy=False, convert_to_tensor=False)
+        # Convert to numpy and then tolist() to ensure standard python floats
+        embeddings = self._model.encode(text, convert_to_numpy=True)
+        if hasattr(embeddings, "tolist"):
+            return embeddings.tolist()
         return embeddings

@@ -2,9 +2,10 @@ import pytest
 import uuid
 from unittest.mock import patch, MagicMock
 
-# Mock Qdrant client factory globally so NO test accidentally hits localhost:6333
-patch('app.vector.asset_vector_store.get_qdrant_client').start()
-
+@pytest.fixture(autouse=True)
+def mock_qdrant_global():
+    with patch('app.vector.asset_vector_store.get_qdrant_client') as mock:
+        yield mock
 from app.services.embeddings.embedding_service import EmbeddingService
 from app.services.embeddings.text_formatter import asset_to_embedding_text
 from app.models.asset import Asset
@@ -97,6 +98,13 @@ def test_semantic_search_service(mock_embed, mock_store):
     mock_store_instance = MagicMock()
     # Mock Qdrant return
     asset_id_str = str(uuid.uuid4())
+    mock_search_result = MagicMock()
+    
+    hit = MagicMock()
+    hit.id = asset_id_str
+    hit.score = 0.95
+    
+    mock_search_result.points = [hit]
     mock_store_instance.search.return_value = [{"asset_id": asset_id_str, "score": 0.95}]
     mock_store.return_value = mock_store_instance
     

@@ -26,21 +26,43 @@ def main():
     session = SessionLocal()
 
     print("\n1. Generating dummy Asset...")
-    test_id = uuid.uuid4()
-    dummy_asset = Asset(
-        id=test_id,
-        search_job_id=uuid.uuid4(), # fake
-        provider_name="test_provider",
-        provider_asset_id="12345",
-        asset_url="http://test.url",
-        alt_text="software engineer working late in an empty office at night",
-        width=1920,
-        height=1080
-    )
-    # We must insert to Postgres so SemanticSearchService can look it up
+    from app.models.user import User
+    from app.models.project import Project
+    from app.models.script import Script
+    from app.models.scene import Scene
+    from app.models.search_job import SearchJob, JobStatus
+
     try:
+        # Create hierarchy to satisfy Foreign Keys
+        test_user_id = uuid.uuid4()
+        test_project_id = uuid.uuid4()
+        test_script_id = uuid.uuid4()
+        test_scene_id = uuid.uuid4()
+        test_job_id = uuid.uuid4()
+        test_id = uuid.uuid4()
+
+        user = User(id=test_user_id, email=f"{test_user_id}@test.com", hashed_password="pw")
+        project = Project(id=test_project_id, user_id=test_user_id, name="Test")
+        script = Script(id=test_script_id, project_id=test_project_id, title="Test Script", full_text="test")
+        scene = Scene(id=test_scene_id, script_id=test_script_id, sentence_text="test", order=1)
+        job = SearchJob(id=test_job_id, scene_id=test_scene_id, status=JobStatus.COMPLETED)
+
+        session.add_all([user, project, script, scene, job])
+        session.commit()
+
+        dummy_asset = Asset(
+            id=test_id,
+            search_job_id=test_job_id,
+            provider_name="test_provider",
+            provider_asset_id="12345",
+            asset_url="http://test.url",
+            alt_text="software engineer working late in an empty office at night",
+            width=1920,
+            height=1080
+        )
         session.add(dummy_asset)
         session.commit()
+        print("   Dummy Asset created successfully in PostgreSQL.")
     except Exception as e:
         logger.error(f"Could not insert dummy asset: {e}")
         # Might fail due to FK on search_job_id if we don't have a real job.
@@ -53,6 +75,10 @@ def main():
         print("\n2. Initializing Embedding & Vector Indexing Services...")
         indexing_service = VectorIndexingService()
         semantic_search = SemanticSearchService(session)
+
+        if dummy_asset is None:
+            print("Skipping step 3 because dummy_asset creation failed.")
+            return
 
         print("\n3. Indexing dummy Asset...")
         # We index it anyway; Qdrant doesn't care about Postgres FKs
@@ -80,9 +106,12 @@ def main():
 
     finally:
         print("\n5. Cleaning up...")
-        from sqlalchemy import delete
-        session.execute(delete(Asset).where(Asset.id == test_id))
-        session.commit()
+        try:
+            from sqlalchemy import delete
+            session.execute(delete(User).where(User.id == test_user_id))
+            session.commit()
+        except Exception:
+            session.rollback()
         
         try:
             semantic_search.vector_store.delete_asset(test_id)
