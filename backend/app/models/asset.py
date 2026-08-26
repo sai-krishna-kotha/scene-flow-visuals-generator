@@ -13,7 +13,10 @@ class Asset(Base):
     search_job_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("search_jobs.id", ondelete="CASCADE"), index=True, nullable=False)
     
     provider_name: Mapped[str] = mapped_column(String(50), nullable=False, index=True)
+    provider_asset_id: Mapped[str] = mapped_column(String(255), nullable=False, index=True, default="")
     asset_url: Mapped[str] = mapped_column(String(1024), nullable=False)
+    thumbnail_url: Mapped[str | None] = mapped_column(String(1024), nullable=True)
+    source_url: Mapped[str | None] = mapped_column(String(1024), nullable=True)
     alt_text: Mapped[str | None] = mapped_column(Text, nullable=True)
     license_type: Mapped[str | None] = mapped_column(String(100), nullable=True)
     

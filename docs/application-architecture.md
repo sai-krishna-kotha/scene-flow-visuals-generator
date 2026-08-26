@@ -8,7 +8,7 @@ Requests flow predictably through the application layers:
 ```
 HTTP Router
     ↓
-Service
+Service  →  Provider Aggregator (Pexels, Pixabay, Openverse)
     ↓
 Repository
     ↓
@@ -48,6 +48,17 @@ Scene Text (from DB via Service)
 Gemini Service (`GeminiSceneAnalyzer`)
     ↓
 Structured `SceneAnalysis` (Pydantic Model)
+    ↓
+visual_queries
+    ↓
+Provider Aggregator (`AssetSearchService`)
+ ├── Pexels
+ ├── Pixabay
+ └── Openverse
+    ↓
+Normalized Candidates
+    ↓
+PostgreSQL Persistence (via `SearchService`)
 ```
 
 **Design Decisions:**

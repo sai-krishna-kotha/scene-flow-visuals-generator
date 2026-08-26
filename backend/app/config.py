@@ -20,6 +20,12 @@ class Settings(BaseSettings):
     GEMINI_API_KEY: str | None = None
     GEMINI_MODEL: str = "gemini-2.5-flash"
 
+    # Providers
+    PEXELS_API_KEY: str | None = None
+    PIXABAY_API_KEY: str | None = None
+    OPENVERSE_CLIENT_ID: str | None = None
+    OPENVERSE_CLIENT_SECRET: str | None = None
+
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
 settings = Settings()
