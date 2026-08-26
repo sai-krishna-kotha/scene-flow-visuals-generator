@@ -1,5 +1,6 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field
+import uuid
 
 class Settings(BaseSettings):
     # Minimum required variables
@@ -10,6 +11,10 @@ class Settings(BaseSettings):
     # FastAPI configs
     PROJECT_NAME: str = "Semantic Visual Asset Generator API"
     PROJECT_VERSION: str = "2.0.0"
+
+    # Authentication / Identity
+    # Temporary fallback user for development (00000000-0000-0000-0000-000000000000)
+    DEV_USER_ID: uuid.UUID = uuid.UUID("00000000-0000-0000-0000-000000000000")
 
     # Gemini
     GEMINI_API_KEY: str | None = None

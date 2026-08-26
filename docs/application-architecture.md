@@ -21,6 +21,7 @@ PostgreSQL
 - **Responsibilities:** Handles only HTTP concerns.
 - Deals with request parsing, status codes, Pydantic HTTP schema validation, dependency injection (FastAPI `Depends`), and mapping HTTP methods to Service layer methods.
 - **Rule:** Contains NO core business logic and NO direct SQLAlchemy calls.
+- **Identity & Authentication:** All routers rely on a clean dependency injection point: `get_current_user()` (located in `app/api/deps.py`). Currently, this is a development-only abstraction that resolves to a safe, configuration-driven `DEV_USER_ID`. In Phase 6 (Authentication), this single dependency will be swapped for a real JWT verifier, instantly securing all routes without requiring any route refactoring.
 
 ### Service Layer (`app/services/`)
 - **Responsibilities:** Contains the core application orchestration and business logic.

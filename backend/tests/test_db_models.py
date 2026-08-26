@@ -1,3 +1,7 @@
+# SQLite in-memory database is strictly used here for FAST, ISOLATED Unit Model tests.
+# This validates pure SQLAlchemy python-level logic (e.g. relationships, cascaded deletes).
+# It does NOT validate actual PostgreSQL constraints (like ENUMs).
+# For real schema verification, see test_postgres_schema.py
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker

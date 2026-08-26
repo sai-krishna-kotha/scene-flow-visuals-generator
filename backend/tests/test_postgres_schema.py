@@ -1,3 +1,9 @@
+# PostgreSQL Integration Schema Test
+# This connects strictly in a read-only mode to the actual live PostgreSQL database
+# (specified by DATABASE_URL) to ensure Alembic migrations correctly created
+# tables, columns, ENUMs, constraints, and indexes natively in Postgres.
+# See test_postgres_integration.py for actual data insertion testing.
+
 import pytest
 from sqlalchemy import create_engine, inspect, text
 from app.config import settings

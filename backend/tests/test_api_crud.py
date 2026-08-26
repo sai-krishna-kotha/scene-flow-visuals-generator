@@ -10,7 +10,10 @@ from app.schemas.ai import SceneAnalysis
 
 client = TestClient(fastapi_app)
 
-# We use the same SQLite memory db fixture from test_db_models.py but via override
+# SQLite in-memory database is strictly used here for FAST, ISOLATED Unit/API tests.
+# This validates HTTP parsing, Pydantic serialization, and FastAPI dependency wiring.
+# It does NOT validate PostgreSQL-specific constraints like Enums or Indexes.
+# See test_postgres_integration.py for actual PostgreSQL schema tests.
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
