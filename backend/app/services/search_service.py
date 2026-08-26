@@ -29,7 +29,7 @@ class SearchService:
         Executes a multi-provider search for a scene and persists the results.
         """
         # 1. Validate scene
-        scene = self.scene_repo.get(scene_id)
+        scene = self.scene_repo.get_by_id(scene_id)
         if not scene:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Scene not found")
         
