@@ -17,3 +17,6 @@ The core scope remains focused on the semantic visual asset workflow: taking scr
 
 ## Implementation Timeline
 **Note:** This document outlines the intended future state. Implementation of this V2 architecture will happen in later phases. The current Phase 1 focuses entirely on repository hygiene and preparation.
+
+## Phase 2: FastAPI Backend Foundation
+Phase 2 establishes the core FastAPI backend layout. It introduces a modular-monolith directory structure, integrating FastAPI, Pydantic settings, SQLAlchemy 2.x, and Alembic. The backend is placed in a separate `backend/` directory alongside the legacy Django app to allow for incremental feature migration. The foundational API exposes basic routing and health checks while maintaining a PostgreSQL-ready connection dependency.
