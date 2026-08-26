@@ -19,7 +19,10 @@ The database layer uses SQLAlchemy 2.x configured in `app/db/session.py`. It pro
 Alembic handles database migrations. It is explicitly configured in `alembic/env.py` to draw the `DATABASE_URL` dynamically from the Pydantic configuration (`app.config.settings`), preventing hardcoded credentials in `alembic.ini`.
 
 ## Testing Strategy
-Tests are written using `pytest` and `fastapi.testclient.TestClient`. They validate HTTP status codes and JSON response structures without strictly requiring a live database for basic routing checks like the `/health` endpoint.
+Tests are written using `pytest`. The testing suite clearly separates concerns:
+1. **API / Routing Tests**: Validates HTTP status codes and JSON responses via `fastapi.testclient.TestClient` (e.g., the `/health` endpoint).
+2. **Unit / Model Tests**: Validates SQLAlchemy schema configurations, relationship bindings, and `cascade` behaviors using an isolated SQLite in-memory database to prevent accidental data destruction.
+3. **Integration / Schema Tests**: Connects strictly in a read-only mode to the live PostgreSQL `DATABASE_URL` via SQLAlchemy Inspector to validate the schema, constraints, and ENUM types are successfully generated and intact, ensuring migration fidelity without risking live data.
 
 ## Why Alongside Django?
 This V2 backend foundation is being introduced alongside the old Django application temporarily to allow a phased migration. The Django application remains fully intact as a reference to preserve the existing business logic (Semantic search, Celery workflows) until they are properly ported and validated in the FastAPI environment.

@@ -113,4 +113,8 @@ def downgrade() -> None:
     op.drop_table('projects')
     op.drop_index(op.f('ix_users_email'), table_name='users')
     op.drop_table('users')
+    
+    # Drop ENUM types that are not automatically dropped
+    op.execute('DROP TYPE IF EXISTS orientation_enum CASCADE')
+    op.execute('DROP TYPE IF EXISTS jobstatus_enum CASCADE')
     # ### end Alembic commands ###
