@@ -8,9 +8,15 @@ Requests flow predictably through the application layers:
 ```
 HTTP Router
     ↓
-Service  →  Provider Aggregator (Pexels, Pixabay, Openverse)
+Service  →  Gemini Scene Analysis → visual_queries
     ↓
-Repository
+Service  →  Asset Retrieval (Pexels, Pixabay, Openverse)
+    ↓
+Sentence Transformer
+    ↓
+Qdrant (Top-K candidates)
+    ↓
+PostgreSQL (Authoritative Hydration)
     ↓
 SQLAlchemy
     ↓

@@ -26,6 +26,11 @@ class Settings(BaseSettings):
     OPENVERSE_CLIENT_ID: str | None = None
     OPENVERSE_CLIENT_SECRET: str | None = None
 
+    # Vector Search & ML
+    EMBEDDING_MODEL: str = "all-MiniLM-L6-v2"
+    QDRANT_URL: str = "http://localhost:6333"
+    QDRANT_COLLECTION: str = "semantic_assets_v2"
+
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
 settings = Settings()

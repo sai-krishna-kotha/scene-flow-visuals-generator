@@ -10,12 +10,14 @@ from app.models.asset import Asset
 from app.schemas.search import SearchResponse
 from app.schemas.provider import ProviderAsset
 from app.schemas.ai import SceneAnalysis
+from app.services.vector_indexing_service import VectorIndexingService
 
 class SearchService:
     def __init__(self, db: Session):
         self.db = db
         self.scene_repo = SceneRepository(db)
         self.provider_service = AssetSearchService()
+        self.indexing_service = VectorIndexingService()
 
     async def search_assets_for_scene(
         self, 
@@ -69,8 +71,22 @@ class SearchService:
                     )
                 )
             self.db.add_all(db_assets)
+            self.db.commit()
             
-            # 5. Mark Complete
+            # Refresh to get IDs
+            for a in db_assets:
+                self.db.refresh(a)
+                
+            # 5. Index into Qdrant
+            # Failure here should NOT rollback Postgres persistence
+            try:
+                self.indexing_service.index_assets(db_assets)
+            except Exception as index_e:
+                # Log explicitly but allow search workflow to succeed
+                import logging
+                logging.getLogger(__name__).error(f"Vector indexing failed for scene {scene_id}: {str(index_e)}")
+            
+            # 6. Mark Complete
             job.status = JobStatus.COMPLETED
             self.db.commit()
 

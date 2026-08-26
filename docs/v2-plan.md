@@ -27,14 +27,13 @@ The core scope remains focused on the semantic visual asset workflow: taking scr
 
 ## Completed Phases
 
-**Phase 1, 2, 3, 4, & 5** are finalized. The V2 backend is cleanly layered (Router -> Service -> Repository), interacts dynamically with PostgreSQL, natively integrates with Google GenAI for structured AI Storyboard Scene Intelligence, and executes highly-concurrent async provider searches across Pexels, Pixabay, and Openverse with normalized Postgres persistence.
+**Phase 1, 2, 3, 4, 5, & 6** are finalized. The V2 backend is cleanly layered (Router -> Service -> Repository), interacts dynamically with PostgreSQL, natively integrates with Google GenAI for structured AI Storyboard Scene Intelligence, and executes highly-concurrent async provider searches across Pexels, Pixabay, and Openverse with normalized Postgres persistence.
 
-## Next Phase: Phase 6 — Semantic Vector Search + Authentication
+## Next Phase: Phase 7 — Semantic Reranking & Authentication
 
-- Integrate `Qdrant` for vector embedding storage.
-- Introduce `Sentence Transformers` for semantic representation.
-- Calculate semantic scoring for the normalized asset candidates gathered during Phase 5.
-- Setup JWT Authentication to secure the V2 backend fully for user-scoped workflows.
+- [ ] Add Cross-Encoder or Learning-to-Rank for re-ranking Qdrant results
+- [ ] Add JWT authentication
+- [ ] Implement Redis-backed rate limiting / Celery task queues the V2 backend fully for user-scoped workflows.
 
 ## Phase 2: FastAPI Backend Foundation
 Phase 2 establishes the core FastAPI backend layout. It introduces a modular-monolith directory structure, integrating FastAPI, Pydantic settings, SQLAlchemy 2.x, and Alembic. The backend is placed in a separate `backend/` directory alongside the legacy Django app to allow for incremental feature migration. The foundational API exposes basic routing and health checks while maintaining a PostgreSQL-ready connection dependency.
