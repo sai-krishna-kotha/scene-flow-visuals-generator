@@ -74,7 +74,7 @@ export const JobPollingPage = () => {
         {job?.scene_id && (
           <Link to={`/scenes/${job.scene_id}`}>
             <Button variant="outline" size="sm" className="gap-2">
-              &larr; Back to Scene
+              Back to Scene
             </Button>
           </Link>
         )}

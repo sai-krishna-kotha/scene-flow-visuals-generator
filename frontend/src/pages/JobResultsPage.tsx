@@ -82,7 +82,7 @@ export const JobResultsPage = () => {
         ]} />
         <Link to={`/scenes/${scene?.id}`}>
           <Button variant="outline" size="sm" className="gap-2">
-            &larr; Back to Scene
+            Back to Scene
           </Button>
         </Link>
       </div>
@@ -246,7 +246,7 @@ const AssetCard = ({ item, rank }: { item: SemanticSearchResult, rank: number })
               onClick={(e) => { e.stopPropagation(); setIsFlipped(false); }}
               aria-label="See image"
             >
-              &larr; See Image
+              See Image
             </Button>
           </div>
         </div>

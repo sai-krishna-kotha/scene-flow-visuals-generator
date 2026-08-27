@@ -77,7 +77,7 @@ export const ScriptPage = () => {
         ]} />
         <Link to={`/projects/${projectId}`}>
           <Button variant="outline" size="sm" className="gap-2">
-            &larr; Back to Project
+            Back to Project
           </Button>
         </Link>
       </div>

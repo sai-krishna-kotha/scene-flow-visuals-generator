@@ -106,7 +106,7 @@ export const ScenePage = () => {
         ]} />
         <Link to={`/projects/${project?.id}/scripts/${script?.id}`}>
           <Button variant="outline" size="sm" className="gap-2">
-            &larr; Back to Script
+            Back to Script
           </Button>
         </Link>
       </div>
@@ -154,7 +154,7 @@ export const ScenePage = () => {
               onClick={() => prevScene && navigate(`/scenes/${prevScene.id}`)}
               className="bg-white"
             >
-              &larr; Previous Scene
+              Previous Scene
             </Button>
             <span className="text-sm font-bold text-surface-700">
               Scene {scene?.order || 0} of {scriptScenes.length || 0}
@@ -166,7 +166,7 @@ export const ScenePage = () => {
               onClick={() => nextScene && navigate(`/scenes/${nextScene.id}`)}
               className="bg-white"
             >
-              Next Scene &rarr;
+              Next Scene
             </Button>
           </div>
         )}
