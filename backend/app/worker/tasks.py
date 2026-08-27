@@ -141,6 +141,7 @@ def process_search_job(self, search_job_id_str: str):
                 
                 # Map asset_id -> vector
                 vector_map = {point.id: point.vector for point in qdrant_points if point.vector}
+                logger.info(f"Retrieved {len(vector_map)} vectors from Qdrant out of {len(session_assets)} assets.")
                 
                 import numpy as np
                 from app.services.embeddings.embedding_service import EmbeddingService
@@ -159,6 +160,7 @@ def process_search_job(self, search_job_id_str: str):
                         sims = [np.dot(np.array(qv), vec_np) for qv in query_vectors]
                         max_sim = float(max(sims))
                     else:
+                        logger.warning(f"No vector found for asset {asset.id} in Qdrant.")
                         max_sim = 0.0
                     similarities.append(max_sim)
                     

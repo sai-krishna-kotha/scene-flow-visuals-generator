@@ -73,7 +73,8 @@ class AssetVectorStore:
 
         self.client.upsert(
             collection_name=self.collection_name,
-            points=points
+            points=points,
+            wait=True
         )
 
     def search(self, query_vector: List[float], top_k: int = 10, filters: Optional[Dict[str, Any]] = None) -> List[dict]:
