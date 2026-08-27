@@ -51,9 +51,7 @@ const Header = () => {
       </nav>
       
       <div className="ml-auto flex items-center">
-        <div className="w-8 h-8 rounded-full bg-surface-100 flex items-center justify-center text-surface-700 font-medium text-sm border border-surface-200">
-          WK
-        </div>
+        {/* Placeholder for future auth/user menu */}
       </div>
     </header>
   );

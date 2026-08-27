@@ -50,7 +50,7 @@ export const DashboardPage = () => {
   if (loading && projects.length === 0) return <Loader text="Loading projects..." />;
 
   return (
-    <div className="space-y-8 max-w-5xl mx-auto">
+    <div className="space-y-8 max-w-6xl mx-auto">
       <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 border-b border-surface-200 pb-6">
         <div>
           <h1 className="text-3xl font-extrabold text-surface-900 tracking-tight">SceneFlow AI Storyboard Intelligence</h1>

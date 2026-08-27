@@ -1,5 +1,5 @@
 import React from 'react';
-import { Loader2 } from 'lucide-react';
+import { Loader2, X } from 'lucide-react';
 
 export const Loader = ({ text = "Loading..." }: { text?: string }) => (
   <div className="flex flex-col items-center justify-center p-12 space-y-4">
@@ -93,5 +93,64 @@ export const Breadcrumbs = ({ items }: { items: { label: string, href?: string }
         ))}
       </ol>
     </nav>
+  );
+};
+
+export const Modal = ({ 
+  isOpen, 
+  onClose, 
+  title, 
+  children,
+  maxWidth = "max-w-md"
+}: { 
+  isOpen: boolean; 
+  onClose: () => void; 
+  title: string; 
+  children: React.ReactNode;
+  maxWidth?: string;
+}) => {
+  React.useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'hidden';
+    }
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+      <div 
+        className="absolute inset-0 bg-surface-900/40 backdrop-blur-sm transition-opacity"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+      <div 
+        className={`relative bg-white rounded-xl shadow-xl w-full ${maxWidth} flex flex-col max-h-[90vh] overflow-hidden animate-in fade-in zoom-in-95 duration-200`}
+        role="dialog"
+        aria-modal="true"
+      >
+        <div className="flex items-center justify-between px-6 py-4 border-b border-surface-100">
+          <h2 className="text-lg font-bold text-surface-900">{title}</h2>
+          <button 
+            onClick={onClose}
+            className="p-2 -mr-2 text-surface-400 hover:text-surface-600 hover:bg-surface-100 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500"
+            aria-label="Close modal"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        <div className="p-6 overflow-y-auto">
+          {children}
+        </div>
+      </div>
+    </div>
   );
 };
