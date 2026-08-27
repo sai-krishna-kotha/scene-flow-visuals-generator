@@ -97,7 +97,7 @@ export const ScenePage = () => {
 
   return (
     <div className="space-y-8 max-w-6xl mx-auto">
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex items-center justify-between mb-4">
         <Breadcrumbs items={[
           { label: 'Projects', href: '/' },
           { label: project?.name || 'Project', href: `/projects/${project?.id}` },
@@ -110,57 +110,66 @@ export const ScenePage = () => {
           </Button>
         </Link>
       </div>
-        <div className="flex items-center gap-6 bg-white px-4 py-2 rounded-lg border border-surface-200 shadow-sm">
-          {prevScene ? (
-            <Link to={`/scenes/${prevScene.id}`} className="text-sm font-medium text-surface-500 hover:text-primary-600 transition-colors">
-              &larr; Prev
-            </Link>
-          ) : (
-            <span className="text-sm font-medium text-surface-300 cursor-not-allowed">&larr; Prev</span>
-          )}
-          <span className="text-sm font-bold text-surface-700">
-            Scene {scene?.order || 0} / {scriptScenes.length || 0}
-          </span>
-          {nextScene ? (
-            <Link to={`/scenes/${nextScene.id}`} className="text-sm font-medium text-surface-500 hover:text-primary-600 transition-colors">
-              Next &rarr;
-            </Link>
-          ) : (
-            <span className="text-sm font-medium text-surface-300 cursor-not-allowed">Next &rarr;</span>
-          )}
-        </div>
 
-      <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-6 border-b border-surface-200 pb-6">
-        <div>
-          <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-3xl font-extrabold text-surface-900 tracking-tight">Scene {scene?.order}</h1>
-            {scene?.status === 'analyzed' ? (
-              <Badge variant="success">Analyzed</Badge>
-            ) : (
-              <Badge variant="warning">Pending Analysis</Badge>
-            )}
+      <div className="border-b border-surface-200 pb-6 space-y-6">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-6">
+          <div>
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl font-extrabold text-surface-900 tracking-tight">Scene {scene?.order}</h1>
+              {isAnalyzing ? (
+                <span className="text-sm font-medium text-surface-500 bg-surface-100 px-2.5 py-1 rounded-md">Analyzing...</span>
+              ) : scene?.status === 'analyzed' ? (
+                <span className="text-sm font-medium text-surface-500 bg-surface-100 px-2.5 py-1 rounded-md">Analyzed</span>
+              ) : null}
+            </div>
+          </div>
+          
+          <div className="flex flex-wrap items-center gap-3 shrink-0">
+            <Button 
+              onClick={handleAnalyze} 
+              isLoading={isAnalyzing}
+              disabled={isAnalyzing || isSearching} 
+              variant="outline"
+            >
+              {!isAnalyzing && <BrainCircuit className="w-4 h-4 mr-2 text-primary-600" />}
+              Analyze with Gemini
+            </Button>
+            <Button 
+              onClick={handleSearch} 
+              isLoading={isSearching}
+              disabled={isSearching || isAnalyzing || scene?.status !== 'analyzed'} 
+            >
+              {!isSearching && <Search className="w-4 h-4 mr-2" />}
+              Search Visual Assets
+            </Button>
           </div>
         </div>
-        
-        <div className="flex flex-wrap items-center gap-3 shrink-0">
-          <Button 
-            onClick={handleAnalyze} 
-            isLoading={isAnalyzing}
-            disabled={isAnalyzing || isSearching} 
-            variant="outline"
-          >
-            {!isAnalyzing && <BrainCircuit className="w-4 h-4 mr-2 text-primary-600" />}
-            Analyze with Gemini
-          </Button>
-          <Button 
-            onClick={handleSearch} 
-            isLoading={isSearching}
-            disabled={isSearching || isAnalyzing || scene?.status !== 'analyzed'} 
-          >
-            {!isSearching && <Search className="w-4 h-4 mr-2" />}
-            Search Visual Assets
-          </Button>
-        </div>
+
+        {scriptScenes.length > 1 && (
+          <div className="flex justify-between items-center bg-surface-50 px-4 py-2.5 rounded-lg border border-surface-200">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              disabled={!prevScene} 
+              onClick={() => prevScene && navigate(`/scenes/${prevScene.id}`)}
+              className="bg-white"
+            >
+              &larr; Previous Scene
+            </Button>
+            <span className="text-sm font-bold text-surface-700">
+              Scene {scene?.order || 0} of {scriptScenes.length || 0}
+            </span>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              disabled={!nextScene} 
+              onClick={() => nextScene && navigate(`/scenes/${nextScene.id}`)}
+              className="bg-white"
+            >
+              Next Scene &rarr;
+            </Button>
+          </div>
+        )}
       </div>
 
       {error && <ErrorMessage message={error} onRetry={fetchData} />}
