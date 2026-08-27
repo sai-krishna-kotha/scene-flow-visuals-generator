@@ -89,7 +89,7 @@ export const ScriptPage = () => {
   if (loading && !script) return <Loader text="Loading script..." />;
 
   return (
-    <div className="space-y-8 max-w-6xl mx-auto">
+    <div className="space-y-8 w-full">
       <div className="flex items-center justify-between mb-2">
         <Breadcrumbs items={[
           { label: 'Projects', href: '/' },
@@ -161,15 +161,15 @@ export const ScriptPage = () => {
         ) : (
           <div className="grid grid-cols-1 gap-4">
             {scenes.map(s => (
-              <Link key={s.id} to={`/scenes/${s.id}`} className="block group outline-none">
-                <div className="bg-white border border-surface-200 rounded-xl p-5 hover:border-primary-400 hover:shadow-md transition-all flex items-start md:items-center gap-5 group-focus-visible:ring-2 group-focus-visible:ring-primary-500">
-                  <div className="w-12 h-12 rounded-full bg-surface-100 text-surface-600 group-hover:bg-primary-100 group-hover:text-primary-700 flex items-center justify-center font-bold flex-shrink-0 transition-colors text-lg">
-                    {s.order}
+              <div key={s.id} className="bg-white border border-surface-200 rounded-xl p-5 hover:border-primary-400 transition-colors flex flex-col md:flex-row md:items-start justify-between gap-4">
+                <div className="flex items-start gap-4 flex-1 min-w-0">
+                  <div className="w-10 h-10 rounded-full bg-surface-100 text-surface-600 flex items-center justify-center font-bold flex-shrink-0 text-base">
+                    {s.order < 10 ? `0${s.order}` : s.order}
                   </div>
-                  <div className="flex-1 min-w-0 md:pr-4">
-                    {s.title && <h3 className="text-surface-900 font-bold text-lg mb-1">{s.title}</h3>}
-                    <p className="text-surface-700 font-medium text-base leading-relaxed mb-2 line-clamp-3">{s.sentence_text}</p>
-                    <div className="flex items-center gap-3 text-sm">
+                  <div className="flex-1 min-w-0">
+                    {s.title && <h3 className="text-surface-900 font-bold text-base mb-1">{s.title}</h3>}
+                    <p className="text-surface-600 font-medium text-sm leading-relaxed mb-2 line-clamp-2">{s.sentence_text}</p>
+                    <div className="flex items-center gap-3 text-xs">
                       {s.status === 'analyzed' ? (
                         <Badge variant="success">Analyzed</Badge>
                       ) : (
@@ -177,12 +177,15 @@ export const ScriptPage = () => {
                       )}
                     </div>
                   </div>
-                  <div className="hidden md:flex items-center shrink-0 pl-6 border-l border-surface-100 h-full">
-                    <span className="text-sm font-semibold text-primary-600 group-hover:text-primary-700 mr-2">Open Scene</span>
-                    <ChevronRight className="w-4 h-4 text-primary-500" />
-                  </div>
                 </div>
-              </Link>
+                <div className="shrink-0 flex items-center mt-2 md:mt-0">
+                  <Link to={`/scenes/${s.id}`}>
+                    <Button variant="outline" size="sm">
+                      Open Scene
+                    </Button>
+                  </Link>
+                </div>
+              </div>
             ))}
           </div>
         )}

@@ -14,7 +14,7 @@ export const ProjectPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useDocumentTitle(project ? `SceneFlow — ${project.name}` : 'SceneFlow — Project');
+  useDocumentTitle(project ? project.name : 'Project');
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
@@ -68,7 +68,7 @@ export const ProjectPage = () => {
   if (loading && !project) return <Loader text="Loading project..." />;
 
   return (
-    <div className="space-y-8 max-w-6xl mx-auto">
+    <div className="space-y-8 w-full">
       <Breadcrumbs items={[
         { label: 'Projects', href: '/' },
         { label: project?.name || 'Project' }
@@ -104,28 +104,29 @@ export const ProjectPage = () => {
             </Button>
           </div>
         ) : (
-          <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4">
             {scripts.map(s => (
-              <Link key={s.id} to={`/projects/${projectId}/scripts/${s.id}`} className="block group outline-none">
-                <div className="bg-white border border-surface-200 rounded-xl p-5 md:p-6 hover:border-primary-400 hover:shadow-md transition-all flex flex-col md:flex-row md:items-center justify-between gap-6 group-focus-visible:ring-2 group-focus-visible:ring-primary-500">
-                  <div className="flex-1 min-w-0 max-w-3xl">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="font-bold text-xl text-surface-900 group-hover:text-primary-600 transition-colors truncate">{s.title}</h3>
-                      <Badge variant="outline" className="capitalize shrink-0">{s.orientation_preference}</Badge>
-                    </div>
-                    <p className="text-base text-surface-600 line-clamp-2 leading-relaxed">{s.full_text}</p>
-                    <div className="flex items-center gap-2 mt-4 text-sm font-medium text-surface-400">
-                      {s.updated_at && (
-                        <span>Updated {new Date(s.updated_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
-                      )}
-                    </div>
+              <div key={s.id} className="bg-white border border-surface-200 rounded-xl p-5 hover:border-primary-400 transition-colors flex flex-col md:flex-row md:items-start justify-between gap-4">
+                <div className="flex-1 min-w-0 max-w-3xl">
+                  <div className="flex items-center gap-3 mb-1">
+                    <h3 className="font-bold text-lg text-surface-900 truncate">{s.title}</h3>
+                    <Badge variant="outline" className="capitalize shrink-0">{s.orientation_preference}</Badge>
                   </div>
-                  <div className="flex items-center shrink-0 md:pl-6 md:border-l border-surface-100 h-full">
-                    <span className="text-sm font-semibold text-primary-600 group-hover:text-primary-700 mr-2">Open Script</span>
-                    <ChevronRight className="w-4 h-4 text-primary-500" />
+                  <p className="text-sm text-surface-600 line-clamp-2 leading-relaxed mb-3">{s.full_text}</p>
+                  <div className="text-xs font-medium text-surface-400">
+                    {s.updated_at && (
+                      <span>Updated {new Date(s.updated_at).toLocaleDateString()}</span>
+                    )}
                   </div>
                 </div>
-              </Link>
+                <div className="shrink-0 flex items-center mt-2 md:mt-0">
+                  <Link to={`/projects/${projectId}/scripts/${s.id}`}>
+                    <Button variant="outline" size="sm">
+                      Open Script
+                    </Button>
+                  </Link>
+                </div>
+              </div>
             ))}
           </div>
         )}

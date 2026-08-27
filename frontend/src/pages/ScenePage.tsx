@@ -96,7 +96,7 @@ export const ScenePage = () => {
   const nextScene = currentIndex >= 0 && currentIndex < scriptScenes.length - 1 ? scriptScenes[currentIndex + 1] : null;
 
   return (
-    <div className="space-y-8 max-w-6xl mx-auto">
+    <div className="space-y-8 w-full">
       <div className="flex items-center justify-between mb-4">
         <Breadcrumbs items={[
           { label: 'Projects', href: '/' },
@@ -132,7 +132,7 @@ export const ScenePage = () => {
               variant="outline"
             >
               {!isAnalyzing && <BrainCircuit className="w-4 h-4 mr-2 text-primary-600" />}
-              Analyze with Gemini
+              {isAnalyzing ? 'Analyzing...' : 'Analyze with Gemini'}
             </Button>
             <Button 
               onClick={handleSearch} 
@@ -140,7 +140,7 @@ export const ScenePage = () => {
               disabled={isSearching || isAnalyzing || scene?.status !== 'analyzed'} 
             >
               {!isSearching && <Search className="w-4 h-4 mr-2" />}
-              Search Visual Assets
+              Find Visual Assets
             </Button>
           </div>
         </div>
@@ -174,93 +174,87 @@ export const ScenePage = () => {
 
       {error && <ErrorMessage message={error} onRetry={fetchData} />}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="space-y-6">
-          <h2 className="text-xl font-bold text-surface-900 border-b border-surface-200 pb-2">Scene Context</h2>
-          <div className="bg-white p-6 rounded-xl border border-surface-200 shadow-sm space-y-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <div className="space-y-4">
+          <h2 className="text-xs font-bold text-surface-500 uppercase tracking-wider">Scene Context</h2>
+          <div>
             <p className="text-lg text-surface-900 font-medium leading-relaxed italic border-l-4 border-primary-200 pl-4 py-1">
               "{scene?.sentence_text}"
             </p>
-            
-            <div className="pt-4 mt-4 border-t border-surface-100 flex gap-6 text-sm text-surface-600">
-              <div>
-                <span className="font-semibold block text-surface-500 uppercase tracking-wider text-xs mb-1">Orientation</span>
-                <span className="capitalize">{script?.orientation_preference}</span>
-              </div>
-              <div>
-                <span className="font-semibold block text-surface-500 uppercase tracking-wider text-xs mb-1">Created</span>
-                <span>{scene?.created_at ? new Date(scene.created_at).toLocaleDateString() : 'Unknown'}</span>
-              </div>
+            <div className="mt-3 flex items-center gap-2 text-sm text-surface-500 font-medium">
+              <span className="capitalize">{script?.orientation_preference}</span>
+              {scene?.updated_at && (
+                <>
+                  <span>&middot;</span>
+                  <span>Updated {new Date(scene.updated_at).toLocaleDateString()}</span>
+                </>
+              )}
             </div>
           </div>
         </div>
 
-        <div className="space-y-6">
-          <h2 className="text-xl font-bold text-surface-900 border-b border-surface-200 pb-2">AI Scene Intelligence</h2>
+        <div className="space-y-4">
+          <h2 className="text-xs font-bold text-surface-500 uppercase tracking-wider">AI Scene Intelligence</h2>
           
           {!analysis ? (
-            <div className="bg-surface-50 p-8 rounded-xl border border-surface-200 border-dashed text-center">
-              <BrainCircuit className="w-10 h-10 mx-auto text-surface-300 mb-3" />
-              <p className="text-surface-600 font-medium">No analysis available</p>
-              <p className="text-sm text-surface-500 mt-1">Run "Analyze with Gemini" to extract visual intelligence.</p>
+            <div className="space-y-3">
+              <p className="text-surface-600 font-medium text-sm">Turn this scene into structured visual intelligence.</p>
+              <Button onClick={handleAnalyze} isLoading={isAnalyzing} disabled={isAnalyzing || isSearching} variant="outline" size="sm">
+                {!isAnalyzing && <BrainCircuit className="w-4 h-4 mr-2 text-primary-600" />}
+                {isAnalyzing ? 'Analyzing...' : 'Analyze with Gemini'}
+              </Button>
             </div>
           ) : (
-            <div className="bg-white rounded-xl border border-primary-200 shadow-sm overflow-hidden">
-              <div className="bg-primary-50 p-4 border-b border-primary-100">
+            <div className="space-y-5">
+              <div>
+                <h3 className="text-[10px] font-bold text-surface-400 uppercase tracking-wider mb-1">Summary</h3>
                 <p className="text-surface-900 text-sm font-medium leading-relaxed">
                   {analysis.summary}
                 </p>
               </div>
               
-              <div className="p-4 grid grid-cols-2 gap-x-4 gap-y-6">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <h3 className="text-xs font-bold text-surface-500 uppercase tracking-wider mb-2">Subjects</h3>
+                  <h3 className="text-[10px] font-bold text-surface-400 uppercase tracking-wider mb-1.5">Subjects</h3>
                   <div className="flex flex-wrap gap-1.5">
                     {analysis.subjects.map((item, i) => (
-                      <Badge key={i} variant="default">{item}</Badge>
+                      <span key={i} className="text-xs font-medium text-surface-700 bg-surface-100 px-2 py-0.5 rounded">{item}</span>
                     ))}
                   </div>
                 </div>
                 
                 <div>
-                  <h3 className="text-xs font-bold text-surface-500 uppercase tracking-wider mb-2">Actions</h3>
+                  <h3 className="text-[10px] font-bold text-surface-400 uppercase tracking-wider mb-1.5">Actions</h3>
                   <div className="flex flex-wrap gap-1.5">
                     {analysis.actions.map((item, i) => (
-                      <Badge key={i} variant="default">{item}</Badge>
+                      <span key={i} className="text-xs font-medium text-surface-700 bg-surface-100 px-2 py-0.5 rounded">{item}</span>
                     ))}
                   </div>
                 </div>
                 
                 <div>
-                  <h3 className="text-xs font-bold text-surface-500 uppercase tracking-wider mb-2">Environment</h3>
+                  <h3 className="text-[10px] font-bold text-surface-400 uppercase tracking-wider mb-1.5">Environment</h3>
                   <div className="flex flex-wrap gap-1.5">
                     {analysis.environment.map((item, i) => (
-                      <Badge key={i} variant="default">{item}</Badge>
+                      <span key={i} className="text-xs font-medium text-surface-700 bg-surface-100 px-2 py-0.5 rounded">{item}</span>
                     ))}
                   </div>
                 </div>
                 
                 <div>
-                  <h3 className="text-xs font-bold text-surface-500 uppercase tracking-wider mb-2">Context</h3>
-                  <div className="space-y-1.5 text-sm">
-                    <div className="flex items-center gap-2">
-                      <span className="text-surface-500 font-medium">Mood:</span>
-                      <span className="text-surface-900 font-medium">{analysis.mood}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-surface-500 font-medium">Time:</span>
-                      <span className="text-surface-900 font-medium">{analysis.time_context}</span>
-                    </div>
+                  <h3 className="text-[10px] font-bold text-surface-400 uppercase tracking-wider mb-1.5">Mood & Time</h3>
+                  <div className="text-xs font-medium text-surface-700 space-y-1">
+                    <div>{analysis.mood}</div>
+                    <div>{analysis.time_context}</div>
                   </div>
                 </div>
               </div>
               
-              <div className="p-4 bg-surface-50 border-t border-surface-100">
-                <h3 className="text-xs font-bold text-surface-500 uppercase tracking-wider mb-3">Generated Visual Search Queries</h3>
+              <div className="pt-2">
+                <h3 className="text-[10px] font-bold text-surface-400 uppercase tracking-wider mb-2">Visual Search Intent</h3>
                 <div className="flex flex-wrap gap-2">
                   {analysis.visual_queries.map((q, i) => (
-                    <span key={i} className="px-3 py-1.5 bg-white border border-surface-300 rounded-md text-sm font-medium text-primary-700 shadow-sm flex items-center hover:bg-primary-50 transition-colors cursor-default">
-                      <Search className="w-3 h-3 mr-1.5 opacity-50" />
+                    <span key={i} className="px-2.5 py-1 bg-primary-50 text-primary-700 border border-primary-100 rounded text-xs font-medium flex items-center">
                       {q}
                     </span>
                   ))}
@@ -272,21 +266,19 @@ export const ScenePage = () => {
       </div>
 
       <div className="mt-8 border-t border-surface-200 pt-8">
-        <h2 className="text-xl font-bold text-surface-900 mb-6">Visual Search History</h2>
+        <h2 className="text-sm font-bold text-surface-500 uppercase tracking-wider mb-4">Visual Search History</h2>
         
         {jobs.length === 0 ? (
-          <div className="bg-surface-50 p-8 rounded-xl border border-surface-200 border-dashed text-center">
-            <Search className="w-10 h-10 mx-auto text-surface-300 mb-3" />
-            <p className="text-surface-600 font-medium">No previous searches</p>
-            <p className="text-sm text-surface-500 mt-1">Run a visual search to generate assets for this scene.</p>
+          <div className="text-surface-500 text-sm italic">
+            No previous searches.
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="space-y-3">
             {jobs.map((job, index) => (
-              <div key={job.job_id} className="bg-white rounded-xl border border-surface-200 shadow-sm p-5 flex flex-col justify-between hover:border-primary-300 transition-colors">
+              <div key={job.job_id} className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-3 border-b border-surface-100 last:border-0">
                 <div>
-                  <h3 className="font-bold text-surface-900 mb-1 text-lg">Search {jobs.length - index}</h3>
-                  <div className="flex items-center gap-2 text-sm text-surface-600 mb-3">
+                  <h3 className="font-bold text-surface-900 text-sm">Search {jobs.length - index}</h3>
+                  <div className="flex items-center gap-2 text-xs text-surface-500 mt-0.5">
                     <span className="capitalize font-medium">{job.status.toLowerCase()}</span>
                     {job.status === 'COMPLETED' && job.result_count !== undefined && (
                       <>
@@ -295,14 +287,14 @@ export const ScenePage = () => {
                       </>
                     )}
                   </div>
-                  <div className="text-sm text-surface-700 italic line-clamp-2 leading-snug bg-surface-50 p-2 rounded border border-surface-100">
+                  <div className="text-sm text-surface-700 italic mt-1.5">
                     {job.requested_query ? `"${job.requested_query}"` : 'Original query unavailable'}
                   </div>
                 </div>
                 
-                <div className="mt-5 pt-4 border-t border-surface-100">
+                <div className="shrink-0">
                   <Link to={`/jobs/${job.job_id}${job.status === 'COMPLETED' ? '/results' : ''}`}>
-                    <Button variant="outline" className="w-full">
+                    <Button variant="outline" size="sm">
                       {job.status === 'COMPLETED' ? 'View Results' : 'View Progress'}
                     </Button>
                   </Link>

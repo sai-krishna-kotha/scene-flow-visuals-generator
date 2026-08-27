@@ -13,7 +13,7 @@ export const JobPollingPage = () => {
   const { job, error } = useJobPolling(jobId);
   const [searchNumber, setSearchNumber] = useState<number | null>(null);
 
-  useDocumentTitle('Visual Search');
+  useDocumentTitle('Search Job');
 
   useEffect(() => {
     if (job?.scene_id && jobId) {

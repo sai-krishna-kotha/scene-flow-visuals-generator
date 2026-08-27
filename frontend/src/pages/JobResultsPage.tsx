@@ -71,7 +71,7 @@ export const JobResultsPage = () => {
   );
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="space-y-6 w-full">
       <div className="flex items-center justify-between mb-2">
         <Breadcrumbs items={[
           { label: 'Projects', href: '/' },
@@ -131,7 +131,7 @@ const AssetCard = ({ item, rank }: { item: SemanticSearchResult, rank: number })
     <div className="group rounded-xl h-full" style={{ perspective: '1000px' }}>
       <div 
         data-testid={`flip-card-${item.asset.id}`}
-        className="w-full h-full relative rounded-xl transition-transform duration-[400ms] shadow-sm hover:shadow-xl" 
+        className="w-full h-full relative rounded-xl transition-transform duration-[400ms] shadow-sm hover:shadow-xl grid" 
         style={{ 
           transformStyle: 'preserve-3d', 
           transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)'
@@ -139,7 +139,7 @@ const AssetCard = ({ item, rank }: { item: SemanticSearchResult, rank: number })
       >
         {/* FRONT FACE */}
         <div 
-          className="w-full h-full flex flex-col bg-white rounded-xl border border-surface-200 overflow-hidden"
+          className="flex flex-col bg-white rounded-xl border border-surface-200 overflow-hidden col-start-1 row-start-1"
           style={{ backfaceVisibility: 'hidden' }}
         >
           <div className="relative aspect-video bg-surface-100 flex items-center justify-center overflow-hidden">
@@ -203,7 +203,7 @@ const AssetCard = ({ item, rank }: { item: SemanticSearchResult, rank: number })
 
         {/* BACK FACE */}
         <div 
-          className="absolute inset-0 w-full h-full flex flex-col bg-white rounded-xl border border-surface-200 overflow-hidden p-4"
+          className="flex flex-col bg-white rounded-xl border border-surface-200 overflow-hidden p-4 col-start-1 row-start-1"
           style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
         >
           <div className="flex-1 flex flex-col">
@@ -212,25 +212,25 @@ const AssetCard = ({ item, rank }: { item: SemanticSearchResult, rank: number })
               <div className="flex justify-between items-center">
                 <span className="text-surface-600 font-medium text-xs">Semantic relevance</span>
                 <span className="font-mono font-medium text-surface-900 text-xs">
-                  {item.features?.semantic_score !== null && item.features?.semantic_score !== undefined ? item.features.semantic_score.toFixed(3) : 'N/A'}
+                  {item.features?.semantic_score !== null && item.features?.semantic_score !== undefined ? item.features.semantic_score.toFixed(3) : 'Score unavailable'}
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-surface-600 font-medium text-xs">Resolution</span>
                 <span className="font-mono font-medium text-surface-900 text-xs">
-                  {item.features?.resolution_score !== null && item.features?.resolution_score !== undefined ? item.features.resolution_score.toFixed(3) : 'N/A'}
+                  {item.features?.resolution_score !== null && item.features?.resolution_score !== undefined ? item.features.resolution_score.toFixed(3) : 'Score unavailable'}
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-surface-600 font-medium text-xs">Orientation</span>
                 <span className="font-mono font-medium text-surface-900 text-xs">
-                  {item.features?.orientation_score !== null && item.features?.orientation_score !== undefined ? item.features.orientation_score.toFixed(3) : 'N/A'}
+                  {item.features?.orientation_score !== null && item.features?.orientation_score !== undefined ? item.features.orientation_score.toFixed(3) : 'Score unavailable'}
                 </span>
               </div>
               <div className="flex justify-between items-center pt-2 mt-2 border-t border-surface-100">
                 <span className="text-surface-900 font-bold text-xs">Final score</span>
                 <span className="font-mono font-bold text-primary-700 text-xs">
-                  {item.features?.final_score !== null && item.features?.final_score !== undefined ? item.features.final_score.toFixed(3) : 'N/A'}
+                  {item.features?.final_score !== null && item.features?.final_score !== undefined ? item.features.final_score.toFixed(3) : 'Score unavailable'}
                 </span>
               </div>
             </div>

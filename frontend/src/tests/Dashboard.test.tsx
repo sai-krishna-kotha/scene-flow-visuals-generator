@@ -57,10 +57,10 @@ describe('DashboardPage', () => {
       expect(screen.getByText('No projects yet')).toBeInTheDocument();
     });
 
-    const input = screen.getByPlaceholderText('e.g. Sci-Fi Short Film');
+    const input = screen.getByPlaceholderText('Project Name...');
     fireEvent.change(input, { target: { value: 'New Project' } });
     
-    const submitBtn = screen.getByText('Create Project');
+    const submitBtn = screen.getByText('Create');
     fireEvent.click(submitBtn);
 
     await waitFor(() => {

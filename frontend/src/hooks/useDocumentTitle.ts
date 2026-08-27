@@ -2,6 +2,6 @@ import { useEffect } from 'react';
 
 export const useDocumentTitle = (title: string) => {
   useEffect(() => {
-    document.title = title ? `${title} — SceneFlow` : 'SceneFlow';
+    document.title = title ? `SceneFlow — ${title}` : 'SceneFlow';
   }, [title]);
 };

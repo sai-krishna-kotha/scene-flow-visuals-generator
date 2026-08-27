@@ -63,8 +63,8 @@ describe('ScenePage Component', () => {
     // Wait for the scene to load
     await screen.findByText(/A test scene sentence/i);
 
-    // Click "Search Visual Assets"
-    const searchButton = screen.getByText('Search Visual Assets');
+    // Click "Find Visual Assets"
+    const searchButton = screen.getByText('Find Visual Assets');
     fireEvent.click(searchButton);
 
     // Verify the correct payload was sent to scenesApi.search
@@ -162,8 +162,10 @@ describe('ScenePage Component', () => {
     // Simulate analyzing state
     vi.mocked(scenesApi.analyze).mockImplementation(() => new Promise(resolve => setTimeout(() => resolve({ scene_id: 'scene-123', analysis: { summary: 'Analysis text', subjects: [], actions: [], environment: [], mood: 'calm', time_context: 'day', visual_queries: [] } }), 100)));
     
-    fireEvent.click(screen.getByText('Analyze with Gemini'));
-    expect(await screen.findByText('Analyzing...')).toBeInTheDocument();
+    fireEvent.click(screen.getAllByText('Analyze with Gemini')[0]);
+    await waitFor(() => {
+      expect(screen.getAllByText('Analyzing...').length).toBeGreaterThan(0);
+    });
     
     // Wait for analysis to complete
     expect(await screen.findByText('Analyzed')).toBeInTheDocument();

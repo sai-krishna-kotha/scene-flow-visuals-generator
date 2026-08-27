@@ -78,7 +78,7 @@ describe('ProjectPage Component', () => {
     expect(screen.getByText('landscape')).toBeInTheDocument();
     expect(screen.getByText(/Updated/)).toBeInTheDocument();
     
-    // Clickable row
-    expect(screen.getByRole('link', { name: /Script 1/i })).toBeInTheDocument();
+    expect(screen.getByText('Script 1')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Open Script/i })).toBeInTheDocument();
   });
 });

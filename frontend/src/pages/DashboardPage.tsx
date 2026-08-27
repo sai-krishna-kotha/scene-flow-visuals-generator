@@ -50,32 +50,33 @@ export const DashboardPage = () => {
   if (loading && projects.length === 0) return <Loader text="Loading projects..." />;
 
   return (
-    <div className="space-y-8 max-w-6xl mx-auto">
-      <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 border-b border-surface-200 pb-6">
+    <div className="space-y-8 w-full">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-6 border-b border-surface-200 pb-8">
         <div>
-          <h1 className="text-3xl font-extrabold text-surface-900 tracking-tight">SceneFlow AI Storyboard Intelligence</h1>
-          <p className="text-surface-500 mt-2 text-lg">Turn scripts into intelligently ranked visual assets.</p>
+          <h1 className="text-4xl font-extrabold text-surface-900 tracking-tight mb-2">SceneFlow</h1>
+          <h2 className="text-2xl font-bold text-surface-700 tracking-tight mb-3">AI Storyboard Intelligence</h2>
+          <p className="text-surface-500 text-lg">Turn scripts into intelligently ranked visual assets.</p>
+        </div>
+        
+        <div className="w-full md:w-auto bg-white p-4 rounded-xl border border-surface-200 shadow-sm shrink-0">
+          <h3 className="text-sm font-bold text-surface-900 mb-2">Create New Project</h3>
+          <form onSubmit={handleCreate} className="flex gap-2">
+            <input 
+              type="text" 
+              value={newProjectName}
+              onChange={e => setNewProjectName(e.target.value)}
+              placeholder="Project Name..." 
+              className="w-full md:w-48 px-3 py-2 text-sm bg-surface-50 border border-surface-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white transition-colors"
+              disabled={isCreating}
+            />
+            <Button type="submit" isLoading={isCreating} disabled={!newProjectName.trim()} size="sm">
+              <Plus className="w-4 h-4 mr-1" /> Create
+            </Button>
+          </form>
         </div>
       </div>
 
       {error && <ErrorMessage message={error} onRetry={fetchProjects} />}
-
-      <div className="bg-white p-6 rounded-xl border border-surface-200 shadow-sm">
-        <h2 className="text-lg font-bold text-surface-900 mb-4">Create New Project</h2>
-        <form onSubmit={handleCreate} className="flex gap-4">
-          <input 
-            type="text" 
-            value={newProjectName}
-            onChange={e => setNewProjectName(e.target.value)}
-            placeholder="e.g. Sci-Fi Short Film" 
-            className="flex-1 px-4 py-2 bg-surface-50 border border-surface-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white transition-colors"
-            disabled={isCreating}
-          />
-          <Button type="submit" isLoading={isCreating} disabled={!newProjectName.trim()} className="shrink-0">
-            <Plus className="w-4 h-4 mr-2" /> Create Project
-          </Button>
-        </form>
-      </div>
 
       <div>
         <h2 className="text-xl font-bold text-surface-900 mb-4">Recent Projects</h2>
