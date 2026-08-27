@@ -105,11 +105,11 @@ describe('JobResultsPage', () => {
     await waitFor(() => {
       expect(screen.getByText('1920 × 1080')).toBeInTheDocument();
       expect(screen.getByText('pexels')).toBeInTheDocument();
-      expect(screen.getByText('0.930')).toBeInTheDocument(); // final score
+      expect(screen.getAllByText('0.930').length).toBeGreaterThan(0); // final score
     });
   });
 
-  it('handles popover interactions correctly', async () => {
+  it('handles flip card interactions correctly', async () => {
     vi.mocked(jobsApi.getJob).mockResolvedValue({ job_id: '1', scene_id: 's1', status: 'COMPLETED', created_at: '', updated_at: '', requested_query: 'test', ranking_version: '1', error_message: null });
     vi.mocked(scenesApi.get).mockResolvedValue({ id: 's1', script_id: 'sc1', order: 1, sentence_text: 'Test', created_at: '', updated_at: '', status: 'analyzed' });
     vi.mocked(scriptsApi.get).mockResolvedValue({ id: 'sc1', project_id: 'p1', title: 'Script', orientation_preference: 'landscape', created_at: '', updated_at: '', full_text: '' });
@@ -137,37 +137,34 @@ describe('JobResultsPage', () => {
     const infoButtons = await screen.findAllByRole('button', { name: 'Why this ranked here' });
     expect(infoButtons).toHaveLength(2);
 
-    // 1. Initially closed
-    expect(screen.queryByText('Why this ranked here')).not.toBeInTheDocument();
+    const card1 = screen.getByTestId('flip-card-a1');
+    const card2 = screen.getByTestId('flip-card-a2');
 
-    // 2. Click info button opens it
-    fireEvent.click(infoButtons[0]);
-    expect(screen.getByText('Why this ranked here')).toBeInTheDocument();
-    
-    // 3. Verify score values
-    expect(screen.getByText('0.796')).toBeInTheDocument();
-    expect(screen.getByText('0.900')).toBeInTheDocument();
-    
-    // 4. Click again closes it
-    fireEvent.click(infoButtons[0]);
-    expect(screen.queryByText('Why this ranked here')).not.toBeInTheDocument();
+    // 1. all cards initially show FRONT
+    expect(card1).toHaveStyle({ transform: 'rotateY(0deg)' });
+    expect(card2).toHaveStyle({ transform: 'rotateY(0deg)' });
 
-    // 5. Open first one, then click second one switches the popover
+    // 2. clicking Card A info flips only Card A
     fireEvent.click(infoButtons[0]);
-    expect(screen.getByText('0.796')).toBeInTheDocument();
+    expect(card1).toHaveStyle({ transform: 'rotateY(180deg)' });
     
+    // 3. Card B remains FRONT
+    expect(card2).toHaveStyle({ transform: 'rotateY(0deg)' });
+
+    // 4. Card B can independently flip
     fireEvent.click(infoButtons[1]);
-    expect(screen.queryByText('0.796')).not.toBeInTheDocument();
-    expect(screen.getByText('0.700')).toBeInTheDocument();
+    expect(card2).toHaveStyle({ transform: 'rotateY(180deg)' });
 
-    // 6. Click outside closes it
-    fireEvent.click(document.body);
-    expect(screen.queryByText('Why this ranked here')).not.toBeInTheDocument();
+    // 5. multiple cards can remain flipped simultaneously
+    expect(card1).toHaveStyle({ transform: 'rotateY(180deg)' });
+    expect(card2).toHaveStyle({ transform: 'rotateY(180deg)' });
 
-    // 7. Escape closes it
-    fireEvent.click(infoButtons[0]);
-    expect(screen.getByText('0.796')).toBeInTheDocument();
-    fireEvent.keyDown(document, { key: 'Escape', code: 'Escape' });
-    expect(screen.queryByText('Why this ranked here')).not.toBeInTheDocument();
+    // 6. clicking Card A "See Image" returns only Card A to FRONT
+    const seeImageButtons = await screen.findAllByRole('button', { name: 'See image' });
+    expect(seeImageButtons).toHaveLength(2);
+    
+    fireEvent.click(seeImageButtons[0]);
+    expect(card1).toHaveStyle({ transform: 'rotateY(0deg)' });
+    expect(card2).toHaveStyle({ transform: 'rotateY(180deg)' });
   });
 });

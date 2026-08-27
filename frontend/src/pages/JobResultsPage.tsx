@@ -17,7 +17,6 @@ export const JobResultsPage = () => {
   const [script, setScript] = useState<Script | null>(null);
   const [project, setProject] = useState<Project | null>(null);
   const [searchNumber, setSearchNumber] = useState<number | null>(null);
-  const [openPopoverId, setOpenPopoverId] = useState<string | null>(null);
   
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -62,23 +61,6 @@ export const JobResultsPage = () => {
     fetchData();
   }, [jobId]);
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpenPopoverId(null);
-    };
-    const handleClick = () => {
-      setOpenPopoverId(null);
-    };
-
-    if (openPopoverId) {
-      document.addEventListener('keydown', handleKeyDown);
-      document.addEventListener('click', handleClick);
-    }
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-      document.removeEventListener('click', handleClick);
-    };
-  }, [openPopoverId]);
 
   if (loading) return <Loader text="Loading visual assets..." />;
 
@@ -133,8 +115,6 @@ export const JobResultsPage = () => {
               key={item.asset.id} 
               item={item} 
               rank={idx + 1} 
-              isOpen={openPopoverId === item.asset.id}
-              onToggle={() => setOpenPopoverId(prev => prev === item.asset.id ? null : item.asset.id)}
             />
           ))}
         </div>
@@ -143,105 +123,131 @@ export const JobResultsPage = () => {
   );
 };
 
-const AssetCard = ({ item, rank, isOpen, onToggle }: { item: SemanticSearchResult, rank: number, isOpen: boolean, onToggle: () => void }) => {
+const AssetCard = ({ item, rank }: { item: SemanticSearchResult, rank: number }) => {
   const [imgError, setImgError] = useState(false);
+  const [isFlipped, setIsFlipped] = useState(false);
 
   return (
-    <div className="bg-white rounded-xl flex flex-col hover:shadow-xl transition-all border border-surface-200 group relative">
-      <div className="relative aspect-video bg-surface-100 flex items-center justify-center overflow-hidden rounded-t-[11px]">
-        {imgError ? (
-          <div className="text-surface-400 flex flex-col items-center">
-            <ImageIcon className="w-8 h-8 mb-2 opacity-50" />
-            <span className="text-xs font-medium">Image unavailable</span>
-          </div>
-        ) : (
-          <img 
-            src={item.asset.thumbnail_url} 
-            alt={`Visual asset from ${item.asset.provider}`}
-            loading="lazy"
-            onError={() => setImgError(true)}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          />
-        )}
-        <div className="absolute top-3 left-3 bg-black/75 text-white text-xs font-bold px-2.5 py-1 rounded backdrop-blur-md">
-          #{rank}
-        </div>
-        <div className="absolute top-3 right-3 bg-white/90 text-surface-900 text-xs font-bold px-2.5 py-1 rounded shadow-sm capitalize backdrop-blur-md">
-          {item.asset.provider}
-        </div>
-      </div>
-      
-      <div className="p-3 flex-1 flex flex-col">
-        <div className="flex justify-between items-center mb-3">
-          <div className="text-xs font-semibold text-surface-600 bg-surface-100 px-2 py-1 rounded">
-            {item.asset.width} &times; {item.asset.height}
-          </div>
-          <div className="flex gap-1 relative">
-            <button 
-              aria-label="Why this ranked here"
-              aria-expanded={isOpen}
-              onClick={(e) => { e.stopPropagation(); onToggle(); }}
-              className={`p-1.5 rounded transition-colors ${isOpen ? 'bg-primary-50 text-primary-600' : 'text-surface-400 hover:text-surface-700 hover:bg-surface-50'}`}
-              title="Ranking Explanation"
-            >
-              <Info className="w-4 h-4" />
-            </button>
-            
-            {isOpen && (
-              <div 
-                className="absolute bottom-full right-0 mb-2 w-64 bg-white rounded-lg shadow-xl border border-surface-200 z-50 text-xs p-4 cursor-default origin-bottom-right"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <div className="font-bold text-surface-900 mb-3 text-sm">Why this ranked here</div>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-surface-600 font-medium">Semantic relevance</span>
-                    <span className="font-mono font-medium text-surface-900">
-                      {item.features?.semantic_score !== null && item.features?.semantic_score !== undefined ? item.features.semantic_score.toFixed(3) : 'N/A'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-surface-600 font-medium">Resolution</span>
-                    <span className="font-mono font-medium text-surface-900">
-                      {item.features?.resolution_score !== null && item.features?.resolution_score !== undefined ? item.features.resolution_score.toFixed(3) : 'N/A'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-surface-600 font-medium">Orientation</span>
-                    <span className="font-mono font-medium text-surface-900">
-                      {item.features?.orientation_score !== null && item.features?.orientation_score !== undefined ? item.features.orientation_score.toFixed(3) : 'N/A'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center pt-2 mt-2 border-t border-surface-100">
-                    <span className="text-surface-900 font-bold">Final score</span>
-                    <span className="font-mono font-bold text-primary-700">
-                      {item.features?.final_score !== null && item.features?.final_score !== undefined ? item.features.final_score.toFixed(3) : 'N/A'}
-                    </span>
-                  </div>
-                </div>
-                <div className="text-[10px] text-surface-400 mt-3 italic pt-2 border-t border-surface-100">
-                  Semantic relevance is weighted most heavily.
-                </div>
+    <div className="group rounded-xl h-full" style={{ perspective: '1000px' }}>
+      <div 
+        data-testid={`flip-card-${item.asset.id}`}
+        className="w-full h-full relative rounded-xl transition-transform duration-[400ms] shadow-sm hover:shadow-xl" 
+        style={{ 
+          transformStyle: 'preserve-3d', 
+          transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)'
+        }}
+      >
+        {/* FRONT FACE */}
+        <div 
+          className="w-full h-full flex flex-col bg-white rounded-xl border border-surface-200 overflow-hidden"
+          style={{ backfaceVisibility: 'hidden' }}
+        >
+          <div className="relative aspect-video bg-surface-100 flex items-center justify-center overflow-hidden">
+            {imgError ? (
+              <div className="text-surface-400 flex flex-col items-center">
+                <ImageIcon className="w-8 h-8 mb-2 opacity-50" />
+                <span className="text-xs font-medium">Image unavailable</span>
               </div>
+            ) : (
+              <img 
+                src={item.asset.thumbnail_url} 
+                alt={`Visual asset from ${item.asset.provider}`}
+                loading="lazy"
+                onError={() => setImgError(true)}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              />
             )}
+            <div className="absolute top-3 left-3 bg-black/75 text-white text-xs font-bold px-2.5 py-1 rounded backdrop-blur-md">
+              #{rank}
+            </div>
+            <div className="absolute top-3 right-3 bg-white/90 text-surface-900 text-xs font-bold px-2.5 py-1 rounded shadow-sm capitalize backdrop-blur-md">
+              {item.asset.provider}
+            </div>
+          </div>
+          
+          <div className="p-3 flex-1 flex flex-col">
+            <div className="flex justify-between items-center mb-3">
+              <div className="text-xs font-semibold text-surface-600 bg-surface-100 px-2 py-1 rounded">
+                {item.asset.width} &times; {item.asset.height}
+              </div>
+              <div className="flex gap-1 relative z-10">
+                <button 
+                  aria-label="Why this ranked here"
+                  onClick={(e) => { e.stopPropagation(); setIsFlipped(true); }}
+                  className="p-1.5 rounded text-surface-400 hover:text-surface-700 hover:bg-surface-50 transition-colors"
+                  title="Ranking Explanation"
+                >
+                  <Info className="w-4 h-4" />
+                </button>
+                <a 
+                  href={item.asset.source_url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="p-1.5 rounded text-surface-400 hover:text-surface-700 hover:bg-surface-50 transition-colors"
+                  title="View Source"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <ExternalLink className="w-4 h-4" />
+                </a>
+              </div>
+            </div>
 
-            <a 
-              href={item.asset.source_url} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="p-1.5 rounded text-surface-400 hover:text-surface-700 hover:bg-surface-50 transition-colors"
-              title="View Source"
-            >
-              <ExternalLink className="w-4 h-4" />
-            </a>
+            <div className="flex justify-between items-center mt-auto pt-2">
+              <span className="text-[10px] font-bold text-surface-400 uppercase tracking-wider">Final Score</span>
+              <span className="text-sm font-extrabold text-primary-700">
+                {item.features?.final_score !== null && item.features?.final_score !== undefined ? item.features.final_score.toFixed(3) : 'Score unavailable'}
+              </span>
+            </div>
           </div>
         </div>
 
-        <div className="flex justify-between items-center mt-auto pt-2">
-          <span className="text-[10px] font-bold text-surface-400 uppercase tracking-wider">Final Score</span>
-          <span className="text-sm font-extrabold text-primary-700">
-            {item.features?.final_score !== null && item.features?.final_score !== undefined ? item.features.final_score.toFixed(3) : 'Score unavailable'}
-          </span>
+        {/* BACK FACE */}
+        <div 
+          className="absolute inset-0 w-full h-full flex flex-col bg-white rounded-xl border border-surface-200 overflow-hidden p-5"
+          style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+        >
+          <div className="flex-1 flex flex-col">
+            <div className="font-bold text-surface-900 mb-4 text-sm">Why this ranked here</div>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-surface-600 font-medium text-sm">Semantic relevance</span>
+                <span className="font-mono font-medium text-surface-900 text-sm">
+                  {item.features?.semantic_score !== null && item.features?.semantic_score !== undefined ? item.features.semantic_score.toFixed(3) : 'N/A'}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-surface-600 font-medium text-sm">Resolution</span>
+                <span className="font-mono font-medium text-surface-900 text-sm">
+                  {item.features?.resolution_score !== null && item.features?.resolution_score !== undefined ? item.features.resolution_score.toFixed(3) : 'N/A'}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-surface-600 font-medium text-sm">Orientation</span>
+                <span className="font-mono font-medium text-surface-900 text-sm">
+                  {item.features?.orientation_score !== null && item.features?.orientation_score !== undefined ? item.features.orientation_score.toFixed(3) : 'N/A'}
+                </span>
+              </div>
+              <div className="flex justify-between items-center pt-3 mt-3 border-t border-surface-100">
+                <span className="text-surface-900 font-bold text-sm">Final score</span>
+                <span className="font-mono font-bold text-primary-700 text-sm">
+                  {item.features?.final_score !== null && item.features?.final_score !== undefined ? item.features.final_score.toFixed(3) : 'N/A'}
+                </span>
+              </div>
+            </div>
+            <div className="text-[11px] text-surface-400 mt-4 italic pt-3 border-t border-surface-100">
+              Semantic relevance is weighted most heavily.
+            </div>
+          </div>
+          <div className="mt-auto pt-4">
+            <Button 
+              variant="outline" 
+              className="w-full justify-center gap-2"
+              onClick={(e) => { e.stopPropagation(); setIsFlipped(false); }}
+              aria-label="See image"
+            >
+              &larr; See Image
+            </Button>
+          </div>
         </div>
       </div>
     </div>
