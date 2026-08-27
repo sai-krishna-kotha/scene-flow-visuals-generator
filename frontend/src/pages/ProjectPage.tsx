@@ -106,7 +106,7 @@ export const ProjectPage = () => {
         ) : (
             <div className="flex flex-col gap-4">
             {scripts.map(s => (
-              <div key={s.id} className="bg-white border border-surface-200 rounded-xl p-5 hover:border-primary-400 transition-colors flex flex-col md:flex-row md:items-start justify-between gap-4">
+              <div key={s.id} className="bg-white border border-surface-200 rounded-xl p-5 hover:border-primary-400 transition-colors flex flex-col md:flex-row md:items-start justify-between gap-4 min-h-40">
                 <div className="flex-1 min-w-0 max-w-3xl">
                   <div className="flex items-center gap-3 mb-1">
                     <h3 className="font-bold text-lg text-surface-900 truncate">{s.title}</h3>
@@ -153,7 +153,7 @@ export const ProjectPage = () => {
               value={newText}
               onChange={e => setNewText(e.target.value)}
               placeholder="Enter the full text for this script..."
-              className="w-full px-3 py-2 bg-surface-50 border border-surface-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white transition-colors text-sm min-h-[160px] resize-y"
+              className="w-full px-3 py-2 bg-surface-50 border border-surface-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white transition-colors text-sm min-h-40 resize-y"
               disabled={isCreating}
               required
             />

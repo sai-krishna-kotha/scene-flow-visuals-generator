@@ -131,7 +131,7 @@ const AssetCard = ({ item, rank }: { item: SemanticSearchResult, rank: number })
     <div className="group rounded-xl h-full" style={{ perspective: '1000px' }}>
       <div 
         data-testid={`flip-card-${item.asset.id}`}
-        className="w-full h-full relative rounded-xl transition-transform duration-[400ms] shadow-sm hover:shadow-xl grid" 
+        className="w-full h-full relative rounded-xl transition-transform duration-400 shadow-sm hover:shadow-xl grid" 
         style={{ 
           transformStyle: 'preserve-3d', 
           transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)'

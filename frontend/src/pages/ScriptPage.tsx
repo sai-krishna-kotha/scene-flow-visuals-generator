@@ -159,28 +159,38 @@ export const ScriptPage = () => {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-4">
+          <div className="flex flex-col gap-4">
             {scenes.map(s => (
-              <div key={s.id} className="bg-white border border-surface-200 rounded-xl p-5 hover:border-primary-400 transition-colors flex flex-col md:flex-row md:items-start justify-between gap-4">
-                <div className="flex items-start gap-4 flex-1 min-w-0">
-                  <div className="w-10 h-10 rounded-full bg-surface-100 text-surface-600 flex items-center justify-center font-bold flex-shrink-0 text-base">
-                    {s.order < 10 ? `0${s.order}` : s.order}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    {s.title && <h3 className="text-surface-900 font-bold text-base mb-1">{s.title}</h3>}
-                    <p className="text-surface-600 font-medium text-sm leading-relaxed mb-2 line-clamp-2">{s.sentence_text}</p>
-                    <div className="flex items-center gap-3 text-xs">
-                      {s.status === 'analyzed' ? (
-                        <Badge variant="success">Analyzed</Badge>
-                      ) : (
-                        <span className="text-surface-400 font-medium">Unanalyzed</span>
-                      )}
-                    </div>
+              <div key={s.id} className="bg-white border border-surface-200 shadow-sm rounded-xl p-5 hover:border-surface-300 hover:shadow transition-all flex flex-col gap-3">
+                <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className="text-xs font-bold text-surface-500 bg-surface-100 px-2 py-1 rounded shrink-0">
+                      {s.order < 10 ? `0${s.order}` : s.order}
+                    </span>
+                    {s.title ? (
+                      <h3 className="text-surface-900 font-bold text-base truncate">{s.title}</h3>
+                    ) : (
+                      <h3 className="text-surface-400 font-medium text-base italic truncate">Untitled Scene</h3>
+                    )}
                   </div>
                 </div>
-                <div className="shrink-0 flex items-center mt-2 md:mt-0">
+                
+                <div className="pl-0 md:pl-[3.25rem]">
+                  <p className="text-surface-600 text-sm leading-relaxed line-clamp-2">
+                    {s.sentence_text}
+                  </p>
+                </div>
+                
+                <div className="flex items-center justify-between pt-3 mt-1 border-t border-surface-100 md:ml-[3.25rem]">
+                  <div className="flex items-center">
+                    {s.status === 'analyzed' ? (
+                      <Badge variant="success">Analyzed</Badge>
+                    ) : (
+                      <span className="text-xs font-medium text-surface-400">Unanalyzed</span>
+                    )}
+                  </div>
                   <Link to={`/scenes/${s.id}`}>
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" className="bg-white hover:bg-surface-50">
                       Open Scene
                     </Button>
                   </Link>
@@ -199,7 +209,7 @@ export const ScriptPage = () => {
               value={newText}
               onChange={e => setNewText(e.target.value)}
               placeholder="Describe the visual action or setting..."
-              className="w-full px-3 py-2 bg-surface-50 border border-surface-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white transition-colors text-sm min-h-[140px] resize-y"
+              className="w-full px-3 py-2 bg-surface-50 border border-surface-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white transition-colors text-sm min-h-35 resize-y"
               disabled={isCreating}
               required
               autoFocus

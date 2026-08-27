@@ -61,7 +61,7 @@ const Layout = () => {
   return (
     <div className="flex flex-col min-h-screen bg-surface-50 font-sans">
       <Header />
-      <main className="flex-1 overflow-y-auto p-4 md:p-8 max-w-[1400px] mx-auto w-full">
+      <main className="flex-1 overflow-y-auto p-4 md:p-8 max-w-350 mx-auto w-full">
         <Outlet />
       </main>
     </div>
