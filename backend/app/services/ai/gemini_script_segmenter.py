@@ -1,6 +1,7 @@
 from app.schemas.ai import ScriptSegmentation
 from app.config import settings
 from app.core.exceptions import GeminiError, SegmentationError
+from app.services.ai.prompt_loader import load_prompt_cached, render_prompt
 from google import genai
 from google.genai import types
 from google.genai.errors import APIError
@@ -18,27 +19,9 @@ class GeminiScriptSegmenter:
         if not self.client:
             raise GeminiError("Gemini API key is not configured.")
 
-        prompt = f"""
-You are an expert visual director and storyboard artist.
-Divide the following script into coherent visual scenes for the purpose of visual storyboard creation.
+        prompt_template = load_prompt_cached("script_segmentation.md")
+        prompt = render_prompt(prompt_template, SCRIPT_TEXT=script_text)
 
-Rules:
-- Preserve the original story content.
-- Do not summarize away important visual details.
-- Do not invent events or dialogue.
-- Split when there is a meaningful change in location, time, action, narrative beat, or major visual context.
-- Keep scenes visually coherent.
-- Preserve the scene order exactly as it flows in the script.
-- Return the full scene text for each segment exactly as it appears in the script as appropriate.
-- Avoid creating one scene per sentence unless the script genuinely requires it.
-- Provide a short, descriptive `title` for each scene.
-
-Do not output anything outside of the requested JSON structure.
-
-Script text:
-"{script_text}"
-"""
-        
         try:
             response = self.client.models.generate_content(
                 model=self.model_name,

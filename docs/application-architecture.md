@@ -57,34 +57,81 @@ React Results Gallery
 
 ## AI Services
 
+Prompt text for all AI services is stored in version-controlled Markdown files under
+`app/services/ai/prompts/`. See [`docs/ai-prompts.md`](ai-prompts.md) for full details.
+
+```
+AI Service
+    ↓
+PromptLoader (prompt_loader.py)
+    ↓
+Prompt Markdown File (prompts/*.md)  ← {{PLACEHOLDER}} substituted at runtime
+    ↓
+Google Gemini (structured output)
+    ↓
+Pydantic Schema
+```
+
 ### Gemini Scene Intelligence (`app/services/ai/gemini_service.py`)
 
 The Gemini integration is strictly isolated as an application service (`GeminiSceneAnalyzer`) decoupled from database models. 
 
 **Flow:**
 ```
-Scene Text (from DB via Service)
+Scene (from DB via Service)
     ↓
-Gemini Service (`GeminiSceneAnalyzer`)
+PromptLoader → scene_analysis.md → {{SCENE_TEXT}} substituted
     ↓
-Structured `SceneAnalysis` (Pydantic Model)
+GeminiSceneAnalyzer
+    ↓
+Structured SceneAnalysis (Pydantic)
     ↓
 visual_queries
     ↓
-Provider Aggregator (`AssetSearchService`)
+Provider Aggregator (AssetSearchService)
  ├── Pexels
  ├── Pixabay
  └── Openverse
     ↓
 Normalized Candidates
     ↓
-PostgreSQL Persistence (via `SearchService`)
+PostgreSQL Persistence (via SearchService)
 ```
 
 **Design Decisions:**
 1. **Isolated Service:** Gemini is isolated to prevent leakage of LLM-specific exception handling or prompt manipulation into the HTTP routers or the DB repository.
 2. **Structured Output:** We explicitly enforce Google GenAI's `response_schema` feature to force Gemini to output a strict Pydantic `SceneAnalysis` model (summary, subjects, actions, mood, visual queries). This completely eliminates the fragility of parsing free-form LLM text.
 3. **Stateless Intelligence:** The Gemini service is responsible *only* for natural language scene intelligence. It does NOT generate images, search the web, or persist to PostgreSQL. It simply accepts a string and returns a typed visual blueprint.
+4. **Externalized Prompts:** The prompt wording lives in `prompts/scene_analysis.md`, versioned by Git independently of Python logic.
+
+---
+
+### Gemini Script Segmentation (`app/services/ai/gemini_script_segmenter.py`)
+
+A separate service (`GeminiScriptSegmenter`) handles dividing a full script into discrete scenes. It is intentionally separate from `GeminiSceneAnalyzer` to prevent mixing responsibilities.
+
+**Flow:**
+```
+Script.full_text (unchanged source document)
+    ↓
+PromptLoader → script_segmentation.md → {{SCRIPT_TEXT}} substituted
+    ↓
+GeminiScriptSegmenter
+    ↓
+Structured ScriptSegmentation (Pydantic — list of SceneSegment)
+    ↓
+SceneRepository.bulk_create_from_segments() — single transaction
+    ↓
+Scene rows (title, sentence_text, order, script_id)
+    ↓
+Scene Studio → Gemini Scene Intelligence → Visual Search
+```
+
+**Design Decisions:**
+1. **Separate from GeminiSceneAnalyzer:** Script → Scenes and Scene → Analysis are different cognitive tasks with different prompts, schemas, and failure modes.
+2. **Transactional creation:** Gemini must return a valid segmentation before any Scene rows are inserted. If any insert fails, the entire batch is rolled back.
+3. **Duplicate protection:** `ScenesAlreadyExistError` (HTTP 409) is raised if scenes already exist for the script — preventing accidental overwrite.
+4. **Externalized Prompt:** The prompt lives in `prompts/script_segmentation.md`, versioned by Git.
 
 ---
 
@@ -95,3 +142,4 @@ Responsible for orchestrating the multi-query logic (e.g. searching Qdrant with 
 
 ### Ranking Service (`app/services/ranking/ranking_service.py`)
 Responsible for sorting and refining vector candidates using strict deterministic business logic rather than pure AI semantics. It calculates a weighted score (70% Semantic, 15% Resolution, 15% Orientation) and relies heavily on exact tie-breaking heuristics to guarantee consistent ordering for the frontend.
+
