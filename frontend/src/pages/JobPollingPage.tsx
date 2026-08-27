@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useJobPolling } from '../hooks/useJobPolling';
 import { Card, Loader, ErrorMessage, Button } from '../components/ui';
 import { CheckCircle2, Clock, PlayCircle, XCircle } from 'lucide-react';

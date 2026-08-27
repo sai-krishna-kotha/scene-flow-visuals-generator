@@ -17,6 +17,7 @@ export const JobResultsPage = () => {
   const [script, setScript] = useState<Script | null>(null);
   const [project, setProject] = useState<Project | null>(null);
   const [searchNumber, setSearchNumber] = useState<number | null>(null);
+  const [openPopoverId, setOpenPopoverId] = useState<string | null>(null);
   
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -60,6 +61,24 @@ export const JobResultsPage = () => {
     };
     fetchData();
   }, [jobId]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpenPopoverId(null);
+    };
+    const handleClick = () => {
+      setOpenPopoverId(null);
+    };
+
+    if (openPopoverId) {
+      document.addEventListener('keydown', handleKeyDown);
+      document.addEventListener('click', handleClick);
+    }
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('click', handleClick);
+    };
+  }, [openPopoverId]);
 
   if (loading) return <Loader text="Loading visual assets..." />;
 
@@ -110,7 +129,13 @@ export const JobResultsPage = () => {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {results.map((item, idx) => (
-            <AssetCard key={item.asset.id} item={item} rank={idx + 1} />
+            <AssetCard 
+              key={item.asset.id} 
+              item={item} 
+              rank={idx + 1} 
+              isOpen={openPopoverId === item.asset.id}
+              onToggle={() => setOpenPopoverId(prev => prev === item.asset.id ? null : item.asset.id)}
+            />
           ))}
         </div>
       )}
@@ -118,13 +143,12 @@ export const JobResultsPage = () => {
   );
 };
 
-const AssetCard = ({ item, rank }: { item: SemanticSearchResult, rank: number }) => {
+const AssetCard = ({ item, rank, isOpen, onToggle }: { item: SemanticSearchResult, rank: number, isOpen: boolean, onToggle: () => void }) => {
   const [imgError, setImgError] = useState(false);
-  const [showDetails, setShowDetails] = useState(false);
 
   return (
-    <div className="bg-white rounded-xl overflow-hidden flex flex-col hover:shadow-xl transition-all border border-surface-200 group">
-      <div className="relative aspect-video bg-surface-100 flex items-center justify-center overflow-hidden">
+    <div className="bg-white rounded-xl flex flex-col hover:shadow-xl transition-all border border-surface-200 group relative">
+      <div className="relative aspect-video bg-surface-100 flex items-center justify-center overflow-hidden rounded-t-[11px]">
         {imgError ? (
           <div className="text-surface-400 flex flex-col items-center">
             <ImageIcon className="w-8 h-8 mb-2 opacity-50" />
@@ -152,14 +176,55 @@ const AssetCard = ({ item, rank }: { item: SemanticSearchResult, rank: number })
           <div className="text-xs font-semibold text-surface-600 bg-surface-100 px-2 py-1 rounded">
             {item.asset.width} &times; {item.asset.height}
           </div>
-          <div className="flex gap-1">
+          <div className="flex gap-1 relative">
             <button 
-              onClick={() => setShowDetails(!showDetails)}
-              className={`p-1.5 rounded transition-colors ${showDetails ? 'bg-primary-50 text-primary-600' : 'text-surface-400 hover:text-surface-700 hover:bg-surface-50'}`}
+              aria-label="Why this ranked here"
+              aria-expanded={isOpen}
+              onClick={(e) => { e.stopPropagation(); onToggle(); }}
+              className={`p-1.5 rounded transition-colors ${isOpen ? 'bg-primary-50 text-primary-600' : 'text-surface-400 hover:text-surface-700 hover:bg-surface-50'}`}
               title="Ranking Explanation"
             >
               <Info className="w-4 h-4" />
             </button>
+            
+            {isOpen && (
+              <div 
+                className="absolute bottom-full right-0 mb-2 w-64 bg-white rounded-lg shadow-xl border border-surface-200 z-50 text-xs p-4 cursor-default origin-bottom-right"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="font-bold text-surface-900 mb-3 text-sm">Why this ranked here</div>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-surface-600 font-medium">Semantic relevance</span>
+                    <span className="font-mono font-medium text-surface-900">
+                      {item.features?.semantic_score !== null && item.features?.semantic_score !== undefined ? item.features.semantic_score.toFixed(3) : 'N/A'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-surface-600 font-medium">Resolution</span>
+                    <span className="font-mono font-medium text-surface-900">
+                      {item.features?.resolution_score !== null && item.features?.resolution_score !== undefined ? item.features.resolution_score.toFixed(3) : 'N/A'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-surface-600 font-medium">Orientation</span>
+                    <span className="font-mono font-medium text-surface-900">
+                      {item.features?.orientation_score !== null && item.features?.orientation_score !== undefined ? item.features.orientation_score.toFixed(3) : 'N/A'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center pt-2 mt-2 border-t border-surface-100">
+                    <span className="text-surface-900 font-bold">Final score</span>
+                    <span className="font-mono font-bold text-primary-700">
+                      {item.features?.final_score !== null && item.features?.final_score !== undefined ? item.features.final_score.toFixed(3) : 'N/A'}
+                    </span>
+                  </div>
+                </div>
+                <div className="text-[10px] text-surface-400 mt-3 italic pt-2 border-t border-surface-100">
+                  Semantic relevance is weighted most heavily.
+                </div>
+              </div>
+            )}
+
             <a 
               href={item.asset.source_url} 
               target="_blank" 
@@ -178,33 +243,6 @@ const AssetCard = ({ item, rank }: { item: SemanticSearchResult, rank: number })
             {item.features?.final_score !== null && item.features?.final_score !== undefined ? item.features.final_score.toFixed(3) : 'Score unavailable'}
           </span>
         </div>
-
-        {showDetails && (
-          <div className="mt-4 bg-surface-50 p-3 rounded-lg text-xs space-y-2 border border-surface-200 shadow-inner">
-            <div className="font-bold text-surface-800 mb-2 uppercase tracking-wider text-[10px]">Scoring Breakdown</div>
-            <div className="flex justify-between items-center">
-              <span className="text-surface-600 font-medium">Semantic relevance</span>
-              <span className="font-mono font-medium text-surface-900 bg-white px-1.5 py-0.5 rounded border border-surface-200">
-                {item.features?.semantic_score !== null && item.features?.semantic_score !== undefined ? item.features.semantic_score.toFixed(3) : 'N/A'}
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-surface-600 font-medium">Resolution</span>
-              <span className="font-mono font-medium text-surface-900 bg-white px-1.5 py-0.5 rounded border border-surface-200">
-                {item.features?.resolution_score !== null && item.features?.resolution_score !== undefined ? item.features.resolution_score.toFixed(3) : 'N/A'}
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-surface-600 font-medium">Orientation</span>
-              <span className="font-mono font-medium text-surface-900 bg-white px-1.5 py-0.5 rounded border border-surface-200">
-                {item.features?.orientation_score !== null && item.features?.orientation_score !== undefined ? item.features.orientation_score.toFixed(3) : 'N/A'}
-              </span>
-            </div>
-            <div className="text-[10px] text-surface-400 mt-2 italic pt-2 border-t border-surface-200">
-              Semantic relevance is weighted most heavily (70%), followed by resolution (15%) and orientation (15%).
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
