@@ -62,7 +62,8 @@ export const ScenePage = () => {
     setIsSearching(true);
     setError(null);
     try {
-      const jobRes = await scenesApi.search(sceneId, { limit: 20, orientation: 'landscape' });
+      const queryStr = scene?.sentence_text || "auto";
+      const jobRes = await scenesApi.search(sceneId, { query: queryStr, limit: 20, orientation: 'landscape' });
       // Redirect to job polling
       navigate(`/jobs/${jobRes.job_id}`);
     } catch (err: any) {
