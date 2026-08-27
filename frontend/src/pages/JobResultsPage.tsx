@@ -203,44 +203,45 @@ const AssetCard = ({ item, rank }: { item: SemanticSearchResult, rank: number })
 
         {/* BACK FACE */}
         <div 
-          className="absolute inset-0 w-full h-full flex flex-col bg-white rounded-xl border border-surface-200 overflow-hidden p-5"
+          className="absolute inset-0 w-full h-full flex flex-col bg-white rounded-xl border border-surface-200 overflow-hidden p-4"
           style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
         >
           <div className="flex-1 flex flex-col">
-            <div className="font-bold text-surface-900 mb-4 text-sm">Why this ranked here</div>
-            <div className="space-y-3">
+            <div className="font-bold text-surface-900 mb-3 text-sm">Why this ranked here</div>
+            <div className="space-y-1.5">
               <div className="flex justify-between items-center">
-                <span className="text-surface-600 font-medium text-sm">Semantic relevance</span>
-                <span className="font-mono font-medium text-surface-900 text-sm">
+                <span className="text-surface-600 font-medium text-xs">Semantic relevance</span>
+                <span className="font-mono font-medium text-surface-900 text-xs">
                   {item.features?.semantic_score !== null && item.features?.semantic_score !== undefined ? item.features.semantic_score.toFixed(3) : 'N/A'}
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-surface-600 font-medium text-sm">Resolution</span>
-                <span className="font-mono font-medium text-surface-900 text-sm">
+                <span className="text-surface-600 font-medium text-xs">Resolution</span>
+                <span className="font-mono font-medium text-surface-900 text-xs">
                   {item.features?.resolution_score !== null && item.features?.resolution_score !== undefined ? item.features.resolution_score.toFixed(3) : 'N/A'}
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-surface-600 font-medium text-sm">Orientation</span>
-                <span className="font-mono font-medium text-surface-900 text-sm">
+                <span className="text-surface-600 font-medium text-xs">Orientation</span>
+                <span className="font-mono font-medium text-surface-900 text-xs">
                   {item.features?.orientation_score !== null && item.features?.orientation_score !== undefined ? item.features.orientation_score.toFixed(3) : 'N/A'}
                 </span>
               </div>
-              <div className="flex justify-between items-center pt-3 mt-3 border-t border-surface-100">
-                <span className="text-surface-900 font-bold text-sm">Final score</span>
-                <span className="font-mono font-bold text-primary-700 text-sm">
+              <div className="flex justify-between items-center pt-2 mt-2 border-t border-surface-100">
+                <span className="text-surface-900 font-bold text-xs">Final score</span>
+                <span className="font-mono font-bold text-primary-700 text-xs">
                   {item.features?.final_score !== null && item.features?.final_score !== undefined ? item.features.final_score.toFixed(3) : 'N/A'}
                 </span>
               </div>
             </div>
-            <div className="text-[11px] text-surface-400 mt-4 italic pt-3 border-t border-surface-100">
-              Semantic relevance is weighted most heavily.
+            <div className="text-[10px] text-surface-500 mt-2 italic">
+              Semantic relevance has the highest influence.
             </div>
           </div>
-          <div className="mt-auto pt-4">
+          <div className="mt-auto pt-2">
             <Button 
               variant="outline" 
+              size="sm"
               className="w-full justify-center gap-2"
               onClick={(e) => { e.stopPropagation(); setIsFlipped(false); }}
               aria-label="See image"
