@@ -2,28 +2,63 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Image as ImageIcon, ChevronRight, ExternalLink, Info } from 'lucide-react';
 import { jobsApi } from '../services/api/jobs';
-import { SemanticSearchResult } from '../types/api';
-import { Card, Loader, ErrorMessage } from '../components/ui';
+import { SemanticSearchResult, SearchJobResponse, Scene, Script, Project } from '../types/api';
+import { Card, Loader, ErrorMessage, Breadcrumbs, Button } from '../components/ui';
+import { scenesApi } from '../services/api/scenes';
+import { scriptsApi } from '../services/api/scripts';
+import { projectsApi } from '../services/api/projects';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export const JobResultsPage = () => {
   const { jobId } = useParams<{ jobId: string }>();
   const [results, setResults] = useState<SemanticSearchResult[]>([]);
+  const [job, setJob] = useState<SearchJobResponse | null>(null);
+  const [scene, setScene] = useState<Scene | null>(null);
+  const [script, setScript] = useState<Script | null>(null);
+  const [project, setProject] = useState<Project | null>(null);
+  const [searchNumber, setSearchNumber] = useState<number | null>(null);
+  
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  useDocumentTitle('Visual Results');
+
   useEffect(() => {
     if (!jobId) return;
-    const fetchResults = async () => {
+    const fetchData = async () => {
       try {
-        const data = await jobsApi.getResults(jobId);
-        setResults(data.results);
+        const [resultsData, jobData] = await Promise.all([
+          jobsApi.getResults(jobId),
+          jobsApi.getJob(jobId)
+        ]);
+        setResults(resultsData.results);
+        setJob(jobData);
+
+        const sceneData = await scenesApi.get(jobData.scene_id);
+        setScene(sceneData);
+
+        const [scriptData, jobsData] = await Promise.all([
+          scriptsApi.get(sceneData.script_id),
+          scenesApi.listJobs(sceneData.id)
+        ]);
+        setScript(scriptData);
+
+        const projData = await projectsApi.get(scriptData.project_id);
+        setProject(projData);
+
+        // Calculate search number based on descending chronology
+        // The newest job (index 0) gets the highest number
+        const jobIndex = jobsData.findIndex(j => j.job_id === jobId);
+        if (jobIndex !== -1) {
+          setSearchNumber(jobsData.length - jobIndex);
+        }
       } catch (err: any) {
-        setError(err.message || 'Failed to load job results');
+        setError(err.message || 'Failed to load job results context');
       } finally {
         setLoading(false);
       }
     };
-    fetchResults();
+    fetchData();
   }, [jobId]);
 
   if (loading) return <Loader text="Loading visual assets..." />;
@@ -35,24 +70,45 @@ export const JobResultsPage = () => {
   );
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-surface-900 flex items-center gap-2">
-          <ImageIcon className="w-6 h-6 text-primary-600" />
-          Ranked Visual Assets
-        </h1>
-        <div className="text-sm text-surface-600">
-          Showing {results.length} results
+    <div className="space-y-6 max-w-7xl mx-auto">
+      <div className="flex items-center justify-between mb-2">
+        <Breadcrumbs items={[
+          { label: 'Projects', href: '/' },
+          { label: project?.name || 'Project', href: `/projects/${project?.id}` },
+          { label: script?.title || 'Script', href: `/projects/${project?.id}/scripts/${script?.id}` },
+          { label: `Scene ${scene?.order || ''}`, href: `/scenes/${scene?.id}` },
+          { label: `Search #${searchNumber || ''}` }
+        ]} />
+        <Link to={`/scenes/${scene?.id}`}>
+          <Button variant="outline" size="sm" className="gap-2">
+            &larr; Back to Scene
+          </Button>
+        </Link>
+      </div>
+
+      <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 border-b border-surface-200 pb-6 mb-8">
+        <div>
+          <h1 className="text-3xl font-extrabold text-surface-900 flex items-center gap-3 tracking-tight">
+            <ImageIcon className="w-8 h-8 text-primary-600" />
+            Visual Results
+          </h1>
+          <p className="text-surface-600 mt-2 font-medium">
+            Search #{searchNumber} &middot; Scene {scene?.order} {scene?.sentence_text ? `· "${scene.sentence_text}"` : ''}
+          </p>
+        </div>
+        <div className="flex items-center gap-4 bg-white px-4 py-2 rounded-lg border border-surface-200 shadow-sm">
+          <span className="text-sm font-semibold text-surface-700">{results.length} visual assets</span>
         </div>
       </div>
 
       {results.length === 0 ? (
-        <Card className="text-center py-16 text-surface-600">
+        <div className="text-center py-16 bg-surface-50 border border-surface-200 border-dashed rounded-xl text-surface-500 max-w-3xl mx-auto">
           <ImageIcon className="w-12 h-12 mx-auto text-surface-300 mb-4" />
-          <p className="text-lg">No assets found for this scene.</p>
-        </Card>
+          <p className="text-lg font-medium text-surface-700">No assets found</p>
+          <p className="mt-1">We couldn't find any relevant visual assets for this scene.</p>
+        </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {results.map((item, idx) => (
             <AssetCard key={item.asset.id} item={item} rank={idx + 1} />
           ))}
@@ -67,12 +123,12 @@ const AssetCard = ({ item, rank }: { item: SemanticSearchResult, rank: number })
   const [showDetails, setShowDetails] = useState(false);
 
   return (
-    <Card className="overflow-hidden p-0 flex flex-col hover:shadow-lg transition-shadow bg-white">
+    <div className="bg-white rounded-xl overflow-hidden flex flex-col hover:shadow-xl transition-all border border-surface-200 group">
       <div className="relative aspect-video bg-surface-100 flex items-center justify-center overflow-hidden">
         {imgError ? (
           <div className="text-surface-400 flex flex-col items-center">
-            <ImageIcon className="w-8 h-8 mb-2" />
-            <span className="text-xs">Image unavailable</span>
+            <ImageIcon className="w-8 h-8 mb-2 opacity-50" />
+            <span className="text-xs font-medium">Image unavailable</span>
           </div>
         ) : (
           <img 
@@ -80,26 +136,26 @@ const AssetCard = ({ item, rank }: { item: SemanticSearchResult, rank: number })
             alt={`Visual asset from ${item.asset.provider}`}
             loading="lazy"
             onError={() => setImgError(true)}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
         )}
-        <div className="absolute top-2 left-2 bg-black/70 text-white text-xs font-bold px-2 py-1 rounded-full backdrop-blur-sm">
+        <div className="absolute top-3 left-3 bg-black/75 text-white text-xs font-bold px-2.5 py-1 rounded backdrop-blur-md">
           #{rank}
         </div>
-        <div className="absolute top-2 right-2 bg-white/90 text-surface-900 text-xs font-medium px-2 py-1 rounded shadow-sm capitalize backdrop-blur-sm">
+        <div className="absolute top-3 right-3 bg-white/90 text-surface-900 text-xs font-bold px-2.5 py-1 rounded shadow-sm capitalize backdrop-blur-md">
           {item.asset.provider}
         </div>
       </div>
       
-      <div className="p-4 flex-1 flex flex-col">
+      <div className="p-3 flex-1 flex flex-col">
         <div className="flex justify-between items-center mb-3">
-          <div className="text-sm font-medium text-surface-900">
+          <div className="text-xs font-semibold text-surface-600 bg-surface-100 px-2 py-1 rounded">
             {item.asset.width} &times; {item.asset.height}
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-1">
             <button 
               onClick={() => setShowDetails(!showDetails)}
-              className="text-surface-500 hover:text-primary-600 transition-colors p-1"
+              className={`p-1.5 rounded transition-colors ${showDetails ? 'bg-primary-50 text-primary-600' : 'text-surface-400 hover:text-surface-700 hover:bg-surface-50'}`}
               title="Ranking Explanation"
             >
               <Info className="w-4 h-4" />
@@ -108,7 +164,7 @@ const AssetCard = ({ item, rank }: { item: SemanticSearchResult, rank: number })
               href={item.asset.source_url} 
               target="_blank" 
               rel="noopener noreferrer"
-              className="text-surface-500 hover:text-primary-600 transition-colors p-1"
+              className="p-1.5 rounded text-surface-400 hover:text-surface-700 hover:bg-surface-50 transition-colors"
               title="View Source"
             >
               <ExternalLink className="w-4 h-4" />
@@ -116,31 +172,40 @@ const AssetCard = ({ item, rank }: { item: SemanticSearchResult, rank: number })
           </div>
         </div>
 
-        <div className="flex justify-between items-center mt-auto border-t border-surface-100 pt-3">
-          <span className="text-xs text-surface-500 uppercase tracking-wide">Final Score</span>
-          <span className="text-sm font-bold text-primary-700 bg-primary-50 px-2 py-0.5 rounded">
-            {item.features.final_score.toFixed(3)}
+        <div className="flex justify-between items-center mt-auto pt-2">
+          <span className="text-[10px] font-bold text-surface-400 uppercase tracking-wider">Final Score</span>
+          <span className="text-sm font-extrabold text-primary-700">
+            {item.features?.final_score !== null && item.features?.final_score !== undefined ? item.features.final_score.toFixed(3) : 'Score unavailable'}
           </span>
         </div>
 
         {showDetails && (
-          <div className="mt-3 bg-surface-50 p-3 rounded text-xs space-y-2 border border-surface-100">
-            <div className="font-semibold text-surface-700 mb-1 border-b border-surface-200 pb-1">Scoring Breakdown</div>
-            <div className="flex justify-between">
-              <span className="text-surface-600">Semantic Relevance (70%)</span>
-              <span className="font-mono">{item.features.semantic_score.toFixed(3)}</span>
+          <div className="mt-4 bg-surface-50 p-3 rounded-lg text-xs space-y-2 border border-surface-200 shadow-inner">
+            <div className="font-bold text-surface-800 mb-2 uppercase tracking-wider text-[10px]">Scoring Breakdown</div>
+            <div className="flex justify-between items-center">
+              <span className="text-surface-600 font-medium">Semantic relevance</span>
+              <span className="font-mono font-medium text-surface-900 bg-white px-1.5 py-0.5 rounded border border-surface-200">
+                {item.features?.semantic_score !== null && item.features?.semantic_score !== undefined ? item.features.semantic_score.toFixed(3) : 'N/A'}
+              </span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-surface-600">Resolution (15%)</span>
-              <span className="font-mono">{item.features.resolution_score.toFixed(3)}</span>
+            <div className="flex justify-between items-center">
+              <span className="text-surface-600 font-medium">Resolution</span>
+              <span className="font-mono font-medium text-surface-900 bg-white px-1.5 py-0.5 rounded border border-surface-200">
+                {item.features?.resolution_score !== null && item.features?.resolution_score !== undefined ? item.features.resolution_score.toFixed(3) : 'N/A'}
+              </span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-surface-600">Orientation (15%)</span>
-              <span className="font-mono">{item.features.orientation_score.toFixed(3)}</span>
+            <div className="flex justify-between items-center">
+              <span className="text-surface-600 font-medium">Orientation</span>
+              <span className="font-mono font-medium text-surface-900 bg-white px-1.5 py-0.5 rounded border border-surface-200">
+                {item.features?.orientation_score !== null && item.features?.orientation_score !== undefined ? item.features.orientation_score.toFixed(3) : 'N/A'}
+              </span>
+            </div>
+            <div className="text-[10px] text-surface-400 mt-2 italic pt-2 border-t border-surface-200">
+              Semantic relevance is weighted most heavily (70%), followed by resolution (15%) and orientation (15%).
             </div>
           </div>
         )}
       </div>
-    </Card>
+    </div>
   );
 };

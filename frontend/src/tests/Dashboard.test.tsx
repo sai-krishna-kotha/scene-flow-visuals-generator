@@ -29,7 +29,7 @@ describe('DashboardPage', () => {
     expect(screen.getByText('Loading projects...')).toBeInTheDocument();
     
     await waitFor(() => {
-      expect(screen.getByText('No projects found. Create one to get started.')).toBeInTheDocument();
+      expect(screen.getByText('No projects yet')).toBeInTheDocument();
     });
   });
 
@@ -54,10 +54,10 @@ describe('DashboardPage', () => {
     render(<DashboardPage />, { wrapper: Wrapper });
     
     await waitFor(() => {
-      expect(screen.getByText('No projects found. Create one to get started.')).toBeInTheDocument();
+      expect(screen.getByText('No projects yet')).toBeInTheDocument();
     });
 
-    const input = screen.getByPlaceholderText('New Project Name');
+    const input = screen.getByPlaceholderText('e.g. Sci-Fi Short Film');
     fireEvent.change(input, { target: { value: 'New Project' } });
     
     const submitBtn = screen.getByText('Create Project');

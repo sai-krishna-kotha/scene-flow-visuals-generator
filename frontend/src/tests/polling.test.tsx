@@ -21,11 +21,10 @@ describe('useJobPolling hook', () => {
 
   it('polls while status is PENDING or RUNNING and stops when COMPLETED', async () => {
     let mockResponseIndex = 0;
-    const responses: SearchJobResponse[] = [
-      { job_id: '1', scene_id: 's1', status: 'PENDING', created_at: null, updated_at: null, error_message: null },
-      { job_id: '1', scene_id: 's1', status: 'RUNNING', created_at: null, updated_at: null, error_message: null },
-      { job_id: '1', scene_id: 's1', status: 'COMPLETED', created_at: null, updated_at: null, error_message: null }
-    ];
+    const mockJobPending = { job_id: '123', scene_id: 's1', status: 'PENDING' as const, requested_query: 'test', ranking_version: 'v1', created_at: null, updated_at: null, error_message: null };
+    const mockJobRunning = { job_id: '123', scene_id: 's1', status: 'RUNNING' as const, requested_query: 'test', ranking_version: 'v1', created_at: null, updated_at: null, error_message: null };
+    const mockJobCompleted = { job_id: '123', scene_id: 's1', status: 'COMPLETED' as const, requested_query: 'test', ranking_version: 'v1', created_at: null, updated_at: null, error_message: null };
+    const responses: SearchJobResponse[] = [mockJobPending, mockJobRunning, mockJobCompleted];
 
     vi.mocked(jobsApi.getJob).mockImplementation(() => {
       const res = responses[mockResponseIndex] || responses[responses.length - 1];

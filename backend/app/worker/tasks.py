@@ -109,18 +109,86 @@ def process_search_job(self, search_job_id_str: str):
             logger.error(f"Vector indexing failed for job {search_job_id}: {e}")
             # Do not fail the job if just indexing fails, we fallback gracefully
 
-        # 6. Semantic Retrieval & Ranking
+        # 6. Semantic Retrieval & Ranking (Persist to PostgreSQL)
         db = SessionLocal()
         try:
-            semantic_service = SemanticSearchService(db)
-            # We trigger the multi-query retrieval and ranking process to cache or verify it works,
-            # but we don't necessarily need to persist the ranking results, as the GET /results API
-            # will dynamically fetch it using SemanticSearchService.
-            # However, the user prompt states the flow goes to COMPLETED after ranking.
-            # Just ensuring it works without throwing errors is enough here.
-            # We'll rely on GET /results to actually pull and rank for real-time requests.
-            
             job = db.query(SearchJob).filter(SearchJob.id == search_job_id).first()
+            
+            # Fetch the assets in the current session so updates are saved
+            from app.models.asset import Asset
+            session_assets = db.query(Asset).filter(Asset.search_job_id == search_job_id).all()
+            
+            # Reconstruct candidate assets and rank them locally
+            semantic_service = SemanticSearchService(db)
+            retrieval_k = 50
+            all_candidate_items = {}
+            
+            # We already have `queries` from earlier
+            for q in queries:
+                pass
+                
+            vector_store = VectorIndexingService().vector_store
+            
+            # Fetch vectors from Qdrant
+            asset_ids_str = [str(a.id) for a in session_assets]
+            try:
+                # Retrieve from Qdrant
+                qdrant_points = vector_store.client.retrieve(
+                    collection_name=vector_store.collection_name,
+                    ids=asset_ids_str,
+                    with_vectors=True
+                )
+                
+                # Map asset_id -> vector
+                vector_map = {point.id: point.vector for point in qdrant_points if point.vector}
+                
+                import numpy as np
+                from app.services.embeddings.embedding_service import EmbeddingService
+                embedding_service = EmbeddingService()
+                
+                # Encode all queries
+                query_vectors = [embedding_service.encode(q) for q in queries]
+                
+                # Compute max similarity for each asset
+                similarities = []
+                for asset in session_assets:
+                    vec = vector_map.get(str(asset.id))
+                    if vec:
+                        vec_np = np.array(vec)
+                        # Cosine similarity is just dot product because vectors are normalized
+                        sims = [np.dot(np.array(qv), vec_np) for qv in query_vectors]
+                        max_sim = float(max(sims))
+                    else:
+                        max_sim = 0.0
+                    similarities.append(max_sim)
+                    
+                # Rank
+                from app.services.ranking.ranking_service import RankingService
+                ranking_service = RankingService()
+                
+                ranked = ranking_service.rank(
+                    assets=session_assets,
+                    similarities=similarities,
+                    requested_orientation="landscape", # default
+                    final_k=len(session_assets) # rank all of them
+                )
+                
+                # Update DB Assets with scores
+                # Create a map to easily update
+                ranked_map = {asset.id: features for asset, features in ranked}
+                for asset in session_assets:
+                    features = ranked_map.get(asset.id)
+                    if features:
+                        asset.semantic_score = features.semantic_score
+                        asset.resolution_score = features.resolution_score
+                        asset.orientation_score = features.orientation_score
+                        asset.final_score = features.final_score
+                        asset.relevance_score = features.final_score
+                        
+            except Exception as rank_err:
+                logger.error(f"Ranking failed for job {search_job_id}: {rank_err}")
+                raise rank_err
+                
             job.status = JobStatus.COMPLETED
             db.commit()
         except Exception as e:

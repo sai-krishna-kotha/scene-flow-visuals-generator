@@ -24,6 +24,13 @@ class Asset(Base):
     height: Mapped[int | None] = mapped_column(Integer, nullable=True)
     
     relevance_score: Mapped[float] = mapped_column(Float, default=0.0, nullable=False)
+    
+    # Persisted ranking breakdown for deterministic historical results
+    semantic_score: Mapped[float] = mapped_column(Float, default=0.0, nullable=False)
+    resolution_score: Mapped[float] = mapped_column(Float, default=0.0, nullable=False)
+    orientation_score: Mapped[float] = mapped_column(Float, default=0.0, nullable=False)
+    final_score: Mapped[float] = mapped_column(Float, default=0.0, nullable=False)
+    
     is_selected: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     
     created_at: Mapped[datetime.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

@@ -1,39 +1,97 @@
 import React from 'react';
+import { Loader2 } from 'lucide-react';
 
 export const Loader = ({ text = "Loading..." }: { text?: string }) => (
-  <div className="flex flex-col items-center justify-center p-8 space-y-4">
-    <div className="w-8 h-8 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin"></div>
-    <p className="text-surface-800 font-medium">{text}</p>
+  <div className="flex flex-col items-center justify-center p-12 space-y-4">
+    <Loader2 className="w-8 h-8 text-primary-600 animate-spin" />
+    {text && <p className="text-surface-500 font-medium text-sm">{text}</p>}
   </div>
 );
 
 export const ErrorMessage = ({ message, onRetry }: { message: string, onRetry?: () => void }) => (
-  <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-md">
-    <h3 className="font-bold">Error</h3>
-    <p>{message}</p>
+  <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg flex items-center justify-between text-sm">
+    <div className="flex items-center gap-2">
+      <span className="font-medium">Error:</span>
+      <span>{message}</span>
+    </div>
     {onRetry && (
-      <button onClick={onRetry} className="mt-2 underline text-red-800 hover:text-red-900">
-        Try again
+      <button onClick={onRetry} className="font-semibold hover:text-red-900 transition-colors">
+        Retry
       </button>
     )}
   </div>
 );
 
-export const Button = React.forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'secondary' | 'outline' }>(
-  ({ className = '', variant = 'primary', ...props }, ref) => {
-    const baseStyle = "px-4 py-2 rounded-md font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
+export const Button = React.forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'secondary' | 'outline' | 'ghost', size?: 'sm' | 'md' | 'lg', isLoading?: boolean }>(
+  ({ className = '', variant = 'primary', size = 'md', isLoading = false, children, disabled, ...props }, ref) => {
+    const baseStyle = "inline-flex items-center justify-center rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-1 disabled:opacity-50 disabled:pointer-events-none";
     const variants = {
-      primary: "bg-primary-600 text-white hover:bg-primary-700",
-      secondary: "bg-surface-200 text-surface-900 hover:bg-surface-300",
-      outline: "border border-surface-200 text-surface-800 hover:bg-surface-50"
+      primary: "bg-primary-600 text-white hover:bg-primary-700 shadow-sm",
+      secondary: "bg-surface-800 text-white hover:bg-surface-900 shadow-sm",
+      outline: "border border-surface-200 bg-white text-surface-900 hover:bg-surface-50 shadow-sm",
+      ghost: "hover:bg-surface-100 text-surface-700 hover:text-surface-900"
     };
-    return <button ref={ref} className={`${baseStyle} ${variants[variant]} ${className}`} {...props} />;
+    const sizes = {
+      sm: "h-8 px-3 text-xs",
+      md: "h-10 px-4 py-2 text-sm",
+      lg: "h-12 px-8 text-base"
+    };
+
+    return (
+      <button 
+        ref={ref} 
+        disabled={disabled || isLoading}
+        className={`${baseStyle} ${variants[variant]} ${sizes[size]} ${className}`} 
+        {...props}
+      >
+        {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+        {children}
+      </button>
+    );
   }
 );
 Button.displayName = 'Button';
 
 export const Card = ({ children, className = '' }: { children: React.ReactNode, className?: string }) => (
-  <div className={`bg-white shadow-sm border border-surface-200 rounded-lg p-6 ${className}`}>
+  <div className={`bg-white shadow-sm border border-surface-200 rounded-xl overflow-hidden ${className}`}>
     {children}
   </div>
 );
+
+export const Badge = ({ children, variant = 'default', className = '' }: { children: React.ReactNode, variant?: 'default' | 'success' | 'warning' | 'error' | 'outline', className?: string }) => {
+  const variants = {
+    default: "bg-surface-100 text-surface-800",
+    success: "bg-green-100 text-green-800",
+    warning: "bg-yellow-100 text-yellow-800",
+    error: "bg-red-100 text-red-800",
+    outline: "border border-surface-200 text-surface-700 bg-white"
+  };
+  return (
+    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${variants[variant]} ${className}`}>
+      {children}
+    </span>
+  );
+};
+
+export const Breadcrumbs = ({ items }: { items: { label: string, href?: string }[] }) => {
+  return (
+    <nav className="flex text-sm text-surface-500 mb-6 font-medium">
+      <ol className="flex items-center space-x-2">
+        {items.map((item, index) => (
+          <li key={index} className="flex items-center">
+            {item.href ? (
+              <a href={item.href} className="hover:text-primary-600 transition-colors">
+                {item.label}
+              </a>
+            ) : (
+              <span className="text-surface-900">{item.label}</span>
+            )}
+            {index < items.length - 1 && (
+              <span className="mx-2 text-surface-300">/</span>
+            )}
+          </li>
+        ))}
+      </ol>
+    </nav>
+  );
+};

@@ -1,13 +1,30 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useJobPolling } from '../hooks/useJobPolling';
 import { Card, Loader, ErrorMessage, Button } from '../components/ui';
 import { CheckCircle2, Clock, PlayCircle, XCircle } from 'lucide-react';
+import { scenesApi } from '../services/api/scenes';
+import { jobsApi } from '../services/api/jobs';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export const JobPollingPage = () => {
   const { jobId } = useParams<{ jobId: string }>();
   const navigate = useNavigate();
   const { job, error } = useJobPolling(jobId);
+  const [searchNumber, setSearchNumber] = useState<number | null>(null);
+
+  useDocumentTitle('Visual Search');
+
+  useEffect(() => {
+    if (job?.scene_id && jobId) {
+      scenesApi.listJobs(job.scene_id).then(jobsData => {
+        const jobIndex = jobsData.findIndex(j => j.job_id === jobId);
+        if (jobIndex !== -1) {
+          setSearchNumber(jobsData.length - jobIndex);
+        }
+      }).catch(err => console.error("Failed to fetch jobs for search number", err));
+    }
+  }, [job?.scene_id, jobId]);
 
   useEffect(() => {
     if (job?.status === 'COMPLETED') {
@@ -44,20 +61,44 @@ export const JobPollingPage = () => {
   const display = getStatusDisplay();
 
   return (
-    <div className="max-w-2xl mx-auto mt-12 text-center">
-      <Card className="py-16 space-y-6">
+    <div className="max-w-3xl mx-auto mt-12">
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-extrabold text-surface-900 tracking-tight">Visual Search</h1>
+          {searchNumber ? (
+            <p className="text-surface-500 mt-2 font-medium">Search #{searchNumber}</p>
+          ) : (
+            <p className="text-surface-500 mt-2 font-medium">Loading search context...</p>
+          )}
+        </div>
+        {job?.scene_id && (
+          <Link to={`/scenes/${job.scene_id}`}>
+            <Button variant="outline" size="sm" className="gap-2">
+              &larr; Back to Scene
+            </Button>
+          </Link>
+        )}
+      </div>
+
+      <div className="bg-white p-10 rounded-2xl border border-surface-200 shadow-sm text-center">
         <div className="flex justify-center mb-6">
           {display.icon}
         </div>
-        <h1 className="text-3xl font-bold text-surface-900">{display.text}</h1>
-        <p className="text-lg text-surface-600 max-w-md mx-auto">{display.desc}</p>
+        <h2 className="text-2xl font-bold text-surface-900 mb-2">{display.text}</h2>
+        <p className="text-surface-600 max-w-md mx-auto">{display.desc}</p>
         
-        {job.status === 'RUNNING' && (
-          <div className="w-full max-w-md mx-auto bg-surface-200 h-2 rounded-full mt-8 overflow-hidden">
-            <div className="bg-primary-600 h-full w-2/3 rounded-full animate-pulse"></div>
+        {(job.status === 'RUNNING' || job.status === 'PENDING') && (
+          <div className="w-full max-w-md mx-auto bg-surface-100 h-1.5 rounded-full mt-8 overflow-hidden">
+            <div className="bg-primary-500 h-full w-2/3 rounded-full animate-pulse transition-all"></div>
           </div>
         )}
-      </Card>
+
+        {job.status === 'FAILED' && (
+          <div className="mt-8">
+             <Button onClick={() => window.history.back()} variant="outline">Go Back</Button>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

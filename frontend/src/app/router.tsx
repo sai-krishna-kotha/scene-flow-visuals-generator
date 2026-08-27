@@ -8,21 +8,64 @@ import { ScenePage } from '../pages/ScenePage';
 import { JobPollingPage } from '../pages/JobPollingPage';
 import { JobResultsPage } from '../pages/JobResultsPage';
 
+import { useLocation } from 'react-router-dom';
+
+const Logo = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary-600 mr-2">
+    <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
+    <line x1="7" y1="2" x2="7" y2="22"></line>
+    <line x1="17" y1="2" x2="17" y2="22"></line>
+    <line x1="2" y1="12" x2="22" y2="12"></line>
+    <line x1="2" y1="7" x2="7" y2="7"></line>
+    <line x1="2" y1="17" x2="7" y2="17"></line>
+    <line x1="17" y1="17" x2="22" y2="17"></line>
+    <line x1="17" y1="7" x2="22" y2="7"></line>
+    <path d="M12 7l1 2.5L15.5 10.5L13 11.5L12 14l-1-2.5L8.5 10.5L11 9.5L12 7z" fill="currentColor" stroke="none"></path>
+  </svg>
+);
+
+const Header = () => {
+  const location = useLocation();
+  const isActive = (path: string) => location.pathname === path || (path !== '/' && location.pathname.startsWith(path));
+
+  return (
+    <header className="h-16 bg-white border-b border-surface-200 flex items-center px-4 md:px-8 shadow-sm z-10 sticky top-0">
+      <Link to="/" className="flex items-center mr-8">
+        <Logo />
+        <span className="text-lg font-bold text-surface-900 tracking-tight">SceneFlow</span>
+      </Link>
+      
+      <nav className="hidden md:flex space-x-6">
+        <Link 
+          to="/" 
+          className={`text-sm font-medium transition-colors ${isActive('/') && location.pathname === '/' ? 'text-primary-600 border-b-2 border-primary-600 py-5' : 'text-surface-600 hover:text-surface-900 py-5'}`}
+        >
+          Dashboard
+        </Link>
+        <Link 
+          to="/" 
+          className={`text-sm font-medium transition-colors ${(isActive('/projects') || (location.pathname !== '/' && !location.pathname.startsWith('/jobs'))) ? 'text-primary-600 border-b-2 border-primary-600 py-5' : 'text-surface-600 hover:text-surface-900 py-5'}`}
+        >
+          Projects
+        </Link>
+      </nav>
+      
+      <div className="ml-auto flex items-center">
+        <div className="w-8 h-8 rounded-full bg-surface-100 flex items-center justify-center text-surface-700 font-medium text-sm border border-surface-200">
+          WK
+        </div>
+      </div>
+    </header>
+  );
+};
+
 const Layout = () => {
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="bg-surface-900 text-white p-4 shadow-md">
-        <div className="container mx-auto flex items-center gap-2">
-          <Layers className="w-6 h-6 text-primary-500" />
-          <Link to="/" className="text-xl font-bold tracking-tight">AI Storyboard</Link>
-        </div>
-      </header>
-      <main className="flex-1 container mx-auto p-4 md:p-8">
+    <div className="flex flex-col min-h-screen bg-surface-50 font-sans">
+      <Header />
+      <main className="flex-1 overflow-y-auto p-4 md:p-8 max-w-7xl mx-auto w-full">
         <Outlet />
       </main>
-      <footer className="bg-surface-100 text-surface-800 text-center p-4 text-sm mt-auto border-t border-surface-200">
-        &copy; 2026 AI Storyboard Intelligence Platform
-      </footer>
     </div>
   );
 };

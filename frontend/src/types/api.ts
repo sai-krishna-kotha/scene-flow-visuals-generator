@@ -48,9 +48,12 @@ export interface SearchJobResponse {
   job_id: string;
   scene_id: string;
   status: JobStatus;
+  requested_query: string;
+  ranking_version: string;
   created_at: string | null;
   updated_at: string | null;
   error_message: string | null;
+  result_count?: number;
 }
 
 export interface RankingFeatures {

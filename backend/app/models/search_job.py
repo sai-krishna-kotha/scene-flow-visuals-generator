@@ -19,6 +19,9 @@ class SearchJob(Base):
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     scene_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("scenes.id", ondelete="CASCADE"), index=True, nullable=False)
     
+    requested_query: Mapped[str] = mapped_column(nullable=False, default="")
+    ranking_version: Mapped[str] = mapped_column(nullable=False, default="v1")
+    
     status: Mapped[JobStatus] = mapped_column(
         Enum(JobStatus, name="jobstatus_enum", create_type=True), 
         default=JobStatus.PENDING, 

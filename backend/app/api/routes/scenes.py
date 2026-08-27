@@ -63,7 +63,12 @@ async def search_scene_assets(
     if scene.script.project.user_id != user_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to access this scene")
 
-    job = SearchJob(scene_id=scene_id, status=JobStatus.PENDING)
+    job = SearchJob(
+        scene_id=scene_id, 
+        status=JobStatus.PENDING,
+        requested_query=request.query,
+        ranking_version="v1"
+    )
     db.add(job)
     db.commit()
     db.refresh(job)
@@ -74,5 +79,43 @@ async def search_scene_assets(
     return SearchJobResponse(
         job_id=job.id,
         scene_id=scene_id,
-        status=job.status
+        status=job.status,
+        requested_query=job.requested_query,
+        ranking_version=job.ranking_version
     )
+
+@router.get("/scenes/{scene_id}/jobs", response_model=list[SearchJobResponse])
+def list_scene_jobs(
+    scene_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    user_id: uuid.UUID = Depends(get_current_user)
+):
+    """
+    Returns historical SearchJobs for a scene, newest first.
+    """
+    repo = SceneRepository(db)
+    scene = repo.get_by_id(scene_id)
+    if not scene:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Scene not found")
+    if scene.script.project.user_id != user_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to access this scene")
+
+    jobs = db.query(SearchJob).filter(SearchJob.scene_id == scene_id).order_by(SearchJob.created_at.desc()).all()
+    
+    responses = []
+    for job in jobs:
+        responses.append(
+            SearchJobResponse(
+                job_id=job.id,
+                scene_id=job.scene_id,
+                status=job.status,
+                requested_query=job.requested_query,
+                ranking_version=job.ranking_version,
+                created_at=job.created_at,
+                updated_at=job.updated_at,
+                error_message=job.error_message,
+                result_count=len(job.assets)
+            )
+        )
+        
+    return responses

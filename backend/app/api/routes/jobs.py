@@ -6,7 +6,7 @@ from app.db.session import get_db
 from app.models.search_job import SearchJob, JobStatus
 from app.schemas.search_job import SearchJobResponse
 from app.schemas.semantic_search import SemanticSearchResponse, SemanticSearchRequest
-from app.services.semantic_search_service import SemanticSearchService
+from app.models.asset import Asset
 
 router = APIRouter()
 
@@ -44,31 +44,50 @@ def get_job_results(
     if job.status == JobStatus.FAILED:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Job failed: {job.error_message}")
         
-    # The job is COMPLETED.
-    # In a full production implementation we would likely persist the final query and orientation to SearchJob
-    # For now, we will perform a retrieval on the associated scene assets.
-    # Wait! The requirement says: "COMPLETED -> final ranked assets".
-    # And "Do not rerun the job when this endpoint is called. Results must come from PostgreSQL/Qdrant-backed application state, not the Celery result backend."
-    # The current SemanticSearchService requires a string `query` to do embedding and retrieve.
-    # But wait! If the job already aggregated everything from providers into Qdrant, we just need to retrieve for the scene's visual queries!
+    # Fetch historically persisted results
+    assets = db.query(Asset).filter(Asset.search_job_id == job_id).order_by(
+        Asset.final_score.desc(),
+        Asset.semantic_score.desc(),
+        (Asset.width * Asset.height).desc(),
+        Asset.provider_name.asc(),
+        Asset.provider_asset_id.asc()
+    ).all()
     
-    scene_text = job.scene.sentence_text
+    # Map back to SemanticSearchResult
+    from app.schemas.semantic_search import SemanticSearchResultItem
+    from app.services.ranking.ranking_service import RankingFeatures
+    from app.schemas.provider import ProviderAsset
     
-    # Ideally, we should just query Qdrant using the `SemanticSearchService.search_multi_query` logic with the scene's visual queries,
-    # or just return the highest ranked assets from the Job's assets in Postgres (which Qdrant indexes).
-    
-    semantic_service = SemanticSearchService(db)
-    # Re-running the gemini analysis here would violate "do not rerun the job".
-    # Since we didn't persist the visual queries to the database, we can just do a default search using the scene sentence text.
-    # OR we can fetch all Assets associated with the job in Postgres, and just return them?
-    # But the requirement is "final ranked assets".
-    
-    # Let's perform a simple search using the scene text for now.
-    res = semantic_service.search(
-        request=SemanticSearchRequest(
-            query=scene_text,
-            top_k=20,
-            orientation="landscape"
+    final_results = []
+    for asset in assets:
+        provider_asset = ProviderAsset(
+            provider=asset.provider_name,
+            provider_asset_id=asset.provider_asset_id,
+            image_url=asset.asset_url,
+            thumbnail_url=asset.thumbnail_url or "",
+            alt_text=asset.alt_text,
+            width=asset.width,
+            height=asset.height,
+            license=asset.license_type,
+            source_url=asset.source_url
         )
+        
+        features = RankingFeatures(
+            semantic_score=asset.semantic_score,
+            resolution_score=asset.resolution_score,
+            orientation_score=asset.orientation_score,
+            final_score=asset.final_score
+        )
+        
+        final_results.append(
+            SemanticSearchResultItem(
+                asset=provider_asset,
+                similarity=asset.semantic_score,
+                features=features
+            )
+        )
+        
+    return SemanticSearchResponse(
+        query=job.requested_query,
+        results=final_results
     )
-    return res

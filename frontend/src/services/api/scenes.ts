@@ -25,5 +25,10 @@ export const scenesApi = {
   search: async (sceneId: string, data: { query: string; limit?: number; orientation?: 'landscape' | 'portrait' | 'square' }): Promise<SearchJobResponse> => {
     const response = await apiClient.post<SearchJobResponse>(`/scenes/${sceneId}/search`, data);
     return response.data;
+  },
+
+  listJobs: async (sceneId: string): Promise<SearchJobResponse[]> => {
+    const response = await apiClient.get<SearchJobResponse[]>(`/scenes/${sceneId}/jobs`);
+    return response.data;
   }
 };
