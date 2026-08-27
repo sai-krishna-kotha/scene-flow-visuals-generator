@@ -21,6 +21,7 @@ export interface Scene {
   id: string;
   script_id: string;
   order: number;
+  title: string | null;
   sentence_text: string;
   status: 'pending' | 'analyzed';
   created_at: string;

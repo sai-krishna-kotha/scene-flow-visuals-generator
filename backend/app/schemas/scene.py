@@ -5,6 +5,7 @@ from datetime import datetime
 class SceneBase(BaseModel):
     sentence_text: str
     order: int
+    title: str | None = None
 
 class SceneCreate(SceneBase):
     pass

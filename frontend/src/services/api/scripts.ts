@@ -1,5 +1,5 @@
 import { apiClient } from './client';
-import { Script } from '../../types/api';
+import { Script, Scene } from '../../types/api';
 
 export const scriptsApi = {
   listForProject: async (projectId: string): Promise<Script[]> => {
@@ -12,6 +12,11 @@ export const scriptsApi = {
     return response.data;
   },
   
+  segment: async (scriptId: string): Promise<Scene[]> => {
+    const response = await apiClient.post<Scene[]>(`/scripts/${scriptId}/segment`);
+    return response.data;
+  },
+
   create: async (projectId: string, data: { title: string; full_text: string; orientation_preference: 'landscape' | 'portrait' | 'square' }): Promise<Script> => {
     const response = await apiClient.post<Script>(`/projects/${projectId}/scripts`, data);
     return response.data;

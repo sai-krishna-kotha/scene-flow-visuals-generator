@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import DateTime, ForeignKey, Text, Integer
+from sqlalchemy import DateTime, ForeignKey, Text, Integer, String
 from sqlalchemy.sql import func
 import uuid
 import datetime
@@ -11,6 +11,7 @@ class Scene(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     script_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("scripts.id", ondelete="CASCADE"), index=True, nullable=False)
+    title: Mapped[str | None] = mapped_column(String(255), nullable=True)
     sentence_text: Mapped[str] = mapped_column(Text, nullable=False)
     order: Mapped[int] = mapped_column(Integer, nullable=False)
     

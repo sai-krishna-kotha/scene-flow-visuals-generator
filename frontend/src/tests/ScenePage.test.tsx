@@ -32,6 +32,7 @@ const mockScene: Scene = {
   id: 'scene-123',
   script_id: 'script-123',
   order: 1,
+  title: null,
   sentence_text: 'A test scene sentence',
   status: 'analyzed',
   created_at: '2023-01-01',

@@ -12,12 +12,30 @@ class SceneRepository:
         scene = Scene(
             script_id=script_id,
             sentence_text=scene_in.sentence_text,
-            order=scene_in.order
+            order=scene_in.order,
+            title=scene_in.title
         )
         self.session.add(scene)
         self.session.commit()
         self.session.refresh(scene)
         return scene
+
+    def bulk_create_from_segments(self, script_id: uuid.UUID, segments: list) -> list[Scene]:
+        scenes = []
+        for segment in segments:
+            scene = Scene(
+                script_id=script_id,
+                sentence_text=segment.scene_text,
+                order=segment.order,
+                title=segment.title
+            )
+            scenes.append(scene)
+        
+        self.session.add_all(scenes)
+        self.session.commit()
+        for scene in scenes:
+            self.session.refresh(scene)
+        return scenes
 
     def get_by_id(self, scene_id: uuid.UUID) -> Scene | None:
         return self.session.get(Scene, scene_id)

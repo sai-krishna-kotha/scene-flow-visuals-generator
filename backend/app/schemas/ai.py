@@ -12,3 +12,11 @@ class SceneAnalysis(BaseModel):
 class SceneAnalysisResponse(BaseModel):
     scene_id: str
     analysis: SceneAnalysis
+
+class SceneSegment(BaseModel):
+    order: int
+    title: str
+    scene_text: str
+
+class ScriptSegmentation(BaseModel):
+    scenes: list[SceneSegment]

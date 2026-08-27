@@ -11,7 +11,7 @@ vi.mock('../services/api/projects', () => ({
   projectsApi: { get: vi.fn() }
 }));
 vi.mock('../services/api/scripts', () => ({
-  scriptsApi: { get: vi.fn() }
+  scriptsApi: { get: vi.fn(), segment: vi.fn() }
 }));
 vi.mock('../services/api/scenes', () => ({
   scenesApi: { listForScript: vi.fn(), create: vi.fn() }
@@ -38,6 +38,35 @@ describe('ScriptPage Component', () => {
     expect(await screen.findByRole('heading', { name: 'Script 1', level: 1 })).toBeInTheDocument();
     expect(screen.getByText('Full Script Text Content')).toBeInTheDocument();
     expect(screen.getByText('No scenes yet.')).toBeInTheDocument();
+    
+    // Check Generate Scenes button exists
+    expect(screen.getAllByRole('button', { name: /Generate Scenes with Gemini/i })[0]).toBeInTheDocument();
+  });
+
+  it('handles generate scenes success', async () => {
+    vi.mocked(projectsApi.get).mockResolvedValue({ id: 'proj-1', name: 'Project 1' } as any);
+    vi.mocked(scriptsApi.get).mockResolvedValue({ id: 'script-1', title: 'Script 1', full_text: 'Full Script Text Content', orientation_preference: 'landscape' } as any);
+    vi.mocked(scenesApi.listForScript).mockResolvedValue([]);
+    vi.mocked(scriptsApi.segment).mockResolvedValue([
+      { id: 'scene-1', order: 1, title: 'Gen Scene', sentence_text: 'Generated text 1', status: 'pending' } as any
+    ]);
+
+    render(
+      <MemoryRouter initialEntries={['/projects/proj-1/scripts/script-1']}>
+        <Routes>
+          <Route path="/projects/:projectId/scripts/:scriptId" element={<ScriptPage />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    expect(await screen.findByText('No scenes yet.')).toBeInTheDocument();
+    
+    // Click Generate Scenes
+    const generateBtns = screen.getAllByRole('button', { name: /Generate Scenes with Gemini/i });
+    fireEvent.click(generateBtns[0]);
+    
+    expect(await screen.findByText('Gen Scene')).toBeInTheDocument();
+    expect(screen.getByText('Generated text 1')).toBeInTheDocument();
   });
 
   it('renders scene list correctly and handles modal', async () => {

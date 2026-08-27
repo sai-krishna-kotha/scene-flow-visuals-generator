@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Clapperboard, Plus, ChevronRight, Settings } from 'lucide-react';
+import { Clapperboard, Plus, ChevronRight, Settings, Sparkles } from 'lucide-react';
 import { scriptsApi } from '../services/api/scripts';
 import { scenesApi } from '../services/api/scenes';
 import { Script, Scene, Project } from '../types/api';
-import { Button, Card, Loader, ErrorMessage, Breadcrumbs, Badge, Modal } from '../components/ui';
+import { Button, Loader, ErrorMessage, Breadcrumbs, Badge, Modal } from '../components/ui';
 import { projectsApi } from '../services/api/projects';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
@@ -17,6 +17,7 @@ export const ScriptPage = () => {
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const [newText, setNewText] = useState('');
 
   const [project, setProject] = useState<Project | null>(null);
@@ -67,6 +68,24 @@ export const ScriptPage = () => {
     }
   };
 
+  const handleGenerateScenes = async () => {
+    if (!scriptId) return;
+    setIsGenerating(true);
+    setError(null);
+    try {
+      const generatedScenes = await scriptsApi.segment(scriptId);
+      setScenes(generatedScenes);
+    } catch (err: any) {
+      if (err.response?.status === 409) {
+        setError('Scenes already exist for this script.');
+      } else {
+        setError(err.response?.data?.detail || err.message || 'Failed to generate scenes');
+      }
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   if (loading && !script) return <Loader text="Loading script..." />;
 
   return (
@@ -94,9 +113,15 @@ export const ScriptPage = () => {
             <span className="text-sm text-surface-500 font-medium">{scenes.length} Scenes</span>
           </div>
         </div>
-        <Button onClick={() => setIsModalOpen(true)} className="shrink-0 mt-4 md:mt-0">
-          <Plus className="w-4 h-4 mr-2" /> Add Scene
-        </Button>
+        <div className="shrink-0 mt-4 md:mt-0 flex flex-col md:flex-row gap-3">
+          <Button onClick={handleGenerateScenes} isLoading={isGenerating} disabled={scenes.length > 0} className="w-full md:w-auto">
+            <Sparkles className="w-4 h-4 mr-2" /> 
+            {scenes.length > 0 ? 'Scenes Generated' : 'Generate Scenes with Gemini'}
+          </Button>
+          <Button onClick={() => setIsModalOpen(true)} variant="outline" className="w-full md:w-auto">
+            <Plus className="w-4 h-4 mr-2" /> Add Scene
+          </Button>
+        </div>
       </div>
 
       {error && <ErrorMessage message={error} onRetry={fetchData} />}
@@ -124,9 +149,14 @@ export const ScriptPage = () => {
             <Clapperboard className="w-12 h-12 mx-auto text-surface-300 mb-4" />
             <p className="text-lg font-medium text-surface-700">No scenes yet.</p>
             <p className="mt-1 mb-6 text-sm">Break down your script into specific scenes to begin generating visual intelligence.</p>
-            <Button onClick={() => setIsModalOpen(true)} variant="outline">
-              <Plus className="w-4 h-4 mr-2" /> Add Scene
-            </Button>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <Button onClick={handleGenerateScenes} isLoading={isGenerating}>
+                <Sparkles className="w-4 h-4 mr-2" /> Generate Scenes with Gemini
+              </Button>
+              <Button onClick={() => setIsModalOpen(true)} variant="outline">
+                <Plus className="w-4 h-4 mr-2" /> Add Scene Manually
+              </Button>
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4">
@@ -137,7 +167,8 @@ export const ScriptPage = () => {
                     {s.order}
                   </div>
                   <div className="flex-1 min-w-0 md:pr-4">
-                    <p className="text-surface-900 font-medium text-lg leading-relaxed mb-2">{s.sentence_text}</p>
+                    {s.title && <h3 className="text-surface-900 font-bold text-lg mb-1">{s.title}</h3>}
+                    <p className="text-surface-700 font-medium text-base leading-relaxed mb-2 line-clamp-3">{s.sentence_text}</p>
                     <div className="flex items-center gap-3 text-sm">
                       {s.status === 'analyzed' ? (
                         <Badge variant="success">Analyzed</Badge>
