@@ -6,7 +6,11 @@ The V2 backend introduces a cleanly layered application architecture on top of F
 Requests flow predictably through the application layers:
 
 ```
+React Frontend
+    ↓
 HTTP Router
+    ↓
+SearchJob (Celery + Redis Enqueue)
     ↓
 Service  →  Gemini Scene Analysis → visual_queries
     ↓
@@ -20,7 +24,9 @@ PostgreSQL (Authoritative Hydration)
     ↓
 RankingService (Heuristic Reranking)
     ↓
-Final Result
+Results API
+    ↓
+React Results Gallery
 ```
 
 ### API Layer (FastAPI) & Background Tasks (Celery + Redis)

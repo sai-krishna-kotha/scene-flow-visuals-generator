@@ -27,15 +27,19 @@ The core scope remains focused on the semantic visual asset workflow: taking scr
 - [x] **Phase 7:** Deterministic Semantic Reranking + Explainable Scoring
 
 - [x] **Phase 8:** Celery + Redis Background Processing
+- [x] **Phase 9:** React + TypeScript Frontend
+- [ ] **Phase 10:** Authentication + Authorization
 
 ## Completed Phases
 
-**Phase 1 through 8** are finalized. The V2 backend is cleanly layered (Router -> Service -> Repository), interacts dynamically with PostgreSQL, natively integrates with Google GenAI for structured AI Storyboard Scene Intelligence, executes highly-concurrent async provider searches, vectorizes text using Sentence Transformers, retrieves candidates from Qdrant, deterministically reranks candidates using a pure heuristic algorithm, and orchestrates all long-running tasks asynchronously via Celery and Redis.
+**Phase 1 through 9** are finalized. The V2 backend is cleanly layered (Router -> Service -> Repository), interacts dynamically with PostgreSQL, natively integrates with Google GenAI for structured AI Storyboard Scene Intelligence, executes highly-concurrent async provider searches, vectorizes text using Sentence Transformers, retrieves candidates from Qdrant, deterministically reranks candidates using a pure heuristic algorithm, orchestrates all long-running tasks asynchronously via Celery and Redis, and provides a full-stack React UI.
 
-## Next Phase: Phase 9 — React + TypeScript Frontend
+## Next Phase: Phase 10 — Authentication + Authorization
 
-- [ ] Introduce React + TypeScript frontend layer.
-- [ ] Add JWT authentication.
+- [ ] Implement JWT Verification Dependency
+- [ ] Add OAuth2/SSO Login
+- [ ] Secure all API routes
+- [ ] Implement User Scopes (Ownership of Projects)
 
 ## Phase 2: FastAPI Backend Foundation
 Phase 2 establishes the core FastAPI backend layout. It introduces a modular-monolith directory structure, integrating FastAPI, Pydantic settings, SQLAlchemy 2.x, and Alembic. The backend is placed in a separate `backend/` directory alongside the legacy Django app to allow for incremental feature migration. The foundational API exposes basic routing and health checks while maintaining a PostgreSQL-ready connection dependency.
