@@ -181,7 +181,7 @@ export const ScenePage = () => {
             <h2 className="text-xs font-bold text-surface-500 uppercase tracking-wider">Scene Context</h2>
           </div>
           <div className="flex-1 overflow-y-auto p-4 md:p-5 scroll-smooth flex flex-col">
-            <div className="my-auto">
+            <div className="my-auto max-w-[85%] -translate-y-[4px]">
               <p className="text-lg text-surface-900 font-medium leading-relaxed italic border-l-4 border-primary-200 pl-4 py-1 text-left">
                 "{scene?.sentence_text}"
               </p>
