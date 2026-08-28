@@ -285,28 +285,41 @@ export const ScenePage = () => {
             No previous searches.
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="flex flex-col gap-4">
             {jobs.map((job, index) => (
-              <div key={job.job_id} className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-3 border-b border-surface-100 last:border-0">
-                <div>
-                  <h3 className="font-bold text-surface-900 text-sm">Search {jobs.length - index}</h3>
-                  <div className="flex items-center gap-2 text-xs text-surface-500 mt-0.5">
-                    <span className="capitalize font-medium">{job.status.toLowerCase()}</span>
-                    {job.status === 'COMPLETED' && job.result_count !== undefined && (
-                      <>
-                        <span>&middot;</span>
-                        <span>{job.result_count} assets</span>
-                      </>
+              <div key={job.job_id} className="bg-white border border-surface-200 shadow-sm rounded-xl p-5 hover:border-surface-300 hover:shadow transition-all flex flex-col gap-3">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-xs font-bold text-surface-500 bg-surface-100 px-2 py-1 rounded shrink-0">
+                    Search {jobs.length - index}
+                  </span>
+                  <div className="flex items-center">
+                    {job.status === 'COMPLETED' ? (
+                      <Badge variant="success">Completed</Badge>
+                    ) : job.status === 'FAILED' ? (
+                      <Badge variant="error">Failed</Badge>
+                    ) : (
+                      <Badge variant="outline" className="capitalize">{job.status.toLowerCase()}</Badge>
                     )}
-                  </div>
-                  <div className="text-sm text-surface-700 italic mt-1.5">
-                    {job.requested_query ? `"${job.requested_query}"` : 'Original query unavailable'}
                   </div>
                 </div>
                 
-                <div className="shrink-0">
+                <div className="py-1">
+                  <p className="text-surface-600 text-sm leading-relaxed line-clamp-2 italic font-medium">
+                    {job.requested_query ? `"${job.requested_query}"` : 'Original query unavailable'}
+                  </p>
+                </div>
+                
+                <div className="flex items-center justify-between pt-3 mt-1 border-t border-surface-100">
+                  <div className="text-xs font-medium text-surface-500">
+                    {job.status === 'COMPLETED' && job.result_count !== undefined ? (
+                      <span>{job.result_count} assets</span>
+                    ) : (
+                      <span>—</span>
+                    )}
+                  </div>
+                  
                   <Link to={`/jobs/${job.job_id}${job.status === 'COMPLETED' ? '/results' : ''}`}>
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" className="bg-white hover:bg-surface-50">
                       {job.status === 'COMPLETED' ? 'View Results' : 'View Progress'}
                     </Button>
                   </Link>
