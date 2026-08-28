@@ -180,18 +180,20 @@ export const ScenePage = () => {
           <div className="shrink-0 bg-surface-50 px-4 py-3 border-b border-surface-200">
             <h2 className="text-xs font-bold text-surface-500 uppercase tracking-wider">Scene Context</h2>
           </div>
-          <div className="flex-1 overflow-y-auto p-4 md:p-5 scroll-smooth">
-            <p className="text-lg text-surface-900 font-medium leading-relaxed italic border-l-4 border-primary-200 pl-4 py-1">
-              "{scene?.sentence_text}"
-            </p>
-            <div className="mt-4 flex items-center gap-2 text-sm text-surface-500 font-medium">
-              <span className="capitalize">{script?.orientation_preference}</span>
-              {scene?.updated_at && (
-                <>
-                  <span>&middot;</span>
-                  <span>Updated {new Date(scene.updated_at).toLocaleDateString()}</span>
-                </>
-              )}
+          <div className="flex-1 overflow-y-auto p-4 md:p-5 scroll-smooth flex flex-col">
+            <div className="my-auto">
+              <p className="text-lg text-surface-900 font-medium leading-relaxed italic border-l-4 border-primary-200 pl-4 py-1 text-left">
+                "{scene?.sentence_text}"
+              </p>
+              <div className="mt-4 flex items-center gap-2 text-sm text-surface-500 font-medium text-left">
+                <span className="capitalize">{script?.orientation_preference}</span>
+                {scene?.updated_at && (
+                  <>
+                    <span>&middot;</span>
+                    <span>Updated {new Date(scene.updated_at).toLocaleDateString()}</span>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </div>
