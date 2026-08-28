@@ -17,7 +17,7 @@ export const scriptsApi = {
     return response.data;
   },
 
-  create: async (projectId: string, data: { title: string; full_text: string; orientation_preference: 'landscape' | 'portrait' | 'square' }): Promise<Script> => {
+  create: async (projectId: string, data: { title: string; full_text: string; orientation_preference: 'all' | 'landscape' | 'portrait' | 'square' }): Promise<Script> => {
     const response = await apiClient.post<Script>(`/projects/${projectId}/scripts`, data);
     return response.data;
   },

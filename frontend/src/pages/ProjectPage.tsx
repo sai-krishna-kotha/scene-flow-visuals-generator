@@ -20,7 +20,7 @@ export const ProjectPage = () => {
   const [isCreating, setIsCreating] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newText, setNewText] = useState('');
-  const [newOrientation, setNewOrientation] = useState<'landscape'|'portrait'|'square'>('landscape');
+  const [newOrientation, setNewOrientation] = useState<'all'|'landscape'|'portrait'|'square'>('all');
 
   const fetchData = async () => {
     if (!projectId) return;
@@ -166,6 +166,7 @@ export const ProjectPage = () => {
               className="w-full px-3 py-2 bg-surface-50 border border-surface-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white transition-colors text-sm"
               disabled={isCreating}
             >
+              <option value="all">All</option>
               <option value="landscape">Landscape</option>
               <option value="portrait">Portrait</option>
               <option value="square">Square</option>

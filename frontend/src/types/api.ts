@@ -12,7 +12,7 @@ export interface Script {
   project_id: string;
   title: string;
   full_text: string;
-  orientation_preference: 'landscape' | 'portrait' | 'square';
+  orientation_preference: 'all' | 'landscape' | 'portrait' | 'square';
   created_at: string;
   updated_at: string;
 }

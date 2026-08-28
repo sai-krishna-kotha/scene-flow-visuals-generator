@@ -22,7 +22,7 @@ export const scenesApi = {
     return response.data;
   },
 
-  search: async (sceneId: string, data: { query: string; limit?: number; orientation?: 'landscape' | 'portrait' | 'square' }): Promise<SearchJobResponse> => {
+  search: async (sceneId: string, data: { query: string; limit?: number; orientation?: 'all' | 'landscape' | 'portrait' | 'square' }): Promise<SearchJobResponse> => {
     const response = await apiClient.post<SearchJobResponse>(`/scenes/${sceneId}/search`, data);
     return response.data;
   },
