@@ -174,17 +174,17 @@ export const ScenePage = () => {
 
       {error && <ErrorMessage message={error} onRetry={fetchData} />}
 
-      <div className="flex flex-col lg:grid lg:grid-cols-2 lg:items-stretch gap-6 lg:gap-8 lg:h-[600px]">
+      <div className="flex flex-col lg:grid lg:grid-cols-2 lg:items-stretch gap-5 lg:h-[380px]">
         {/* Scene Context Panel */}
-        <div className="flex flex-col h-[350px] lg:h-full overflow-hidden bg-white rounded-xl border border-surface-200 shadow-sm">
-          <div className="shrink-0 bg-surface-50 px-5 py-4 border-b border-surface-200">
+        <div className="flex flex-col h-[280px] lg:h-full overflow-hidden bg-white rounded-xl border border-surface-200 shadow-sm">
+          <div className="shrink-0 bg-surface-50 px-4 py-3 border-b border-surface-200">
             <h2 className="text-xs font-bold text-surface-500 uppercase tracking-wider">Scene Context</h2>
           </div>
-          <div className="flex-1 overflow-y-auto p-5 md:p-6">
+          <div className="flex-1 overflow-y-auto p-4 md:p-5 scroll-smooth">
             <p className="text-lg text-surface-900 font-medium leading-relaxed italic border-l-4 border-primary-200 pl-4 py-1">
               "{scene?.sentence_text}"
             </p>
-            <div className="mt-5 flex items-center gap-2 text-sm text-surface-500 font-medium">
+            <div className="mt-4 flex items-center gap-2 text-sm text-surface-500 font-medium">
               <span className="capitalize">{script?.orientation_preference}</span>
               {scene?.updated_at && (
                 <>
@@ -197,75 +197,75 @@ export const ScenePage = () => {
         </div>
 
         {/* AI Scene Intelligence Panel */}
-        <div className="flex flex-col h-[500px] lg:h-full overflow-hidden bg-white rounded-xl border border-surface-200 shadow-sm">
-          <div className="shrink-0 bg-surface-50 px-5 py-4 border-b border-surface-200">
+        <div className="flex flex-col h-[320px] lg:h-full overflow-hidden bg-white rounded-xl border border-surface-200 shadow-sm">
+          <div className="shrink-0 bg-surface-50 px-4 py-3 border-b border-surface-200">
             <h2 className="text-xs font-bold text-surface-500 uppercase tracking-wider">AI Scene Intelligence</h2>
           </div>
           
-          <div className="flex-1 overflow-y-auto p-5 md:p-6">
+          <div className="flex-1 overflow-y-auto p-4 md:p-5 scroll-smooth">
             {!analysis ? (
-              <div className="h-full flex flex-col items-center justify-center text-center space-y-4">
-                <BrainCircuit className="w-10 h-10 text-surface-300" />
+              <div className="h-full flex flex-col items-center justify-center text-center space-y-3">
+                <BrainCircuit className="w-8 h-8 text-surface-300" />
                 <div>
-                  <p className="text-surface-700 font-medium text-base mb-1">No analysis available</p>
-                  <p className="text-surface-500 text-sm mb-4">Turn this scene into structured visual intelligence.</p>
+                  <p className="text-surface-700 font-medium text-sm mb-1">No analysis available</p>
+                  <p className="text-surface-500 text-xs mb-3">Turn this scene into structured visual intelligence.</p>
                 </div>
-                <Button onClick={handleAnalyze} isLoading={isAnalyzing} disabled={isAnalyzing || isSearching} variant="outline">
-                  {!isAnalyzing && <BrainCircuit className="w-4 h-4 mr-2 text-primary-600" />}
+                <Button onClick={handleAnalyze} isLoading={isAnalyzing} disabled={isAnalyzing || isSearching} variant="outline" size="sm">
+                  {!isAnalyzing && <BrainCircuit className="w-3.5 h-3.5 mr-2 text-primary-600" />}
                   {isAnalyzing ? 'Analyzing...' : 'Analyze with Gemini'}
                 </Button>
               </div>
             ) : (
-              <div className="space-y-6">
+              <div className="space-y-5">
                 <div>
-                  <h3 className="text-[10px] font-bold text-surface-400 uppercase tracking-wider mb-2">Summary</h3>
+                  <h3 className="text-[10px] font-bold text-surface-400 uppercase tracking-wider mb-1.5">Summary</h3>
                   <p className="text-surface-900 text-sm font-medium leading-relaxed">
                     {analysis.summary}
                   </p>
                 </div>
                 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <h3 className="text-[10px] font-bold text-surface-400 uppercase tracking-wider mb-2">Subjects</h3>
+                    <h3 className="text-[10px] font-bold text-surface-400 uppercase tracking-wider mb-1.5">Subjects</h3>
                     <div className="flex flex-wrap gap-1.5">
                       {analysis.subjects.map((item, i) => (
-                        <span key={i} className="text-xs font-medium text-surface-700 bg-surface-100 px-2 py-1 rounded-md">{item}</span>
+                        <span key={i} className="text-xs font-medium text-surface-700 bg-surface-100 px-2 py-0.5 rounded-md">{item}</span>
                       ))}
                     </div>
                   </div>
                   
                   <div>
-                    <h3 className="text-[10px] font-bold text-surface-400 uppercase tracking-wider mb-2">Actions</h3>
+                    <h3 className="text-[10px] font-bold text-surface-400 uppercase tracking-wider mb-1.5">Actions</h3>
                     <div className="flex flex-wrap gap-1.5">
                       {analysis.actions.map((item, i) => (
-                        <span key={i} className="text-xs font-medium text-surface-700 bg-surface-100 px-2 py-1 rounded-md">{item}</span>
+                        <span key={i} className="text-xs font-medium text-surface-700 bg-surface-100 px-2 py-0.5 rounded-md">{item}</span>
                       ))}
                     </div>
                   </div>
                   
                   <div>
-                    <h3 className="text-[10px] font-bold text-surface-400 uppercase tracking-wider mb-2">Environment</h3>
+                    <h3 className="text-[10px] font-bold text-surface-400 uppercase tracking-wider mb-1.5">Environment</h3>
                     <div className="flex flex-wrap gap-1.5">
                       {analysis.environment.map((item, i) => (
-                        <span key={i} className="text-xs font-medium text-surface-700 bg-surface-100 px-2 py-1 rounded-md">{item}</span>
+                        <span key={i} className="text-xs font-medium text-surface-700 bg-surface-100 px-2 py-0.5 rounded-md">{item}</span>
                       ))}
                     </div>
                   </div>
                   
                   <div>
-                    <h3 className="text-[10px] font-bold text-surface-400 uppercase tracking-wider mb-2">Mood & Time</h3>
-                    <div className="text-xs font-medium text-surface-700 space-y-1.5">
+                    <h3 className="text-[10px] font-bold text-surface-400 uppercase tracking-wider mb-1.5">Mood & Time</h3>
+                    <div className="text-xs font-medium text-surface-700 space-y-1">
                       <div className="flex items-center gap-2"><span className="w-1 h-1 rounded-full bg-surface-300"></span>{analysis.mood}</div>
                       <div className="flex items-center gap-2"><span className="w-1 h-1 rounded-full bg-surface-300"></span>{analysis.time_context}</div>
                     </div>
                   </div>
                 </div>
                 
-                <div className="pt-2">
-                  <h3 className="text-[10px] font-bold text-surface-400 uppercase tracking-wider mb-2.5">Visual Search Intent</h3>
-                  <div className="flex flex-col gap-2">
+                <div className="pt-1">
+                  <h3 className="text-[10px] font-bold text-surface-400 uppercase tracking-wider mb-2">Visual Search Intent</h3>
+                  <div className="flex flex-col gap-1.5">
                     {analysis.visual_queries.map((q, i) => (
-                      <div key={i} className="px-3 py-2 bg-primary-50/50 text-primary-800 border border-primary-100/50 rounded-lg text-sm font-medium">
+                      <div key={i} className="px-2.5 py-1.5 bg-primary-50/50 text-primary-800 border border-primary-100/50 rounded-lg text-sm font-medium">
                         {q}
                       </div>
                     ))}
@@ -277,7 +277,7 @@ export const ScenePage = () => {
         </div>
       </div>
 
-      <div className="mt-8 border-t border-surface-200 pt-8">
+      <div className="mt-6 border-t border-surface-200 pt-6">
         <h2 className="text-sm font-bold text-surface-500 uppercase tracking-wider mb-4">Visual Search History</h2>
         
         {jobs.length === 0 ? (
