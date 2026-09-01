@@ -102,6 +102,44 @@ cd frontend
 npm run dev
 ```
 
+## Deployment
+
+SceneFlow is designed for production deployment on modern platforms.
+
+### 1. Database & Infrastructure
+- **PostgreSQL**: Deploy a managed PostgreSQL instance (e.g., Railway).
+- **Redis**: Deploy a managed Redis instance (e.g., Railway).
+- **Qdrant**: Deploy a managed Qdrant Cloud cluster and obtain the URL and API Key.
+
+### 2. Backend API (Railway)
+Use the provided `Dockerfile`. Railway will automatically build and deploy it.
+- **Service Name**: FastAPI API
+- **Command**: `uvicorn app.main:app --host 0.0.0.0 --port ${PORT}`
+- **Required Environment Variables**:
+  - `DATABASE_URL` (Reference your managed PostgreSQL)
+  - `REDIS_URL` (Reference your managed Redis)
+  - `QDRANT_URL` and `QDRANT_API_KEY`
+  - `GEMINI_API_KEY`, `PEXELS_API_KEY`, `PIXABAY_API_KEY`, `OPENVERSE_CLIENT_ID`, `OPENVERSE_CLIENT_SECRET`
+  - `CORS_ORIGINS`: Set to your deployed frontend URL (e.g., `https://my-sceneflow-frontend.vercel.app`).
+  - `DEV_USER_ID`: A valid UUID for the default user identity.
+- **Database Migrations**: Run `alembic upgrade head` on the deployed environment before initial use.
+- **Health Check**: `GET /health` is available to confirm service status.
+
+### 3. Celery Worker (Railway)
+Deploy the exact same repository and `Dockerfile` as a secondary worker service.
+- **Service Name**: Celery Worker
+- **Command**: `celery -A app.worker.celery_app worker --loglevel=info`
+- **Required Environment Variables**: Same as the API service.
+
+### 4. Frontend (Vercel)
+Deploy the `frontend/` directory to Vercel.
+- **Framework Preset**: Vite
+- **Build Command**: `npm run build`
+- **Output Directory**: `dist`
+- **Required Environment Variables**:
+  - `VITE_API_BASE_URL`: The deployed API URL (e.g., `https://my-api-service.up.railway.app/api/v1`).
+
+
 ## License
 
 This project was developed for technical evaluation and educational purposes.

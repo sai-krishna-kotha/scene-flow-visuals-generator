@@ -7,4 +7,7 @@ def get_qdrant_client() -> QdrantClient:
     Using sync here because qdrant_client supports sync well and FastAPI can wrap blocking calls 
     if needed, or we just execute them fast enough in the threadpool.
     """
-    return QdrantClient(url=settings.QDRANT_URL)
+    return QdrantClient(
+        url=settings.QDRANT_URL,
+        api_key=settings.QDRANT_API_KEY
+    )

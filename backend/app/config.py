@@ -32,6 +32,7 @@ class Settings(BaseSettings):
     # Vector Search & ML
     EMBEDDING_MODEL: str = "all-MiniLM-L6-v2"
     QDRANT_URL: str = "http://localhost:6333"
+    QDRANT_API_KEY: str | None = None
     QDRANT_COLLECTION: str = "semantic_assets_v2"
     REDIS_URL: str = "redis://localhost:6379/0"
 
