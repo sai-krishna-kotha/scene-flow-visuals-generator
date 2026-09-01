@@ -2,6 +2,7 @@ from app.repositories.project_repository import ProjectRepository
 from app.schemas.project import ProjectCreate, ProjectUpdate
 from app.models.project import Project
 from fastapi import HTTPException
+from app.exceptions import ProjectNotFoundError
 import uuid
 
 class ProjectService:
@@ -14,7 +15,7 @@ class ProjectService:
     def get_project(self, project_id: uuid.UUID) -> Project:
         project = self.repository.get_by_id(project_id)
         if not project:
-            raise HTTPException(status_code=404, detail="Project not found")
+            raise ProjectNotFoundError()
         return project
 
     def list_projects(self, user_id: uuid.UUID, skip: int = 0, limit: int = 100) -> list[Project]:

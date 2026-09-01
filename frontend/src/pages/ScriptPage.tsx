@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Clapperboard, Plus, ChevronRight, Settings, Sparkles } from 'lucide-react';
 import { scriptsApi } from '../services/api/scripts';
 import { scenesApi } from '../services/api/scenes';
@@ -7,9 +7,12 @@ import { Script, Scene, Project } from '../types/api';
 import { Button, Loader, ErrorMessage, Breadcrumbs, Badge, Modal } from '../components/ui';
 import { projectsApi } from '../services/api/projects';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { MoreMenu, MoreMenuItem } from '../components/ui/MoreMenu';
+import { DeleteConfirmationDialog } from '../components/ui/DeleteConfirmationDialog';
 
 export const ScriptPage = () => {
   const { projectId, scriptId } = useParams<{ projectId: string, scriptId: string }>();
+  const navigate = useNavigate();
   const [script, setScript] = useState<Script | null>(null);
   const [scenes, setScenes] = useState<Scene[]>([]);
   const [loading, setLoading] = useState(true);
@@ -21,6 +24,11 @@ export const ScriptPage = () => {
   const [newText, setNewText] = useState('');
 
   const [project, setProject] = useState<Project | null>(null);
+
+  // Delete state
+  const [scriptToDelete, setScriptToDelete] = useState<Script | null>(null);
+  const [sceneToDelete, setSceneToDelete] = useState<Scene | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useDocumentTitle('Script Studio');
 
@@ -86,6 +94,34 @@ export const ScriptPage = () => {
     }
   };
 
+  const handleDeleteScript = async () => {
+    if (!scriptToDelete) return;
+    setIsDeleting(true);
+    try {
+      await scriptsApi.delete(scriptToDelete.id);
+      navigate(`/projects/${projectId}`);
+    } catch (err: any) {
+      setError(err.message || 'Unable to delete this script.');
+    } finally {
+      setIsDeleting(false);
+      setScriptToDelete(null);
+    }
+  };
+
+  const handleDeleteScene = async () => {
+    if (!sceneToDelete) return;
+    setIsDeleting(true);
+    try {
+      await scenesApi.delete(sceneToDelete.id);
+      setScenes(scenes.filter(s => s.id !== sceneToDelete.id));
+      setSceneToDelete(null);
+    } catch (err: any) {
+      setError(err.message || 'Unable to delete this scene.');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   if (loading && !script) return <Loader text="Loading script..." />;
 
   return (
@@ -113,18 +149,27 @@ export const ScriptPage = () => {
             <span className="text-sm text-surface-500 font-medium">{scenes.length} Scenes</span>
           </div>
         </div>
-        <div className="shrink-0 mt-4 md:mt-0 flex flex-col md:flex-row gap-3">
-          <Button onClick={handleGenerateScenes} isLoading={isGenerating} disabled={scenes.length > 0} className="w-full md:w-auto">
-            <Sparkles className="w-4 h-4 mr-2" /> 
-            {scenes.length > 0 ? 'Scenes Generated' : 'Generate Scenes with Gemini'}
-          </Button>
-          <Button onClick={() => setIsModalOpen(true)} variant="outline" className="w-full md:w-auto">
-            <Plus className="w-4 h-4 mr-2" /> Add Scene
-          </Button>
+        <div className="shrink-0 mt-4 md:mt-0 flex items-center gap-2">
+          <div className="flex flex-col md:flex-row gap-2">
+            <Button onClick={handleGenerateScenes} isLoading={isGenerating} disabled={scenes.length > 0} className="w-full md:w-auto">
+              <Sparkles className="w-4 h-4 mr-2" /> 
+              {scenes.length > 0 ? 'Scenes Generated' : 'Generate Scenes'}
+            </Button>
+            <Button onClick={() => setIsModalOpen(true)} variant="outline" className="w-full md:w-auto">
+              <Plus className="w-4 h-4 mr-2" /> Add Scene
+            </Button>
+          </div>
+          {script && (
+            <MoreMenu>
+              <MoreMenuItem destructive onClick={() => setScriptToDelete(script)}>
+                Delete Script
+              </MoreMenuItem>
+            </MoreMenu>
+          )}
         </div>
       </div>
 
-      {error && <ErrorMessage message={error} onRetry={fetchData} />}
+      {error && <ErrorMessage message={error} onRetry={() => setError(null)} />}
 
       <div className="bg-white rounded-xl border border-surface-200 shadow-sm overflow-hidden mb-8">
         <div className="bg-surface-50 px-6 py-4 border-b border-surface-200 flex items-center justify-between">
@@ -162,7 +207,7 @@ export const ScriptPage = () => {
           <div className="flex flex-col gap-4">
             {scenes.map(s => (
               <div key={s.id} className="bg-white border border-surface-200 shadow-sm rounded-xl p-5 hover:border-surface-300 hover:shadow transition-all flex flex-col gap-3">
-                <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 md:gap-4">
                   <div className="flex items-center gap-3 min-w-0">
                     <span className="text-xs font-bold text-surface-500 bg-surface-100 px-2 py-1 rounded shrink-0">
                       {s.order < 10 ? `0${s.order}` : s.order}
@@ -175,13 +220,13 @@ export const ScriptPage = () => {
                   </div>
                 </div>
                 
-                <div className="pl-0 md:pl-[3.25rem]">
+                <div className="pl-0 md:pl-13">
                   <p className="text-surface-600 text-sm leading-relaxed line-clamp-2">
                     {s.sentence_text}
                   </p>
                 </div>
                 
-                <div className="flex items-center justify-between pt-3 mt-1 border-t border-surface-100 md:ml-[3.25rem]">
+                <div className="flex items-center justify-between pt-3 mt-1 border-t border-surface-100 md:ml-13">
                   <div className="flex items-center">
                     {s.status === 'analyzed' ? (
                       <Badge variant="success">Analyzed</Badge>
@@ -189,11 +234,18 @@ export const ScriptPage = () => {
                       <span className="text-xs font-medium text-surface-400">Unanalyzed</span>
                     )}
                   </div>
-                  <Link to={`/scenes/${s.id}`}>
-                    <Button variant="outline" size="sm" className="bg-white hover:bg-surface-50">
-                      Open Scene
-                    </Button>
-                  </Link>
+                  <div className="flex items-center gap-2">
+                    <Link to={`/scenes/${s.id}`}>
+                      <Button variant="outline" size="sm" className="bg-white hover:bg-surface-50">
+                        Open Scene
+                      </Button>
+                    </Link>
+                    <MoreMenu>
+                      <MoreMenuItem destructive onClick={() => setSceneToDelete(s)}>
+                        Delete Scene
+                      </MoreMenuItem>
+                    </MoreMenu>
+                  </div>
                 </div>
               </div>
             ))}
@@ -225,6 +277,35 @@ export const ScriptPage = () => {
           </div>
         </form>
       </Modal>
+
+      <DeleteConfirmationDialog
+        isOpen={!!scriptToDelete}
+        onClose={() => setScriptToDelete(null)}
+        onConfirm={handleDeleteScript}
+        title="Delete Script"
+        itemName={scriptToDelete?.title || ''}
+        isDeleting={isDeleting}
+        warnings={[
+          'all scenes',
+          'visual search history',
+          'stored visual results'
+        ]}
+        deleteButtonText="Delete Script"
+      />
+
+      <DeleteConfirmationDialog
+        isOpen={!!sceneToDelete}
+        onClose={() => setSceneToDelete(null)}
+        onConfirm={handleDeleteScene}
+        title="Delete Scene"
+        itemName={sceneToDelete?.title || `Scene ${sceneToDelete?.order}`}
+        isDeleting={isDeleting}
+        warnings={[
+          'visual search jobs',
+          'stored visual results'
+        ]}
+        deleteButtonText="Delete Scene"
+      />
     </div>
   );
 };

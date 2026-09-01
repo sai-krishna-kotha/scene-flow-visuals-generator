@@ -27,6 +27,10 @@ export const scenesApi = {
     return response.data;
   },
 
+  delete: async (id: string): Promise<void> => {
+    await apiClient.delete(`/scenes/${id}`);
+  },
+
   listJobs: async (sceneId: string): Promise<SearchJobResponse[]> => {
     const response = await apiClient.get<SearchJobResponse[]>(`/scenes/${sceneId}/jobs`);
     return response.data;

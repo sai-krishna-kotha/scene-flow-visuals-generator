@@ -3,6 +3,7 @@ from app.repositories.script_repository import ScriptRepository
 from app.schemas.scene import SceneCreate, SceneUpdate
 from app.models.scene import Scene
 from fastapi import HTTPException
+from app.exceptions import SceneNotFoundError, ScriptNotFoundError
 import uuid
 
 class SceneService:
@@ -12,18 +13,18 @@ class SceneService:
 
     def create_scene(self, scene_in: SceneCreate, script_id: uuid.UUID) -> Scene:
         if not self.script_repository.get_by_id(script_id):
-            raise HTTPException(status_code=404, detail="Script not found")
+            raise ScriptNotFoundError()
         return self.repository.create(scene_in, script_id=script_id)
 
     def get_scene(self, scene_id: uuid.UUID) -> Scene:
         scene = self.repository.get_by_id(scene_id)
         if not scene:
-            raise HTTPException(status_code=404, detail="Scene not found")
+            raise SceneNotFoundError()
         return scene
 
     def list_scenes(self, script_id: uuid.UUID, skip: int = 0, limit: int = 100) -> list[Scene]:
         if not self.script_repository.get_by_id(script_id):
-            raise HTTPException(status_code=404, detail="Script not found")
+            raise ScriptNotFoundError()
         return self.repository.list_by_script(script_id=script_id, skip=skip, limit=limit)
 
     def update_scene(self, scene_id: uuid.UUID, scene_in: SceneUpdate) -> Scene:

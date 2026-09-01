@@ -3,8 +3,10 @@ import { Link } from 'react-router-dom';
 import { Folder, Plus } from 'lucide-react';
 import { projectsApi } from '../services/api/projects';
 import { Project } from '../types/api';
-import { Button, Card, Loader, ErrorMessage } from '../components/ui';
+import { Button, Loader, ErrorMessage } from '../components/ui';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { MoreMenu, MoreMenuItem } from '../components/ui/MoreMenu';
+import { DeleteConfirmationDialog } from '../components/ui/DeleteConfirmationDialog';
 
 export const DashboardPage = () => {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -12,6 +14,10 @@ export const DashboardPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [newProjectName, setNewProjectName] = useState('');
+  
+  // Delete state
+  const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useDocumentTitle('Dashboard');
 
@@ -47,6 +53,20 @@ export const DashboardPage = () => {
     }
   };
 
+  const handleDeleteProject = async () => {
+    if (!projectToDelete) return;
+    setIsDeleting(true);
+    try {
+      await projectsApi.delete(projectToDelete.id);
+      setProjects(projects.filter(p => p.id !== projectToDelete.id));
+      setProjectToDelete(null);
+    } catch (err: any) {
+      setError(err.message || 'Unable to delete this project.');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   if (loading && projects.length === 0) return <Loader text="Loading projects..." />;
 
   return (
@@ -76,7 +96,7 @@ export const DashboardPage = () => {
         </div>
       </div>
 
-      {error && <ErrorMessage message={error} onRetry={fetchProjects} />}
+      {error && <ErrorMessage message={error} onRetry={() => setError(null)} />}
 
       <div>
         <h2 className="text-xl font-bold text-surface-900 mb-4">Recent Projects</h2>
@@ -89,23 +109,48 @@ export const DashboardPage = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {projects.map(p => (
-              <Link key={p.id} to={`/projects/${p.id}`} className="group block">
-                <div className="bg-white border border-surface-200 rounded-xl p-5 h-full hover:border-primary-400 hover:shadow-md transition-all flex flex-col justify-between">
+              <div key={p.id} className="relative group block bg-white border border-surface-200 rounded-xl hover:border-primary-400 hover:shadow-md transition-all h-full">
+                <Link to={`/projects/${p.id}`} className="p-5 h-full flex flex-col justify-between">
                   <div className="flex items-start justify-between mb-4">
-                    <h3 className="font-bold text-lg text-surface-900 group-hover:text-primary-600 transition-colors line-clamp-2 leading-snug">
+                    <h3 className="font-bold text-lg text-surface-900 group-hover:text-primary-600 transition-colors line-clamp-2 leading-snug pr-8">
                       {p.name}
                     </h3>
-                    <Folder className="w-5 h-5 text-surface-300 shrink-0 ml-4 group-hover:text-primary-400 transition-colors" />
                   </div>
-                  <p className="text-sm text-surface-500 font-medium">
-                    Updated {new Date(p.updated_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
-                  </p>
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm text-surface-500 font-medium">
+                      Updated {new Date(p.updated_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                    </p>
+                    <Folder className="w-5 h-5 text-surface-300 shrink-0 group-hover:text-primary-400 transition-colors" />
+                  </div>
+                </Link>
+                <div className="absolute top-3 right-3">
+                  <MoreMenu>
+                    <MoreMenuItem destructive onClick={() => setProjectToDelete(p)}>
+                      Delete Project
+                    </MoreMenuItem>
+                  </MoreMenu>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         )}
       </div>
+
+      <DeleteConfirmationDialog
+        isOpen={!!projectToDelete}
+        onClose={() => setProjectToDelete(null)}
+        onConfirm={handleDeleteProject}
+        title="Delete Project"
+        itemName={projectToDelete?.name || ''}
+        isDeleting={isDeleting}
+        warnings={[
+          'all scripts in this project',
+          'all scenes',
+          'visual search history',
+          'stored visual results'
+        ]}
+        deleteButtonText="Delete Permanently"
+      />
     </div>
   );
 };

@@ -17,6 +17,10 @@ export const scriptsApi = {
     return response.data;
   },
 
+  delete: async (id: string): Promise<void> => {
+    await apiClient.delete(`/scripts/${id}`);
+  },
+
   create: async (projectId: string, data: { title: string; full_text: string; orientation_preference: 'all' | 'landscape' | 'portrait' | 'square' }): Promise<Script> => {
     const response = await apiClient.post<Script>(`/projects/${projectId}/scripts`, data);
     return response.data;

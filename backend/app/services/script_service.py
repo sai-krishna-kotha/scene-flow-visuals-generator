@@ -7,6 +7,7 @@ from app.models.scene import Scene
 from app.core.exceptions import ScenesAlreadyExistError, EmptyScriptError
 from app.services.ai.gemini_script_segmenter import GeminiScriptSegmenter
 from fastapi import HTTPException
+from app.exceptions import ScriptNotFoundError, ProjectNotFoundError
 import uuid
 
 class ScriptService:
@@ -17,18 +18,18 @@ class ScriptService:
 
     def create_script(self, script_in: ScriptCreate, project_id: uuid.UUID) -> Script:
         if not self.project_repository.get_by_id(project_id):
-            raise HTTPException(status_code=404, detail="Project not found")
+            raise ProjectNotFoundError()
         return self.repository.create(script_in, project_id=project_id)
 
     def get_script(self, script_id: uuid.UUID) -> Script:
         script = self.repository.get_by_id(script_id)
         if not script:
-            raise HTTPException(status_code=404, detail="Script not found")
+            raise ScriptNotFoundError()
         return script
 
     def list_scripts(self, project_id: uuid.UUID, skip: int = 0, limit: int = 100) -> list[Script]:
         if not self.project_repository.get_by_id(project_id):
-            raise HTTPException(status_code=404, detail="Project not found")
+            raise ProjectNotFoundError()
         return self.repository.list_by_project(project_id=project_id, skip=skip, limit=limit)
 
     def update_script(self, script_id: uuid.UUID, script_in: ScriptUpdate) -> Script:

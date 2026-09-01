@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { FileText, Plus, ChevronRight } from 'lucide-react';
 import { projectsApi } from '../services/api/projects';
 import { scriptsApi } from '../services/api/scripts';
 import { Project, Script } from '../types/api';
-import { Button, Card, Loader, ErrorMessage, Breadcrumbs, Badge, Modal } from '../components/ui';
+import { Button, Loader, ErrorMessage, Breadcrumbs, Badge, Modal } from '../components/ui';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { MoreMenu, MoreMenuItem } from '../components/ui/MoreMenu';
+import { DeleteConfirmationDialog } from '../components/ui/DeleteConfirmationDialog';
 
 export const ProjectPage = () => {
   const { projectId } = useParams<{ projectId: string }>();
+  const navigate = useNavigate();
   const [project, setProject] = useState<Project | null>(null);
   const [scripts, setScripts] = useState<Script[]>([]);
   const [loading, setLoading] = useState(true);
@@ -21,6 +24,11 @@ export const ProjectPage = () => {
   const [newTitle, setNewTitle] = useState('');
   const [newText, setNewText] = useState('');
   const [newOrientation, setNewOrientation] = useState<'all'|'landscape'|'portrait'|'square'>('all');
+
+  // Delete state
+  const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
+  const [scriptToDelete, setScriptToDelete] = useState<Script | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const fetchData = async () => {
     if (!projectId) return;
@@ -65,6 +73,34 @@ export const ProjectPage = () => {
     }
   };
 
+  const handleDeleteProject = async () => {
+    if (!projectToDelete) return;
+    setIsDeleting(true);
+    try {
+      await projectsApi.delete(projectToDelete.id);
+      navigate('/');
+    } catch (err: any) {
+      setError(err.message || 'Unable to delete this project.');
+    } finally {
+      setIsDeleting(false);
+      setProjectToDelete(null);
+    }
+  };
+
+  const handleDeleteScript = async () => {
+    if (!scriptToDelete) return;
+    setIsDeleting(true);
+    try {
+      await scriptsApi.delete(scriptToDelete.id);
+      setScripts(scripts.filter(s => s.id !== scriptToDelete.id));
+      setScriptToDelete(null);
+    } catch (err: any) {
+      setError(err.message || 'Unable to delete this script.');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   if (loading && !project) return <Loader text="Loading project..." />;
 
   return (
@@ -81,12 +117,21 @@ export const ProjectPage = () => {
             {project?.description || 'Build scripts, break them into scenes, and turn them into visual storyboards.'}
           </p>
         </div>
-        <Button onClick={() => setIsModalOpen(true)} className="shrink-0">
-          <Plus className="w-4 h-4 mr-2" /> New Script
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button onClick={() => setIsModalOpen(true)} className="shrink-0">
+            <Plus className="w-4 h-4 mr-2" /> New Script
+          </Button>
+          {project && (
+            <MoreMenu>
+              <MoreMenuItem destructive onClick={() => setProjectToDelete(project)}>
+                Delete Project
+              </MoreMenuItem>
+            </MoreMenu>
+          )}
+        </div>
       </div>
 
-      {error && <ErrorMessage message={error} onRetry={fetchData} />}
+      {error && <ErrorMessage message={error} onRetry={() => setError(null)} />}
 
       <div className="space-y-6">
         <div className="flex items-center justify-between">
@@ -119,12 +164,17 @@ export const ProjectPage = () => {
                     )}
                   </div>
                 </div>
-                <div className="shrink-0 flex items-center mt-2 md:mt-0">
+                <div className="shrink-0 flex items-center mt-2 md:mt-0 gap-2">
                   <Link to={`/projects/${projectId}/scripts/${s.id}`}>
                     <Button variant="outline" size="sm">
                       Open Script
                     </Button>
                   </Link>
+                  <MoreMenu>
+                    <MoreMenuItem destructive onClick={() => setScriptToDelete(s)}>
+                      Delete Script
+                    </MoreMenuItem>
+                  </MoreMenu>
                 </div>
               </div>
             ))}
@@ -182,6 +232,37 @@ export const ProjectPage = () => {
           </div>
         </form>
       </Modal>
+
+      <DeleteConfirmationDialog
+        isOpen={!!projectToDelete}
+        onClose={() => setProjectToDelete(null)}
+        onConfirm={handleDeleteProject}
+        title="Delete Project"
+        itemName={projectToDelete?.name || ''}
+        isDeleting={isDeleting}
+        warnings={[
+          'all scripts in this project',
+          'all scenes',
+          'visual search history',
+          'stored visual results'
+        ]}
+        deleteButtonText="Delete Permanently"
+      />
+
+      <DeleteConfirmationDialog
+        isOpen={!!scriptToDelete}
+        onClose={() => setScriptToDelete(null)}
+        onConfirm={handleDeleteScript}
+        title="Delete Script"
+        itemName={scriptToDelete?.title || ''}
+        isDeleting={isDeleting}
+        warnings={[
+          'all scenes',
+          'visual search history',
+          'stored visual results'
+        ]}
+        deleteButtonText="Delete Script"
+      />
     </div>
   );
 };

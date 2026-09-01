@@ -21,6 +21,17 @@ if settings.CORS_ORIGINS:
         allow_headers=["*"],
     )
 
+from fastapi import Request
+from fastapi.responses import JSONResponse
+from app.exceptions import NotFoundError
+
+@app.exception_handler(NotFoundError)
+async def not_found_error_handler(request: Request, exc: NotFoundError):
+    return JSONResponse(
+        status_code=404,
+        content={"detail": exc.message},
+    )
+
 app.include_router(api_router, prefix=settings.API_PREFIX)
 
 @app.get("/")

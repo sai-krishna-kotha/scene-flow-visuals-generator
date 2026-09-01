@@ -7,6 +7,8 @@ import { Button, Card, Loader, ErrorMessage, Breadcrumbs, Badge } from '../compo
 import { scriptsApi } from '../services/api/scripts';
 import { projectsApi } from '../services/api/projects';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { MoreMenu, MoreMenuItem } from '../components/ui/MoreMenu';
+import { DeleteConfirmationDialog } from '../components/ui/DeleteConfirmationDialog';
 
 export const ScenePage = () => {
   const { sceneId } = useParams<{ sceneId: string }>();
@@ -25,6 +27,10 @@ export const ScenePage = () => {
   const [project, setProject] = useState<Project | null>(null);
   const [scriptScenes, setScriptScenes] = useState<Scene[]>([]);
   const [jobs, setJobs] = useState<SearchJobResponse[]>([]);
+
+  // Delete state
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useDocumentTitle('Scene Studio');
 
@@ -89,6 +95,20 @@ export const ScenePage = () => {
     }
   };
 
+  const handleDeleteScene = async () => {
+    if (!sceneId || !script) return;
+    setIsDeleting(true);
+    try {
+      await scenesApi.delete(sceneId);
+      navigate(`/projects/${project?.id}/scripts/${script.id}`);
+    } catch (err: any) {
+      setError(err.message || 'Unable to delete this scene.');
+      setIsDeleteDialogOpen(false);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   if (loading && !scene) return <Loader text="Loading scene..." />;
 
   const currentIndex = scriptScenes.findIndex(s => s.id === sceneId);
@@ -142,6 +162,11 @@ export const ScenePage = () => {
               {!isSearching && <Search className="w-4 h-4 mr-2" />}
               Find Visual Assets
             </Button>
+            <MoreMenu>
+              <MoreMenuItem destructive onClick={() => setIsDeleteDialogOpen(true)}>
+                Delete Scene
+              </MoreMenuItem>
+            </MoreMenu>
           </div>
         </div>
 
@@ -174,14 +199,14 @@ export const ScenePage = () => {
 
       {error && <ErrorMessage message={error} onRetry={fetchData} />}
 
-      <div className="flex flex-col lg:grid lg:grid-cols-2 lg:items-stretch gap-5 lg:h-[380px]">
+      <div className="flex flex-col lg:grid lg:grid-cols-2 lg:items-stretch gap-5 lg:h-95">
         {/* Scene Context Panel */}
-        <div className="flex flex-col h-[280px] lg:h-full overflow-hidden bg-white rounded-xl border border-surface-200 shadow-sm">
+        <div className="flex flex-col h-70 lg:h-full overflow-hidden bg-white rounded-xl border border-surface-200 shadow-sm">
           <div className="shrink-0 bg-surface-50 px-4 py-3 border-b border-surface-200">
             <h2 className="text-xs font-bold text-surface-500 uppercase tracking-wider">Scene Context</h2>
           </div>
           <div className="flex-1 overflow-y-auto p-4 md:p-5 scroll-smooth flex flex-col">
-            <div className="my-auto max-w-[85%] -translate-y-[4px]">
+            <div className="my-auto max-w-[85%] -translate-y-1">
               <p className="text-lg text-surface-900 font-medium leading-relaxed italic border-l-4 border-primary-200 pl-4 py-1 text-left">
                 "{scene?.sentence_text}"
               </p>
@@ -199,7 +224,7 @@ export const ScenePage = () => {
         </div>
 
         {/* AI Scene Intelligence Panel */}
-        <div className="flex flex-col h-[320px] lg:h-full overflow-hidden bg-white rounded-xl border border-surface-200 shadow-sm">
+        <div className="flex flex-col h-80 lg:h-full overflow-hidden bg-white rounded-xl border border-surface-200 shadow-sm">
           <div className="shrink-0 bg-surface-50 px-4 py-3 border-b border-surface-200">
             <h2 className="text-xs font-bold text-surface-500 uppercase tracking-wider">AI Scene Intelligence</h2>
           </div>
@@ -331,6 +356,20 @@ export const ScenePage = () => {
           </div>
         )}
       </div>
+
+      <DeleteConfirmationDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={() => setIsDeleteDialogOpen(false)}
+        onConfirm={handleDeleteScene}
+        title="Delete Scene"
+        itemName={scene?.title || `Scene ${scene?.order}`}
+        isDeleting={isDeleting}
+        warnings={[
+          'visual search jobs',
+          'stored visual results'
+        ]}
+        deleteButtonText="Delete Scene"
+      />
     </div>
   );
 };
