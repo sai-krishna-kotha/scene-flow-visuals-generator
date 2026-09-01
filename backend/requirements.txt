@@ -11,3 +11,5 @@ pytest-asyncio>=0.23.5
 google-genai
 sentence-transformers>=2.6.0
 qdrant-client>=1.8.0
+celery==5.6.3
+redis==8.1.0
