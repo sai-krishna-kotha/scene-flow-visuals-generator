@@ -25,5 +25,3 @@ Tests are written using `pytest`. The testing suite clearly separates concerns a
 3. **Integration / Schema Tests (`test_postgres_schema.py` & `test_postgres_integration.py`)**: Connects strictly to the live PostgreSQL `DATABASE_URL`. These tests validate that the schema, constraints, and ENUM types are successfully generated and intact natively in Postgres, and verifies that real CRUD sequences (e.g. creating/reading a User/Project) correctly satisfy all foreign key constraints.
 4. **AI Tests (`test_gemini_service.py`)**: 100% Mocked. Verifies the `GeminiSceneAnalyzer` parses JSON successfully and handles API failures without actually hitting the network or consuming API quota.
 
-## Why Alongside Django?
-This V2 backend foundation is being introduced alongside the old Django application temporarily to allow a phased migration. The Django application remains fully intact as a reference to preserve the existing business logic (Semantic search, Celery workflows) until they are properly ported and validated in the FastAPI environment.

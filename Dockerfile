@@ -28,5 +28,4 @@ RUN pip install -r requirements.txt
 # Copy entire project (not just one file)
 COPY . .
 
-CMD ["celery", "-A", "ai_tools", "worker", "--loglevel=info"]
-
+CMD ["celery", "-A", "app.worker.celery_app", "worker", "--loglevel=info"]

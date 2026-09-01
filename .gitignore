@@ -12,10 +12,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Django
+# Local Storage
 db.sqlite3
 media/
-static_root/
 *.log
 
 # AI/ML
