@@ -1,7 +1,8 @@
-import React, { useState, useRef, useEffect, ReactNode } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { normalizeDisplayText } from '../../utils/text';
 
 interface ExpandableContentProps {
-  content: ReactNode;
+  content: string | null | undefined;
   collapsedLinesDesktop?: number;
   collapsedLinesMobile?: number;
   className?: string;
@@ -18,6 +19,8 @@ export const ExpandableContent: React.FC<ExpandableContentProps> = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const [needsExpansion, setNeedsExpansion] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
+
+  const normalizedContent = normalizeDisplayText(content);
 
   useEffect(() => {
     const el = contentRef.current;
@@ -45,14 +48,14 @@ export const ExpandableContent: React.FC<ExpandableContentProps> = ({
 
     resizeObserver.observe(el);
     return () => resizeObserver.disconnect();
-  }, [content, isExpanded, collapsedLinesDesktop, collapsedLinesMobile]);
+  }, [normalizedContent, isExpanded, collapsedLinesDesktop, collapsedLinesMobile]);
 
   const styleProps = {
     '--mobile-lines': collapsedLinesMobile,
     '--desktop-lines': collapsedLinesDesktop,
   } as React.CSSProperties;
 
-  if (!content) return null;
+  if (!normalizedContent) return null;
 
   return (
     <div className={`relative ${className}`} style={styleProps}>
@@ -60,25 +63,27 @@ export const ExpandableContent: React.FC<ExpandableContentProps> = ({
         ref={contentRef}
         className={`transition-all duration-300 ${!isExpanded ? 'line-clamp-responsive' : ''} ${textClassName}`}
       >
-        {content}
+        {normalizedContent}
       </div>
 
       {!isExpanded && needsExpansion && (
-        <div className="absolute bottom-[36px] left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+        <div className="absolute bottom-[24px] left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
       )}
 
       {needsExpansion && (
-        <div className="mt-1 flex">
-          <button
+        <div className="mt-1">
+          <a
+            href="#"
             onClick={(e) => {
+              e.preventDefault();
               e.stopPropagation();
               setIsExpanded(!isExpanded);
             }}
-            className="text-sm font-semibold text-primary-600 hover:text-primary-700 hover:bg-surface-50 focus:outline-none focus:ring-2 focus:ring-primary-500 rounded px-2 py-1.5 -ml-2 transition-colors flex items-center"
+            className="text-sm font-semibold text-primary-600 hover:text-primary-700 hover:underline focus:outline-none focus:underline"
             aria-expanded={isExpanded}
           >
             {isExpanded ? 'View less' : 'View more'}
-          </button>
+          </a>
         </div>
       )}
     </div>

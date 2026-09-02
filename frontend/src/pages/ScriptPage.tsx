@@ -11,6 +11,7 @@ import { useWorkspace } from '../contexts/WorkspaceContext';
 import { MoreMenu, MoreMenuItem } from '../components/ui/MoreMenu';
 import { DeleteConfirmationDialog } from '../components/ui/DeleteConfirmationDialog';
 import { ExpandableContent } from '../components/ui/ExpandableContent';
+import { CompactTextPreview } from '../components/ui/CompactTextPreview';
 
 export const ScriptPage = () => {
   const { projectId, scriptId } = useParams<{ projectId: string, scriptId: string }>();
@@ -234,11 +235,11 @@ export const ScriptPage = () => {
                 </div>
                 
                 <div className="pl-0 md:pl-13">
-                  <ExpandableContent
+                  <CompactTextPreview
                     content={s.sentence_text}
-                    collapsedLinesDesktop={4}
-                    collapsedLinesMobile={3}
-                    textClassName="text-surface-600 text-sm leading-relaxed whitespace-pre-wrap"
+                    linesDesktop={3}
+                    linesMobile={2}
+                    className="text-surface-600 text-sm leading-relaxed"
                   />
                 </div>
                 

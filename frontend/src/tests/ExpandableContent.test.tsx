@@ -17,7 +17,7 @@ describe('ExpandableContent', () => {
     render(<ExpandableContent content="Short text" />);
     
     expect(screen.getByText('Short text')).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /view more/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /view more/i })).not.toBeInTheDocument();
   });
 
   it('renders View more button when content is long (overflows)', () => {
@@ -28,7 +28,7 @@ describe('ExpandableContent', () => {
     render(<ExpandableContent content="Very long text" />);
     
     expect(screen.getByText('Very long text')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /view more/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /view more/i })).toBeInTheDocument();
   });
 
   it('toggles content expansion and button text on click', () => {
@@ -37,16 +37,16 @@ describe('ExpandableContent', () => {
 
     render(<ExpandableContent content="Very long text" />);
     
-    const button = screen.getByRole('button', { name: /view more/i });
+    const button = screen.getByRole('link', { name: /view more/i });
     expect(button).toBeInTheDocument();
 
     // Click to expand
     fireEvent.click(button);
-    expect(screen.getByRole('button', { name: /view less/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /view less/i })).toBeInTheDocument();
 
     // Click to collapse
-    fireEvent.click(screen.getByRole('button', { name: /view less/i }));
-    expect(screen.getByRole('button', { name: /view more/i })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('link', { name: /view less/i }));
+    expect(screen.getByRole('link', { name: /view more/i })).toBeInTheDocument();
   });
 
   it('passes responsive css variables correctly', () => {
@@ -79,14 +79,14 @@ describe('ExpandableContent', () => {
       </>
     );
 
-    const buttons = screen.getAllByRole('button', { name: /view more/i });
+    const buttons = screen.getAllByRole('link', { name: /view more/i });
     expect(buttons).toHaveLength(2);
 
     // Expand the first one
     fireEvent.click(buttons[0]);
 
     // First one should say View less, second one should still say View more
-    expect(screen.getByRole('button', { name: /view less/i })).toBeInTheDocument();
-    expect(screen.getAllByRole('button', { name: /view more/i })).toHaveLength(1);
+    expect(screen.getByRole('link', { name: /view less/i })).toBeInTheDocument();
+    expect(screen.getAllByRole('link', { name: /view more/i })).toHaveLength(1);
   });
 });

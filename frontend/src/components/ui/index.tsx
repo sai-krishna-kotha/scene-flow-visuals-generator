@@ -2,6 +2,7 @@ import React from 'react';
 import { Loader2, X } from 'lucide-react';
 export * from './WakeupState';
 export * from './ExpandableContent';
+export * from './CompactTextPreview';
 
 
 export const Loader = ({ text = "Loading..." }: { text?: string }) => (

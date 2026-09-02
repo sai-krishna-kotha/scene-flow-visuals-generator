@@ -85,5 +85,6 @@ describe('ProjectPage Component', () => {
     
     expect(screen.getByText('Script 1')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Open Script/i })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /view more/i })).not.toBeInTheDocument();
   });
 });

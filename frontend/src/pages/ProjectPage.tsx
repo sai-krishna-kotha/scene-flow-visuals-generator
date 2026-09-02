@@ -10,6 +10,7 @@ import { useWorkspace } from '../contexts/WorkspaceContext';
 import { MoreMenu, MoreMenuItem } from '../components/ui/MoreMenu';
 import { DeleteConfirmationDialog } from '../components/ui/DeleteConfirmationDialog';
 import { ExpandableContent } from '../components/ui/ExpandableContent';
+import { CompactTextPreview } from '../components/ui/CompactTextPreview';
 
 export const ProjectPage = () => {
   const { projectId } = useParams<{ projectId: string }>();
@@ -180,11 +181,11 @@ export const ProjectPage = () => {
                     <h3 className="font-bold text-lg text-surface-900 truncate">{s.title}</h3>
                     <Badge variant="outline" className="capitalize shrink-0">{s.orientation_preference}</Badge>
                   </div>
-                  <ExpandableContent
+                  <CompactTextPreview
                     content={s.full_text}
-                    collapsedLinesDesktop={6}
-                    collapsedLinesMobile={4}
-                    textClassName="text-sm text-surface-600 leading-relaxed mb-3 whitespace-pre-wrap"
+                    linesDesktop={4}
+                    linesMobile={3}
+                    className="text-sm text-surface-600 leading-relaxed mb-3"
                   />
                   <div className="text-xs font-medium text-surface-400 mt-3">
                     {s.updated_at && (

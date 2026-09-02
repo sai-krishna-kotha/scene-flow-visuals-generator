@@ -169,6 +169,7 @@ describe('ScenePage Component', () => {
     
     // Shows the completed job in history
     expect(screen.getByText('Search 1')).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /view more/i })).not.toBeInTheDocument();
     
     // Simulate analyzing state
     vi.mocked(scenesApi.analyze).mockImplementation(() => new Promise(resolve => setTimeout(() => resolve({ scene_id: 'scene-123', analysis: { summary: 'Analysis text', subjects: [], actions: [], environment: [], mood: 'calm', time_context: 'day', visual_queries: [] } }), 100)));

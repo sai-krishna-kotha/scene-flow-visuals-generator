@@ -11,6 +11,7 @@ import { useWorkspace } from '../contexts/WorkspaceContext';
 import { MoreMenu, MoreMenuItem } from '../components/ui/MoreMenu';
 import { DeleteConfirmationDialog } from '../components/ui/DeleteConfirmationDialog';
 import { ExpandableContent } from '../components/ui/ExpandableContent';
+import { CompactTextPreview } from '../components/ui/CompactTextPreview';
 
 export const ScenePage = () => {
   const { sceneId } = useParams<{ sceneId: string }>();
@@ -356,11 +357,11 @@ export const ScenePage = () => {
                 </div>
                 
                 <div className="py-1">
-                  <ExpandableContent
+                  <CompactTextPreview
                     content={job.requested_query ? `"${job.requested_query}"` : 'Original query unavailable'}
-                    collapsedLinesDesktop={3}
-                    collapsedLinesMobile={3}
-                    textClassName="text-surface-600 text-sm leading-relaxed italic font-medium whitespace-pre-wrap"
+                    linesDesktop={2}
+                    linesMobile={2}
+                    className="text-surface-600 text-sm leading-relaxed italic font-medium"
                   />
                 </div>
                 

@@ -92,6 +92,8 @@ describe('ScriptPage Component', () => {
     );
 
     expect(await screen.findByText('Scene text 1')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Open Scene/i })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /view more/i })).not.toBeInTheDocument();
     
     // Check Modal
     const addSceneBtns = screen.getAllByRole('button', { name: /Add Scene/i });
