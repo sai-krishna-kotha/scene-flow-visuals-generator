@@ -7,6 +7,7 @@ import { scriptsApi } from '../services/api/scripts';
 import { projectsApi } from '../services/api/projects';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { BrowserRouter, MemoryRouter, Route, Routes } from 'react-router-dom';
+import { WorkspaceProvider } from '../contexts/WorkspaceContext';
 
 vi.mock('../services/api/jobs', () => ({
   jobsApi: {
@@ -37,9 +38,11 @@ vi.mock('../services/api/projects', () => ({
 const renderWithRouter = (ui: React.ReactElement, { route = '/jobs/1/results' } = {}) => {
   return render(
     <MemoryRouter initialEntries={[route]}>
-      <Routes>
-        <Route path="/jobs/:jobId/results" element={ui} />
-      </Routes>
+      <WorkspaceProvider>
+        <Routes>
+          <Route path="/jobs/:jobId/results" element={ui} />
+        </Routes>
+      </WorkspaceProvider>
     </MemoryRouter>
   );
 };

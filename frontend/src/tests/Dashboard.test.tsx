@@ -4,6 +4,7 @@ import { DashboardPage } from '../pages/DashboardPage';
 import { projectsApi } from '../services/api/projects';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { BrowserRouter } from 'react-router-dom';
+import { WorkspaceProvider } from '../contexts/WorkspaceContext';
 
 vi.mock('../services/api/projects', () => ({
   projectsApi: {
@@ -13,7 +14,9 @@ vi.mock('../services/api/projects', () => ({
 }));
 
 const Wrapper = ({ children }: { children: React.ReactNode }) => (
-  <BrowserRouter>{children}</BrowserRouter>
+  <BrowserRouter>
+    <WorkspaceProvider>{children}</WorkspaceProvider>
+  </BrowserRouter>
 );
 
 describe('DashboardPage', () => {

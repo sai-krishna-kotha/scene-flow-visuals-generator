@@ -6,6 +6,7 @@ import { scriptsApi } from '../services/api/scripts';
 import { Project, Script } from '../types/api';
 import { Button, Loader, ErrorMessage, Badge, Modal } from '../components/ui';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { useWorkspace } from '../contexts/WorkspaceContext';
 import { MoreMenu, MoreMenuItem } from '../components/ui/MoreMenu';
 import { DeleteConfirmationDialog } from '../components/ui/DeleteConfirmationDialog';
 
@@ -30,8 +31,11 @@ export const ProjectPage = () => {
   const [scriptToDelete, setScriptToDelete] = useState<Script | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  const { setContext, clearContext } = useWorkspace();
+
   const fetchData = async () => {
     if (!projectId) return;
+    clearContext();
     setLoading(true);
     try {
       const [projData, scriptsData] = await Promise.all([
@@ -40,6 +44,7 @@ export const ProjectPage = () => {
       ]);
       setProject(projData);
       setScripts(scriptsData);
+      setContext(projData, null);
       setError(null);
     } catch (err: any) {
       setError(err.message || 'Failed to load project details');

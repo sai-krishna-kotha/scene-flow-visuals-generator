@@ -4,6 +4,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { ProjectPage } from '../pages/ProjectPage';
 import { projectsApi } from '../services/api/projects';
+import { WorkspaceProvider } from '../contexts/WorkspaceContext';
 import { scriptsApi } from '../services/api/scripts';
 
 vi.mock('../services/api/projects', () => ({
@@ -30,9 +31,11 @@ describe('ProjectPage Component', () => {
 
     render(
       <MemoryRouter initialEntries={['/projects/proj-1']}>
-        <Routes>
-          <Route path="/projects/:projectId" element={<ProjectPage />} />
-        </Routes>
+        <WorkspaceProvider>
+          <Routes>
+            <Route path="/projects/:projectId" element={<ProjectPage />} />
+          </Routes>
+        </WorkspaceProvider>
       </MemoryRouter>
     );
 
@@ -67,9 +70,11 @@ describe('ProjectPage Component', () => {
 
     render(
       <MemoryRouter initialEntries={['/projects/proj-1']}>
-        <Routes>
-          <Route path="/projects/:projectId" element={<ProjectPage />} />
-        </Routes>
+        <WorkspaceProvider>
+          <Routes>
+            <Route path="/projects/:projectId" element={<ProjectPage />} />
+          </Routes>
+        </WorkspaceProvider>
       </MemoryRouter>
     );
 

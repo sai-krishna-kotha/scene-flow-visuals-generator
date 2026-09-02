@@ -7,6 +7,7 @@ import { scenesApi } from '../services/api/scenes';
 import { scriptsApi } from '../services/api/scripts';
 import { projectsApi } from '../services/api/projects';
 import { Scene, Script, Project } from '../types/api';
+import { WorkspaceProvider } from '../contexts/WorkspaceContext';
 
 vi.mock('../services/api/scenes', () => ({
   scenesApi: {
@@ -54,9 +55,11 @@ describe('ScenePage Component', () => {
 
     render(
       <MemoryRouter initialEntries={['/scenes/scene-123']}>
-        <Routes>
-          <Route path="/scenes/:sceneId" element={<ScenePage />} />
-        </Routes>
+        <WorkspaceProvider>
+          <Routes>
+            <Route path="/scenes/:sceneId" element={<ScenePage />} />
+          </Routes>
+        </WorkspaceProvider>
       </MemoryRouter>
     );
 
@@ -86,9 +89,11 @@ describe('ScenePage Component', () => {
 
     render(
       <MemoryRouter initialEntries={['/scenes/scene-123']}>
-        <Routes>
-          <Route path="/scenes/:sceneId" element={<ScenePage />} />
-        </Routes>
+        <WorkspaceProvider>
+          <Routes>
+            <Route path="/scenes/:sceneId" element={<ScenePage />} />
+          </Routes>
+        </WorkspaceProvider>
       </MemoryRouter>
     );
 
@@ -109,9 +114,11 @@ describe('ScenePage Component', () => {
 
     render(
       <MemoryRouter initialEntries={['/scenes/scene-2']}>
-        <Routes>
-          <Route path="/scenes/:sceneId" element={<ScenePage />} />
-        </Routes>
+        <WorkspaceProvider>
+          <Routes>
+            <Route path="/scenes/:sceneId" element={<ScenePage />} />
+          </Routes>
+        </WorkspaceProvider>
       </MemoryRouter>
     );
 
@@ -125,9 +132,11 @@ describe('ScenePage Component', () => {
     vi.mocked(scenesApi.get).mockResolvedValue(mockScene);
     render(
       <MemoryRouter initialEntries={['/scenes/scene-123']}>
-        <Routes>
-          <Route path="/scenes/:sceneId" element={<ScenePage />} />
-        </Routes>
+        <WorkspaceProvider>
+          <Routes>
+            <Route path="/scenes/:sceneId" element={<ScenePage />} />
+          </Routes>
+        </WorkspaceProvider>
       </MemoryRouter>
     );
     await screen.findAllByText(/Scene 1 of 3/i);
@@ -145,9 +154,11 @@ describe('ScenePage Component', () => {
 
     render(
       <MemoryRouter initialEntries={['/scenes/scene-123']}>
-        <Routes>
-          <Route path="/scenes/:sceneId" element={<ScenePage />} />
-        </Routes>
+        <WorkspaceProvider>
+          <Routes>
+            <Route path="/scenes/:sceneId" element={<ScenePage />} />
+          </Routes>
+        </WorkspaceProvider>
       </MemoryRouter>
     );
 

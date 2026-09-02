@@ -8,6 +8,7 @@ import { scenesApi } from '../services/api/scenes';
 import { scriptsApi } from '../services/api/scripts';
 import { projectsApi } from '../services/api/projects';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { useWorkspace } from '../contexts/WorkspaceContext';
 
 export const JobResultsPage = () => {
   const { jobId } = useParams<{ jobId: string }>();
@@ -21,11 +22,14 @@ export const JobResultsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const { setContext, clearContext } = useWorkspace();
+
   useDocumentTitle('Visual Results');
 
   useEffect(() => {
     if (!jobId) return;
     const fetchData = async () => {
+      clearContext();
       try {
         const [resultsData, jobData] = await Promise.all([
           jobsApi.getResults(jobId),
@@ -45,6 +49,8 @@ export const JobResultsPage = () => {
 
         const projData = await projectsApi.get(scriptData.project_id);
         setProject(projData);
+        
+        setContext(projData, scriptData);
 
         // Calculate search number based on descending chronology
         // The newest job (index 0) gets the highest number

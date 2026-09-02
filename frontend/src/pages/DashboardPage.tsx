@@ -5,6 +5,7 @@ import { projectsApi } from '../services/api/projects';
 import { Project } from '../types/api';
 import { Button, Loader, ErrorMessage, WakeupState } from '../components/ui';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { useWorkspace } from '../contexts/WorkspaceContext';
 import { MoreMenu, MoreMenuItem } from '../components/ui/MoreMenu';
 import { DeleteConfirmationDialog } from '../components/ui/DeleteConfirmationDialog';
 
@@ -57,9 +58,12 @@ export const DashboardPage = () => {
     }
   };
 
+  const { clearContext } = useWorkspace();
+
   useEffect(() => {
+    clearContext();
     fetchProjects();
-  }, []);
+  }, [clearContext]);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();

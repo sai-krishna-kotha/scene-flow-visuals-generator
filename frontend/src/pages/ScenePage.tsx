@@ -7,6 +7,7 @@ import { Button, Loader, ErrorMessage, Badge } from '../components/ui';
 import { scriptsApi } from '../services/api/scripts';
 import { projectsApi } from '../services/api/projects';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { useWorkspace } from '../contexts/WorkspaceContext';
 import { MoreMenu, MoreMenuItem } from '../components/ui/MoreMenu';
 import { DeleteConfirmationDialog } from '../components/ui/DeleteConfirmationDialog';
 
@@ -32,10 +33,13 @@ export const ScenePage = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  const { setContext, clearContext } = useWorkspace();
+
   useDocumentTitle('Scene Studio');
 
   const fetchData = async () => {
     if (!sceneId) return;
+    clearContext();
     setLoading(true);
     try {
       const sceneData = await scenesApi.get(sceneId);
@@ -52,6 +56,8 @@ export const ScenePage = () => {
       setProject(projData);
       setScriptScenes(scenesData.sort((a, b) => a.order - b.order));
       setJobs(jobsData);
+      
+      setContext(projData, scriptData);
 
       setError(null);
     } catch (err: any) {

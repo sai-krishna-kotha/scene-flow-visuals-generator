@@ -4,6 +4,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { ScriptPage } from '../pages/ScriptPage';
 import { projectsApi } from '../services/api/projects';
+import { WorkspaceProvider } from '../contexts/WorkspaceContext';
 import { scriptsApi } from '../services/api/scripts';
 import { scenesApi } from '../services/api/scenes';
 
@@ -29,9 +30,11 @@ describe('ScriptPage Component', () => {
 
     render(
       <MemoryRouter initialEntries={['/projects/proj-1/scripts/script-1']}>
-        <Routes>
-          <Route path="/projects/:projectId/scripts/:scriptId" element={<ScriptPage />} />
-        </Routes>
+        <WorkspaceProvider>
+          <Routes>
+            <Route path="/projects/:projectId/scripts/:scriptId" element={<ScriptPage />} />
+          </Routes>
+        </WorkspaceProvider>
       </MemoryRouter>
     );
 
@@ -53,9 +56,11 @@ describe('ScriptPage Component', () => {
 
     render(
       <MemoryRouter initialEntries={['/projects/proj-1/scripts/script-1']}>
-        <Routes>
-          <Route path="/projects/:projectId/scripts/:scriptId" element={<ScriptPage />} />
-        </Routes>
+        <WorkspaceProvider>
+          <Routes>
+            <Route path="/projects/:projectId/scripts/:scriptId" element={<ScriptPage />} />
+          </Routes>
+        </WorkspaceProvider>
       </MemoryRouter>
     );
 
@@ -78,9 +83,11 @@ describe('ScriptPage Component', () => {
 
     render(
       <MemoryRouter initialEntries={['/projects/proj-1/scripts/script-1']}>
-        <Routes>
-          <Route path="/projects/:projectId/scripts/:scriptId" element={<ScriptPage />} />
-        </Routes>
+        <WorkspaceProvider>
+          <Routes>
+            <Route path="/projects/:projectId/scripts/:scriptId" element={<ScriptPage />} />
+          </Routes>
+        </WorkspaceProvider>
       </MemoryRouter>
     );
 
