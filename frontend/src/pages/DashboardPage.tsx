@@ -8,6 +8,7 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useWorkspace } from '../contexts/WorkspaceContext';
 import { MoreMenu, MoreMenuItem } from '../components/ui/MoreMenu';
 import { DeleteConfirmationDialog } from '../components/ui/DeleteConfirmationDialog';
+import { CompactTextPreview } from '../components/ui/CompactTextPreview';
 
 export const DashboardPage = () => {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -163,26 +164,53 @@ export const DashboardPage = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {projects.map(p => (
-              <div key={p.id} className="relative group block bg-white border border-surface-200 rounded-xl hover:border-primary-400 hover:shadow-md transition-all h-full">
-                <Link to={`/projects/${p.id}`} className="p-5 h-full flex flex-col justify-between">
-                  <div className="flex items-start justify-between mb-4">
-                    <h3 className="font-bold text-lg text-surface-900 group-hover:text-primary-600 transition-colors line-clamp-2 leading-snug pr-8">
-                      {p.name}
-                    </h3>
+              <div key={p.id} className="bg-white border border-surface-200 shadow-sm rounded-xl p-5 hover:border-surface-300 hover:shadow transition-all flex flex-col gap-3 h-full">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 md:gap-4">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <h3 className="text-surface-900 font-bold text-base truncate">{p.name}</h3>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm text-surface-500 font-medium">
-                      Updated {new Date(p.updated_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
-                    </p>
-                    <Folder className="w-5 h-5 text-surface-300 shrink-0 group-hover:text-primary-400 transition-colors" />
+                </div>
+                
+                <div className="pl-0 flex-1">
+                  {p.description ? (
+                    <CompactTextPreview
+                      content={p.description}
+                      linesDesktop={2}
+                      linesMobile={2}
+                      className="text-surface-600 text-sm leading-relaxed"
+                    />
+                  ) : (
+                    <div className="text-surface-400 text-sm italic">No description</div>
+                  )}
+                </div>
+                
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-3 mt-1 border-t border-surface-100 gap-3 sm:gap-0">
+                  <div className="flex items-center text-xs font-medium text-surface-400">
+                    <span>Updated {new Date(p.updated_at).toLocaleDateString()}</span>
                   </div>
-                </Link>
-                <div className="absolute top-3 right-3">
-                  <MoreMenu>
-                    <MoreMenuItem destructive onClick={() => setProjectToDelete(p)}>
-                      Delete Project
-                    </MoreMenuItem>
-                  </MoreMenu>
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <Link to={`/projects/${p.id}`} className="flex-1 sm:flex-none">
+                      <Button variant="outline" size="sm" className="bg-white hover:bg-surface-50 w-full sm:w-auto">
+                        Open Project
+                      </Button>
+                    </Link>
+                    <div className="hidden sm:block">
+                      <MoreMenu>
+                        <MoreMenuItem destructive onClick={() => setProjectToDelete(p)}>
+                          Delete Project
+                        </MoreMenuItem>
+                      </MoreMenu>
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="sm:hidden border-red-200 text-red-600 bg-red-50 flex-none px-3"
+                      onClick={() => setProjectToDelete(p)}
+                      aria-label="Delete Project"
+                    >
+                      Delete
+                    </Button>
+                  </div>
                 </div>
               </div>
             ))}

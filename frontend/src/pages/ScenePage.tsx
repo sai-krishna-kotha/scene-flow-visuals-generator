@@ -340,23 +340,16 @@ export const ScenePage = () => {
         ) : (
           <div className="flex flex-col gap-4">
             {jobs.map((job, index) => (
-              <div key={job.job_id} className="bg-white border border-surface-200 shadow-sm rounded-xl p-4 sm:p-5 hover:border-surface-300 hover:shadow transition-all flex flex-col gap-3">
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-xs font-bold text-surface-500 bg-surface-100 px-2 py-1 rounded shrink-0">
-                    Search {jobs.length - index}
-                  </span>
-                  <div className="flex items-center">
-                    {job.status === 'COMPLETED' ? (
-                      <Badge variant="success">Completed</Badge>
-                    ) : job.status === 'FAILED' ? (
-                      <Badge variant="error">Failed</Badge>
-                    ) : (
-                      <Badge variant="outline" className="capitalize">{job.status.toLowerCase()}</Badge>
-                    )}
+              <div key={job.job_id} className="bg-white border border-surface-200 shadow-sm rounded-xl p-5 hover:border-surface-300 hover:shadow transition-all flex flex-col gap-3">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 md:gap-4">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className="text-xs font-bold text-surface-500 bg-surface-100 px-2 py-1 rounded shrink-0">
+                      Search {jobs.length - index}
+                    </span>
                   </div>
                 </div>
                 
-                <div className="py-1">
+                <div className="pl-0">
                   <CompactTextPreview
                     content={job.requested_query ? `"${job.requested_query}"` : 'Original query unavailable'}
                     linesDesktop={2}
@@ -365,20 +358,30 @@ export const ScenePage = () => {
                   />
                 </div>
                 
-                <div className="flex items-center justify-between pt-3 mt-1 border-t border-surface-100">
-                  <div className="text-xs font-medium text-surface-500">
-                    {job.status === 'COMPLETED' && job.result_count !== undefined ? (
-                      <span>{job.result_count} assets</span>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-3 mt-1 border-t border-surface-100 gap-3 sm:gap-0">
+                  <div className="flex items-center gap-3">
+                    {job.status === 'COMPLETED' ? (
+                      <Badge variant="success">Completed</Badge>
+                    ) : job.status === 'FAILED' ? (
+                      <Badge variant="error">Failed</Badge>
                     ) : (
-                      <span>—</span>
+                      <Badge variant="outline" className="capitalize">{job.status.toLowerCase()}</Badge>
                     )}
+                    <span className="text-xs font-medium text-surface-500">
+                      {job.status === 'COMPLETED' && job.result_count !== undefined ? (
+                        `${job.result_count} assets`
+                      ) : (
+                        '—'
+                      )}
+                    </span>
                   </div>
-                  
-                  <Link to={`/jobs/${job.job_id}${job.status === 'COMPLETED' ? '/results' : ''}`}>
-                    <Button variant="outline" size="sm" className="bg-white hover:bg-surface-50">
-                      {job.status === 'COMPLETED' ? 'View Results' : 'View Progress'}
-                    </Button>
-                  </Link>
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <Link to={`/jobs/${job.job_id}${job.status === 'COMPLETED' ? '/results' : ''}`} className="flex-1 sm:flex-none">
+                      <Button variant="outline" size="sm" className="bg-white hover:bg-surface-50 w-full sm:w-auto">
+                        {job.status === 'COMPLETED' ? 'View Results' : 'View Progress'}
+                      </Button>
+                    </Link>
+                  </div>
                 </div>
               </div>
             ))}

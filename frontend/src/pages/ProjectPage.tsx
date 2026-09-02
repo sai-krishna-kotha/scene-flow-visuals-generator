@@ -175,46 +175,52 @@ export const ProjectPage = () => {
         ) : (
           <div className="flex flex-col gap-4">
             {scripts.map(s => (
-              <div key={s.id} className="bg-white border border-surface-200 rounded-xl p-4 sm:p-5 hover:border-primary-400 transition-colors flex flex-col md:flex-row md:items-start justify-between gap-4 min-h-40">
-                <div className="flex-1 min-w-0 max-w-3xl">
-                  <div className="flex items-center gap-3 mb-1">
-                    <h3 className="font-bold text-lg text-surface-900 truncate">{s.title}</h3>
+              <div key={s.id} className="bg-white border border-surface-200 shadow-sm rounded-xl p-5 hover:border-surface-300 hover:shadow transition-all flex flex-col gap-3">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 md:gap-4">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <h3 className="text-surface-900 font-bold text-base truncate">{s.title}</h3>
                     <Badge variant="outline" className="capitalize shrink-0">{s.orientation_preference}</Badge>
                   </div>
+                </div>
+                
+                <div className="pl-0">
                   <CompactTextPreview
                     content={s.full_text}
-                    linesDesktop={4}
-                    linesMobile={3}
-                    className="text-sm text-surface-600 leading-relaxed mb-3"
+                    linesDesktop={3}
+                    linesMobile={2}
+                    className="text-surface-600 text-sm leading-relaxed"
                   />
-                  <div className="text-xs font-medium text-surface-400 mt-3">
+                </div>
+                
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-3 mt-1 border-t border-surface-100 gap-3 sm:gap-0">
+                  <div className="flex items-center text-xs font-medium text-surface-400">
                     {s.updated_at && (
                       <span>Updated {new Date(s.updated_at).toLocaleDateString()}</span>
                     )}
                   </div>
-                </div>
-                <div className="shrink-0 flex items-center mt-2 md:mt-0 gap-2 w-full md:w-auto">
-                  <Link to={`/projects/${projectId}/scripts/${s.id}`} className="flex-1 md:flex-none">
-                    <Button variant="outline" size="sm" className="w-full md:w-auto">
-                      Open Script
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <Link to={`/projects/${projectId}/scripts/${s.id}`} className="flex-1 sm:flex-none">
+                      <Button variant="outline" size="sm" className="bg-white hover:bg-surface-50 w-full sm:w-auto">
+                        Open Script
+                      </Button>
+                    </Link>
+                    <div className="hidden sm:block">
+                      <MoreMenu>
+                        <MoreMenuItem destructive onClick={() => setScriptToDelete(s)}>
+                          Delete Script
+                        </MoreMenuItem>
+                      </MoreMenu>
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="sm:hidden border-red-200 text-red-600 bg-red-50 flex-none px-3"
+                      onClick={() => setScriptToDelete(s)}
+                      aria-label="Delete Script"
+                    >
+                      Delete
                     </Button>
-                  </Link>
-                  <div className="hidden sm:block">
-                    <MoreMenu>
-                      <MoreMenuItem destructive onClick={() => setScriptToDelete(s)}>
-                        Delete Script
-                      </MoreMenuItem>
-                    </MoreMenu>
                   </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    className="sm:hidden border-red-200 text-red-600 bg-red-50 flex-none px-3"
-                    onClick={() => setScriptToDelete(s)}
-                    aria-label="Delete Script"
-                  >
-                    Delete
-                  </Button>
                 </div>
               </div>
             ))}
