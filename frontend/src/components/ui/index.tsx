@@ -1,5 +1,7 @@
 import React from 'react';
 import { Loader2, X } from 'lucide-react';
+export * from './WakeupState';
+
 
 export const Loader = ({ text = "Loading..." }: { text?: string }) => (
   <div className="flex flex-col items-center justify-center p-12 space-y-4">

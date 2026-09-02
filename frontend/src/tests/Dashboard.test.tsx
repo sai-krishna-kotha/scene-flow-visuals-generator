@@ -70,12 +70,64 @@ describe('DashboardPage', () => {
   });
 
   it('handles API errors gracefully', async () => {
-    vi.mocked(projectsApi.list).mockRejectedValue(new Error('Network failure'));
+    vi.mocked(projectsApi.list).mockRejectedValue(new Error('Random API error'));
     
     render(<DashboardPage />, { wrapper: Wrapper });
     
     await waitFor(() => {
-      expect(screen.getByText('Network failure')).toBeInTheDocument();
+      expect(screen.getByText('Random API error')).toBeInTheDocument();
+    });
+  });
+
+  it('handles initial connection failure followed by success (wake up state)', async () => {
+    // Fail first request with a wake-up error
+    const wakeupError = new Error('Network Error');
+    vi.mocked(projectsApi.list)
+      .mockRejectedValueOnce(wakeupError)
+      .mockResolvedValueOnce([
+        { id: '1', name: 'Woke Up Project', description: null, user_id: 'u1', created_at: '2023-01-01', updated_at: '2023-01-01' }
+      ]);
+      
+    render(<DashboardPage />, { wrapper: Wrapper });
+    
+    // Initially shows default loader
+    expect(screen.getByText('Loading projects...')).toBeInTheDocument();
+    
+    // Will transition to wake-up state and then succeed very quickly due to test delay=10ms
+    await waitFor(() => {
+      expect(screen.getByText('Waking up SceneFlow...')).toBeInTheDocument();
+      expect(screen.getByText('The server is starting. This may take a few seconds.')).toBeInTheDocument();
+    });
+    
+    // Wait for the second fetch (success) to resolve
+    await waitFor(() => {
+      expect(screen.getByText('Woke Up Project')).toBeInTheDocument();
+    });
+  });
+
+  it('handles repeated failure leading to Still starting and eventually Retry state', async () => {
+    // Fail all requests with a wake-up error
+    const wakeupError = new Error('Network Error');
+    vi.mocked(projectsApi.list).mockRejectedValue(wakeupError);
+      
+    render(<DashboardPage />, { wrapper: Wrapper });
+    
+    // Attempt 0 -> fails -> sets attempt 1 -> Wakeup state
+    await waitFor(() => {
+      expect(screen.getByText('Waking up SceneFlow...')).toBeInTheDocument();
+    });
+    
+    // Should now show the "Still starting" message (after 3 attempts * 10ms)
+    await waitFor(() => {
+      expect(screen.getByText('Still starting...')).toBeInTheDocument();
+      expect(screen.getByText('SceneFlow is taking a little longer than usual.')).toBeInTheDocument();
+    });
+    
+    // Should show failure state (after 5 attempts)
+    await waitFor(() => {
+      expect(screen.getByText("Couldn't connect to SceneFlow")).toBeInTheDocument();
+      expect(screen.getByText('Check your connection and try again.')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Retry' })).toBeInTheDocument();
     });
   });
 });

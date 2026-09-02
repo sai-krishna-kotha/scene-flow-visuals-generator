@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Folder, Plus } from 'lucide-react';
 import { projectsApi } from '../services/api/projects';
 import { Project } from '../types/api';
-import { Button, Loader, ErrorMessage } from '../components/ui';
+import { Button, Loader, ErrorMessage, WakeupState } from '../components/ui';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { MoreMenu, MoreMenuItem } from '../components/ui/MoreMenu';
 import { DeleteConfirmationDialog } from '../components/ui/DeleteConfirmationDialog';
@@ -12,6 +12,8 @@ export const DashboardPage = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [wakeupAttempts, setWakeupAttempts] = useState(0);
+  const [wakeupFailed, setWakeupFailed] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [newProjectName, setNewProjectName] = useState('');
   
@@ -21,16 +23,37 @@ export const DashboardPage = () => {
 
   useDocumentTitle('Dashboard');
 
-  const fetchProjects = async () => {
-    setLoading(true);
+  const fetchProjects = async (attempt = 0) => {
+    if (attempt === 0) {
+      setLoading(true);
+      setWakeupAttempts(0);
+      setWakeupFailed(false);
+    }
+    
     try {
       const data = await projectsApi.list();
       setProjects(data);
       setError(null);
-    } catch (err: any) {
-      setError(err.message || 'Failed to load projects');
-    } finally {
+      setWakeupAttempts(0);
       setLoading(false);
+    } catch (err: any) {
+      const isWakeupError = 
+        err.message === 'Network Error' || 
+        [502, 503, 504].includes(err.response?.status) || 
+        err.code === 'ECONNABORTED';
+
+      if (isWakeupError && attempt < 5) {
+        setWakeupAttempts(attempt + 1);
+        const delay = import.meta.env.MODE === 'test' ? 10 : 3000;
+        setTimeout(() => fetchProjects(attempt + 1), delay);
+      } else {
+        setLoading(false);
+        if (isWakeupError && attempt >= 5) {
+          setWakeupFailed(true);
+        } else {
+          setError(err.message || 'Failed to load projects');
+        }
+      }
     }
   };
 
@@ -67,7 +90,34 @@ export const DashboardPage = () => {
     }
   };
 
-  if (loading && projects.length === 0) return <Loader text="Loading projects..." />;
+  if (loading && projects.length === 0) {
+    if (wakeupAttempts > 0) {
+      return (
+        <div className="flex items-center justify-center min-h-[50vh]">
+          <WakeupState 
+            attempts={wakeupAttempts} 
+            maxAttempts={5} 
+            onRetry={() => fetchProjects(0)} 
+            failed={false} 
+          />
+        </div>
+      );
+    }
+    return <Loader text="Loading projects..." />;
+  }
+
+  if (wakeupFailed) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <WakeupState 
+          attempts={wakeupAttempts} 
+          maxAttempts={5} 
+          onRetry={() => fetchProjects(0)} 
+          failed={true} 
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 w-full">
