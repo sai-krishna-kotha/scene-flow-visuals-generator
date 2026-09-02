@@ -234,9 +234,9 @@ export const ScenePage = () => {
 
       {error && <ErrorMessage message={error} onRetry={fetchData} />}
 
-      <div className="flex flex-col lg:grid lg:grid-cols-2 lg:items-stretch gap-5 lg:h-[400px]">
+      <div className="flex flex-col lg:grid lg:grid-cols-2 lg:items-stretch gap-5 lg:h-100">
         {/* Scene Context Panel */}
-        <div className="flex flex-col h-[300px] lg:h-full overflow-hidden bg-white rounded-xl border border-surface-200 shadow-sm">
+        <div className="flex flex-col h-75 lg:h-full overflow-hidden bg-white rounded-xl border border-surface-200 shadow-sm">
           <div className="shrink-0 bg-surface-50 px-4 py-3 border-b border-surface-200">
             <h2 className="text-xs font-bold text-surface-500 uppercase tracking-wider">Scene Context</h2>
           </div>
@@ -262,7 +262,7 @@ export const ScenePage = () => {
         </div>
 
         {/* AI Scene Intelligence Panel */}
-        <div className="flex flex-col h-[380px] lg:h-full overflow-hidden bg-white rounded-xl border border-surface-200 shadow-sm">
+        <div className="flex flex-col h-95 lg:h-full overflow-hidden bg-white rounded-xl border border-surface-200 shadow-sm">
           <div className="shrink-0 bg-surface-50 px-4 py-3 border-b border-surface-200">
             <h2 className="text-xs font-bold text-surface-500 uppercase tracking-wider">AI Scene Intelligence</h2>
           </div>

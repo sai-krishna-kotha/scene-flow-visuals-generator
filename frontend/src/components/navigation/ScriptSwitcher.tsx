@@ -46,7 +46,7 @@ export const ScriptSwitcher = () => {
         onClick={handleOpen}
         className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-surface-700 hover:text-surface-900 hover:bg-surface-100 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500"
       >
-        <span className="truncate max-w-[150px] sm:max-w-[200px]">{currentScript.title}</span>
+        <span className="truncate max-w-37.5 sm:max-w-50">{currentScript.title}</span>
         <ChevronDown className={`w-4 h-4 text-surface-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
