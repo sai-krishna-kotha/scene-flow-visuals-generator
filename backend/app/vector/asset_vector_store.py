@@ -28,6 +28,17 @@ class AssetVectorStore:
                     distance=qmodels.Distance.COSINE
                 )
             )
+            # Create indexes for filtering
+            self.client.create_payload_index(
+                collection_name=self.collection_name,
+                field_name="provider",
+                field_schema=qmodels.PayloadSchemaType.KEYWORD
+            )
+            self.client.create_payload_index(
+                collection_name=self.collection_name,
+                field_name="orientation",
+                field_schema=qmodels.PayloadSchemaType.KEYWORD
+            )
         else:
             logger.info(f"Qdrant collection '{self.collection_name}' already exists.")
 

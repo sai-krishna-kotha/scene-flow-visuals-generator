@@ -7,6 +7,9 @@ from qdrant_client import QdrantClient
 # We use a distinct test collection for real integration tests
 TEST_COLLECTION = "test_semantic_assets"
 
+from unittest.mock import patch
+from app.config import settings
+
 @pytest.fixture(scope="module")
 def qdrant_store():
     # Attempt to connect to real Qdrant
@@ -16,24 +19,26 @@ def qdrant_store():
     except Exception as e:
         pytest.skip(f"Real Qdrant not available at localhost:6333: {e}")
         
-    store = AssetVectorStore(dimension=384)
-    store.collection_name = TEST_COLLECTION
-    
-    # Clean up before
-    try:
-        store.client.delete_collection(TEST_COLLECTION)
-    except:
-        pass
+    with patch.object(settings, 'QDRANT_URL', 'http://localhost:6333'), \
+         patch.object(settings, 'QDRANT_API_KEY', None):
+        store = AssetVectorStore(dimension=384)
+        store.collection_name = TEST_COLLECTION
         
-    store.ensure_collection()
-    
-    yield store
-    
-    # Clean up after
-    try:
-        store.client.delete_collection(TEST_COLLECTION)
-    except:
-        pass
+        # Clean up before
+        try:
+            store.client.delete_collection(TEST_COLLECTION)
+        except:
+            pass
+            
+        store.ensure_collection()
+        
+        yield store
+        
+        # Clean up after
+        try:
+            store.client.delete_collection(TEST_COLLECTION)
+        except:
+            pass
 
 def test_real_qdrant_lifecycle(qdrant_store: AssetVectorStore):
     # Verify collection creation

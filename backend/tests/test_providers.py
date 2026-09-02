@@ -4,6 +4,13 @@ from app.providers.pexels import PexelsProvider
 from app.providers.pixabay import PixabayProvider
 from app.providers.openverse import OpenverseProvider
 from httpx import HTTPStatusError, Request
+from app.providers.openverse import _openverse_token_cache
+
+@pytest.fixture(autouse=True)
+def reset_openverse_cache():
+    _openverse_token_cache["token"] = None
+    _openverse_token_cache["expires_at"] = 0
+
 
 # ==========================================
 # PEXELS TESTS
