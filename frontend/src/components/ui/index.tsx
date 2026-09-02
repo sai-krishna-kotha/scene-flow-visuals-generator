@@ -75,28 +75,7 @@ export const Badge = ({ children, variant = 'default', className = '' }: { child
   );
 };
 
-export const Breadcrumbs = ({ items }: { items: { label: string, href?: string }[] }) => {
-  return (
-    <nav className="text-sm text-surface-500 mb-4 sm:mb-6 font-medium w-full">
-      <ol className="flex flex-wrap items-center gap-x-2 gap-y-1">
-        {items.map((item, index) => (
-          <li key={index} className="flex items-center whitespace-nowrap">
-            {item.href ? (
-              <a href={item.href} className="hover:text-primary-600 transition-colors max-w-[120px] sm:max-w-xs truncate" title={item.label}>
-                {item.label}
-              </a>
-            ) : (
-              <span className="text-surface-900 max-w-[150px] sm:max-w-xs truncate" title={item.label}>{item.label}</span>
-            )}
-            {index < items.length - 1 && (
-              <span className="ml-2 text-surface-300 shrink-0">/</span>
-            )}
-          </li>
-        ))}
-      </ol>
-    </nav>
-  );
-};
+
 
 export const Modal = ({ 
   isOpen, 

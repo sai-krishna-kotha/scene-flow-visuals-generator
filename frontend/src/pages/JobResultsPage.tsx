@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Image as ImageIcon, ChevronRight, ExternalLink, Info } from 'lucide-react';
+import { Image as ImageIcon, ExternalLink, Info } from 'lucide-react';
 import { jobsApi } from '../services/api/jobs';
 import { SemanticSearchResult, SearchJobResponse, Scene, Script, Project } from '../types/api';
-import { Card, Loader, ErrorMessage, Breadcrumbs, Button } from '../components/ui';
+import { Card, Loader, ErrorMessage, Button } from '../components/ui';
 import { scenesApi } from '../services/api/scenes';
 import { scriptsApi } from '../services/api/scripts';
 import { projectsApi } from '../services/api/projects';
@@ -71,15 +71,8 @@ export const JobResultsPage = () => {
   );
 
   return (
-    <div className="space-y-6 w-full">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-4">
-        <Breadcrumbs items={[
-          { label: 'Projects', href: '/' },
-          { label: project?.name || 'Project', href: `/projects/${project?.id}` },
-          { label: script?.title || 'Script', href: `/projects/${project?.id}/scripts/${script?.id}` },
-          { label: `Scene ${scene?.order || ''}`, href: `/scenes/${scene?.id}` },
-          { label: `Search #${searchNumber || ''}` }
-        ]} />
+    <div className="space-y-6 sm:space-y-8 w-full">
+      <div className="mb-2">
         <Link to={`/scenes/${scene?.id}`} className="shrink-0 w-full sm:w-auto">
           <Button variant="outline" size="sm" className="w-full sm:w-auto gap-2">
             Back to Scene
@@ -89,13 +82,17 @@ export const JobResultsPage = () => {
 
       <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 border-b border-surface-200 pb-4 sm:pb-6 mb-6 sm:mb-8">
         <div className="w-full md:w-auto overflow-hidden">
+          <div className="flex flex-col gap-0.5 mb-2">
+            <span className="text-xs font-semibold text-surface-400 uppercase tracking-wider">{project?.name}</span>
+            <span className="text-sm font-semibold text-surface-600 tracking-wide">{script?.title}</span>
+          </div>
+          <div className="text-sm font-semibold text-surface-500 mb-3">
+            Scene {scene?.order} &middot; Search #{searchNumber}
+          </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-surface-900 flex items-center gap-2 sm:gap-3 tracking-tight">
             <ImageIcon className="w-6 h-6 sm:w-8 sm:h-8 text-primary-600 shrink-0" />
             <span className="truncate">Visual Results</span>
           </h1>
-          <p className="text-surface-600 mt-2 font-medium text-sm sm:text-base line-clamp-2">
-            Search #{searchNumber} &middot; Scene {scene?.order} {scene?.sentence_text ? `· "${scene.sentence_text}"` : ''}
-          </p>
         </div>
         <div className="flex items-center gap-4 bg-white px-4 py-2.5 sm:py-2 rounded-lg border border-surface-200 shadow-sm w-full md:w-auto justify-between md:justify-start mt-2 md:mt-0">
           <span className="text-sm font-semibold text-surface-700">{results.length} visual assets</span>

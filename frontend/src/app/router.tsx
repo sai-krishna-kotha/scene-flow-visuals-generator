@@ -42,12 +42,6 @@ const Header = () => {
         >
           Dashboard
         </Link>
-        <Link 
-          to="/projects" 
-          className={`text-sm font-medium transition-colors whitespace-nowrap ${(isActive('/projects') || (location.pathname !== '/' && !location.pathname.startsWith('/jobs'))) ? 'text-primary-600 border-b-2 border-primary-600 py-4 sm:py-5' : 'text-surface-600 hover:text-surface-900 py-4 sm:py-5'}`}
-        >
-          Projects
-        </Link>
       </nav>
       
       <div className="ml-auto flex items-center">

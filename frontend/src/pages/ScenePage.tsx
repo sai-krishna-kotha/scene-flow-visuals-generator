@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ChevronRight, BrainCircuit, Search, CheckCircle } from 'lucide-react';
+import { BrainCircuit, Search } from 'lucide-react';
 import { scenesApi } from '../services/api/scenes';
 import { Scene, SceneAnalysis, Script, Project, SearchJobResponse } from '../types/api';
-import { Button, Card, Loader, ErrorMessage, Breadcrumbs, Badge } from '../components/ui';
+import { Button, Loader, ErrorMessage, Badge } from '../components/ui';
 import { scriptsApi } from '../services/api/scripts';
 import { projectsApi } from '../services/api/projects';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
@@ -116,14 +116,8 @@ export const ScenePage = () => {
   const nextScene = currentIndex >= 0 && currentIndex < scriptScenes.length - 1 ? scriptScenes[currentIndex + 1] : null;
 
   return (
-    <div className="space-y-8 w-full">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-4">
-        <Breadcrumbs items={[
-          { label: 'Projects', href: '/' },
-          { label: project?.name || 'Project', href: `/projects/${project?.id}` },
-          { label: script?.title || 'Script', href: `/projects/${project?.id}/scripts/${script?.id}` },
-          { label: `Scene ${scene?.order || ''}` }
-        ]} />
+    <div className="space-y-6 sm:space-y-8 w-full">
+      <div className="mb-2">
         <Link to={`/projects/${project?.id}/scripts/${script?.id}`} className="shrink-0 w-full sm:w-auto">
           <Button variant="outline" size="sm" className="w-full sm:w-auto gap-2">
             Back to Script
@@ -134,8 +128,13 @@ export const ScenePage = () => {
       <div className="border-b border-surface-200 pb-6 space-y-6">
         <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 md:gap-6">
           <div>
+            <div className="text-sm font-semibold text-surface-500 tracking-wide mb-1">
+              {script?.title}
+            </div>
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-surface-900 tracking-tight">Scene {scene?.order}</h1>
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-surface-900 tracking-tight">
+                {`Scene ${scene?.order} of ${scriptScenes.length}`}
+              </h1>
               {isAnalyzing ? (
                 <span className="text-sm font-medium text-surface-500 bg-surface-100 px-2.5 py-1 rounded-md">Analyzing...</span>
               ) : scene?.status === 'analyzed' ? (

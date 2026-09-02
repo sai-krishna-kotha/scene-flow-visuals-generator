@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Clapperboard, Plus, ChevronRight, Settings, Sparkles } from 'lucide-react';
+import { Clapperboard, Plus, Settings, Sparkles } from 'lucide-react';
 import { scriptsApi } from '../services/api/scripts';
 import { scenesApi } from '../services/api/scenes';
 import { Script, Scene, Project } from '../types/api';
-import { Button, Loader, ErrorMessage, Breadcrumbs, Badge, Modal } from '../components/ui';
+import { Button, Loader, ErrorMessage, Badge, Modal } from '../components/ui';
 import { projectsApi } from '../services/api/projects';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { MoreMenu, MoreMenuItem } from '../components/ui/MoreMenu';
@@ -125,13 +125,8 @@ export const ScriptPage = () => {
   if (loading && !script) return <Loader text="Loading script..." />;
 
   return (
-    <div className="space-y-8 w-full">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-4">
-        <Breadcrumbs items={[
-          { label: 'Projects', href: '/' },
-          { label: project?.name || 'Project', href: `/projects/${projectId}` },
-          { label: script?.title || 'Script' }
-        ]} />
+    <div className="space-y-6 sm:space-y-8 w-full">
+      <div className="mb-2">
         <Link to={`/projects/${projectId}`} className="shrink-0 w-full sm:w-auto">
           <Button variant="outline" size="sm" className="w-full sm:w-auto gap-2">
             Back to Project

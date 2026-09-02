@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { FileText, Plus, ChevronRight } from 'lucide-react';
+import { FileText, Plus } from 'lucide-react';
 import { projectsApi } from '../services/api/projects';
 import { scriptsApi } from '../services/api/scripts';
 import { Project, Script } from '../types/api';
-import { Button, Loader, ErrorMessage, Breadcrumbs, Badge, Modal } from '../components/ui';
+import { Button, Loader, ErrorMessage, Badge, Modal } from '../components/ui';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { MoreMenu, MoreMenuItem } from '../components/ui/MoreMenu';
 import { DeleteConfirmationDialog } from '../components/ui/DeleteConfirmationDialog';
@@ -104,11 +104,14 @@ export const ProjectPage = () => {
   if (loading && !project) return <Loader text="Loading project..." />;
 
   return (
-    <div className="space-y-8 w-full">
-      <Breadcrumbs items={[
-        { label: 'Projects', href: '/' },
-        { label: project?.name || 'Project' }
-      ]} />
+    <div className="space-y-6 sm:space-y-8 w-full">
+      <div className="mb-2">
+        <Link to="/">
+          <Button variant="outline" size="sm" className="w-full sm:w-auto">
+            Back to Dashboard
+          </Button>
+        </Link>
+      </div>
 
       <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 sm:gap-6 border-b border-surface-200 pb-6 sm:pb-8">
         <div className="max-w-2xl">
