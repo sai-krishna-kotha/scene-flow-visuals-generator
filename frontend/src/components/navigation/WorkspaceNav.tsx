@@ -4,6 +4,7 @@ import { ProjectSwitcher } from './ProjectSwitcher';
 import { ScriptSwitcher } from './ScriptSwitcher';
 import { MobileWorkspaceMenu } from './MobileWorkspaceMenu';
 import { useWorkspace } from '../../contexts/WorkspaceContext';
+import { ThemeToggle } from '../ui/ThemeToggle';
 
 const Logo = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary-600 mr-2">
@@ -25,22 +26,22 @@ export const WorkspaceNav = () => {
   const isDashboard = location.pathname === '/';
 
   return (
-    <header className="h-14 sm:h-16 bg-white border-b border-surface-200 flex items-center px-4 md:px-8 shadow-sm z-10 sticky top-0">
+    <header className="h-14 sm:h-16 bg-surface border-b border-border-main flex items-center px-4 md:px-8 shadow-sm z-10 sticky top-0">
       <div className="flex items-center shrink-0">
         <Link to="/" className="flex items-center">
           <Logo />
-          <span className="text-base sm:text-lg font-bold text-surface-900 tracking-tight">SceneFlow</span>
+          <span className="text-base sm:text-lg font-bold text-text-main tracking-tight">SceneFlow</span>
         </Link>
       </div>
       
       {/* Desktop Workspace Selectors */}
-      <div className="hidden md:flex items-center ml-8 gap-2 border-l border-surface-200 pl-8">
+      <div className="hidden md:flex items-center ml-8 gap-2 border-l border-border-main pl-8">
         {!isDashboard && currentProject && (
           <>
             <ProjectSwitcher />
             {currentScript && (
               <>
-                <span className="text-surface-300">/</span>
+                <span className="text-text-muted">/</span>
                 <ScriptSwitcher />
               </>
             )}
@@ -52,10 +53,12 @@ export const WorkspaceNav = () => {
       <div className="hidden md:flex ml-auto items-center">
         <Link 
           to="/" 
-          className={`text-sm font-medium transition-colors ${isDashboard ? 'text-primary-600' : 'text-surface-600 hover:text-surface-900'}`}
+          className={`text-sm font-medium transition-colors ${isDashboard ? 'text-primary-600' : 'text-text-secondary hover:text-text-main'}`}
         >
           Dashboard
         </Link>
+        <div className="w-px h-5 bg-border-main mx-3"></div>
+        <ThemeToggle />
       </div>
 
       {/* Mobile Workspace Menu */}

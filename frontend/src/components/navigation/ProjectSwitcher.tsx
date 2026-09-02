@@ -44,24 +44,24 @@ export const ProjectSwitcher = () => {
     <div className="relative" ref={dropdownRef}>
       <button 
         onClick={handleOpen}
-        className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-surface-700 hover:text-surface-900 hover:bg-surface-100 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500"
+        className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-text-secondary hover:text-text-main hover:bg-surface-muted rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500"
       >
         <span className="truncate max-w-37.5 sm:max-w-50">{currentProject.name}</span>
-        <ChevronDown className={`w-4 h-4 text-surface-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`w-4 h-4 text-text-muted transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-1 w-64 bg-white border border-surface-200 rounded-lg shadow-lg overflow-hidden z-50">
-          <div className="px-3 py-2 bg-surface-50 border-b border-surface-100 text-xs font-bold text-surface-500 uppercase tracking-wider">
+        <div className="absolute top-full left-0 mt-1 w-64 bg-surface border border-border-main rounded-lg shadow-lg overflow-hidden z-50">
+          <div className="px-3 py-2 bg-surface-muted border-b border-border-subtle text-xs font-bold text-text-muted uppercase tracking-wider">
             Switch Project
           </div>
           <div className="max-h-64 overflow-y-auto py-1">
             {loading ? (
               <div className="flex items-center justify-center py-4">
-                <Loader2 className="w-5 h-5 animate-spin text-surface-300" />
+                <Loader2 className="w-5 h-5 animate-spin text-text-muted" />
               </div>
             ) : projects.length === 0 ? (
-              <div className="px-4 py-3 text-sm text-surface-500 text-center">
+              <div className="px-4 py-3 text-sm text-text-muted text-center">
                 No projects found.
               </div>
             ) : (
@@ -72,10 +72,10 @@ export const ProjectSwitcher = () => {
                     setIsOpen(false);
                     navigate(`/projects/${project.id}`);
                   }}
-                  className={`w-full text-left px-4 py-2 text-sm hover:bg-surface-50 transition-colors ${
+                  className={`w-full text-left px-4 py-2 text-sm hover:bg-surface-muted transition-colors ${
                     project.id === currentProject.id 
-                      ? 'text-primary-700 font-semibold bg-primary-50/50' 
-                      : 'text-surface-700 font-medium'
+                      ? 'text-primary-600 font-semibold bg-primary-500/10' 
+                      : 'text-text-secondary font-medium'
                   }`}
                 >
                   <span className="block truncate">{project.name}</span>

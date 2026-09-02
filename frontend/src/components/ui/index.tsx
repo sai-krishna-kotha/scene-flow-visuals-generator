@@ -9,7 +9,7 @@ export * from './PaginationControls';
 export const Loader = ({ text = "Loading..." }: { text?: string }) => (
   <div className="flex flex-col items-center justify-center p-12 space-y-4">
     <Loader2 className="w-8 h-8 text-primary-600 animate-spin" />
-    {text && <p className="text-surface-500 font-medium text-sm">{text}</p>}
+    {text && <p className="text-text-muted font-medium text-sm">{text}</p>}
   </div>
 );
 
@@ -32,9 +32,9 @@ export const Button = React.forwardRef<HTMLButtonElement, React.ButtonHTMLAttrib
     const baseStyle = "inline-flex items-center justify-center rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-1 disabled:opacity-50 disabled:pointer-events-none";
     const variants = {
       primary: "bg-primary-600 text-white hover:bg-primary-700 shadow-sm",
-      secondary: "bg-surface-800 text-white hover:bg-surface-900 shadow-sm",
-      outline: "border border-surface-200 bg-white text-surface-900 hover:bg-surface-50 shadow-sm",
-      ghost: "hover:bg-surface-100 text-surface-700 hover:text-surface-900"
+      secondary: "bg-text-main text-surface hover:opacity-90 shadow-sm",
+      outline: "border border-border-main bg-surface text-text-main hover:bg-surface-muted shadow-sm",
+      ghost: "hover:bg-surface-muted text-text-secondary hover:text-text-main"
     };
     const sizes = {
       sm: "h-8 px-3 text-xs",
@@ -58,18 +58,18 @@ export const Button = React.forwardRef<HTMLButtonElement, React.ButtonHTMLAttrib
 Button.displayName = 'Button';
 
 export const Card = ({ children, className = '' }: { children: React.ReactNode, className?: string }) => (
-  <div className={`bg-white shadow-sm border border-surface-200 rounded-xl overflow-hidden ${className}`}>
+  <div className={`bg-surface shadow-sm border border-border-main rounded-xl overflow-hidden ${className}`}>
     {children}
   </div>
 );
 
 export const Badge = ({ children, variant = 'default', className = '' }: { children: React.ReactNode, variant?: 'default' | 'success' | 'warning' | 'error' | 'outline', className?: string }) => {
   const variants = {
-    default: "bg-surface-100 text-surface-800",
+    default: "bg-surface-muted text-text-secondary",
     success: "bg-green-100 text-green-800",
     warning: "bg-yellow-100 text-yellow-800",
     error: "bg-red-100 text-red-800",
-    outline: "border border-surface-200 text-surface-700 bg-white"
+    outline: "border border-border-main text-text-secondary bg-surface"
   };
   return (
     <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${variants[variant]} ${className}`}>
@@ -112,20 +112,20 @@ export const Modal = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
       <div 
-        className="absolute inset-0 bg-surface-900/40 backdrop-blur-sm transition-opacity"
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
         onClick={onClose}
         aria-hidden="true"
       />
       <div 
-        className={`relative bg-white rounded-xl shadow-xl w-full ${maxWidth} flex flex-col max-h-[90vh] overflow-hidden animate-in fade-in zoom-in-95 duration-200`}
+        className={`relative bg-surface rounded-xl shadow-xl w-full ${maxWidth} flex flex-col max-h-[90vh] overflow-hidden animate-in fade-in zoom-in-95 duration-200`}
         role="dialog"
         aria-modal="true"
       >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-surface-100">
-          <h2 className="text-lg font-bold text-surface-900">{title}</h2>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border-subtle">
+          <h2 className="text-lg font-bold text-text-main">{title}</h2>
           <button 
             onClick={onClose}
-            className="p-2 -mr-2 text-surface-400 hover:text-surface-600 hover:bg-surface-100 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="p-2 -mr-2 text-text-muted hover:text-text-secondary hover:bg-surface-muted rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500"
             aria-label="Close modal"
           >
             <X className="w-5 h-5" />
@@ -138,3 +138,5 @@ export const Modal = ({
     </div>
   );
 };
+
+export * from './ThemeToggle';

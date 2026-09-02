@@ -55,19 +55,19 @@ export const MobileWorkspaceMenu = () => {
     <div className="md:hidden">
       <button
         onClick={() => setIsOpen(true)}
-        className="flex items-center gap-2 p-2 text-surface-600 hover:text-surface-900 bg-surface-50 hover:bg-surface-100 rounded-md transition-colors"
+        className="flex items-center gap-2 p-2 text-text-secondary hover:text-text-main bg-surface-muted hover:bg-border-subtle rounded-md transition-colors"
         aria-label="Open Workspace Menu"
       >
         <Menu className="w-5 h-5" />
       </button>
 
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex flex-col bg-surface-50 animate-in fade-in zoom-in-95 duration-200">
-          <div className="flex items-center justify-between p-4 border-b border-surface-200 bg-white shrink-0">
-            <h2 className="text-lg font-bold text-surface-900">Workspace</h2>
+        <div className="fixed inset-0 z-50 flex flex-col bg-surface animate-in fade-in zoom-in-95 duration-200">
+          <div className="flex items-center justify-between p-4 border-b border-border-subtle bg-surface shrink-0">
+            <h2 className="text-lg font-bold text-text-main">Workspace</h2>
             <button
               onClick={() => setIsOpen(false)}
-              className="p-2 -mr-2 text-surface-400 hover:text-surface-600 hover:bg-surface-100 rounded-full transition-colors"
+              className="p-2 -mr-2 text-text-muted hover:text-text-secondary hover:bg-surface-muted rounded-full transition-colors"
             >
               <X className="w-6 h-6" />
             </button>
@@ -75,15 +75,15 @@ export const MobileWorkspaceMenu = () => {
 
           <div className="flex-1 overflow-y-auto p-4 space-y-6">
             <div>
-              <h3 className="text-xs font-bold text-surface-500 uppercase tracking-wider mb-2 border-b border-surface-200 pb-2">
+              <h3 className="text-xs font-bold text-text-muted uppercase tracking-wider mb-2 border-b border-border-subtle pb-2">
                 Project
               </h3>
               {loadingProjects ? (
                 <div className="flex items-center justify-center py-4">
-                  <Loader2 className="w-5 h-5 animate-spin text-surface-300" />
+                  <Loader2 className="w-5 h-5 animate-spin text-text-muted" />
                 </div>
               ) : projects.length === 0 ? (
-                <div className="py-2 text-sm text-surface-500 italic">No projects available.</div>
+                <div className="py-2 text-sm text-text-muted italic">No projects available.</div>
               ) : (
                 <div className="flex flex-col gap-1 mt-2">
                   {projects.map(p => (
@@ -95,8 +95,8 @@ export const MobileWorkspaceMenu = () => {
                       }}
                       className={`text-left px-3 py-2.5 rounded-md text-sm transition-colors ${
                         p.id === currentProject?.id
-                          ? 'bg-primary-50 text-primary-700 font-semibold'
-                          : 'text-surface-700 hover:bg-surface-100 font-medium'
+                          ? 'bg-primary-500/10 text-primary-600 font-semibold'
+                          : 'text-text-secondary hover:bg-surface-muted font-medium'
                       }`}
                     >
                       {p.name}
@@ -108,15 +108,15 @@ export const MobileWorkspaceMenu = () => {
 
             {currentProject && (
               <div>
-                <h3 className="text-xs font-bold text-surface-500 uppercase tracking-wider mb-2 border-b border-surface-200 pb-2">
+                <h3 className="text-xs font-bold text-text-muted uppercase tracking-wider mb-2 border-b border-border-subtle pb-2">
                   Script
                 </h3>
                 {loadingScripts ? (
                   <div className="flex items-center justify-center py-4">
-                    <Loader2 className="w-5 h-5 animate-spin text-surface-300" />
+                    <Loader2 className="w-5 h-5 animate-spin text-text-muted" />
                   </div>
                 ) : scripts.length === 0 ? (
-                  <div className="py-2 text-sm text-surface-500 italic">No scripts in this project.</div>
+                  <div className="py-2 text-sm text-text-muted italic">No scripts in this project.</div>
                 ) : (
                   <div className="flex flex-col gap-1 mt-2">
                     {scripts.map(s => (
@@ -128,8 +128,8 @@ export const MobileWorkspaceMenu = () => {
                         }}
                         className={`text-left px-3 py-2.5 rounded-md text-sm transition-colors ${
                           s.id === currentScript?.id
-                            ? 'bg-primary-50 text-primary-700 font-semibold'
-                            : 'text-surface-700 hover:bg-surface-100 font-medium'
+                            ? 'bg-primary-500/10 text-primary-600 font-semibold'
+                            : 'text-text-secondary hover:bg-surface-muted font-medium'
                         }`}
                       >
                         {s.title}
@@ -141,14 +141,14 @@ export const MobileWorkspaceMenu = () => {
             )}
 
             <div>
-              <h3 className="text-xs font-bold text-surface-500 uppercase tracking-wider mb-2 border-b border-surface-200 pb-2">
+              <h3 className="text-xs font-bold text-text-muted uppercase tracking-wider mb-2 border-b border-border-subtle pb-2">
                 Navigation
               </h3>
               <div className="mt-2">
                 <Link
                   to="/"
                   onClick={() => setIsOpen(false)}
-                  className="flex items-center gap-2 px-3 py-2.5 rounded-md text-sm font-medium text-surface-700 hover:bg-surface-100 transition-colors"
+                  className="flex items-center gap-2 px-3 py-2.5 rounded-md text-sm font-medium text-text-secondary hover:bg-surface-muted transition-colors"
                 >
                   <LayoutDashboard className="w-4 h-4" />
                   Dashboard

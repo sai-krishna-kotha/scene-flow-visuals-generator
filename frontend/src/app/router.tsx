@@ -13,7 +13,7 @@ import { WorkspaceNav } from '../components/navigation/WorkspaceNav';
 const Layout = () => {
   return (
     <WorkspaceProvider>
-      <div className="flex flex-col min-h-screen bg-surface-50 font-sans">
+      <div className="flex flex-col min-h-screen bg-surface-muted font-sans">
         <WorkspaceNav />
         <main className="flex-1 overflow-y-auto p-4 md:p-8 max-w-7xl mx-auto w-full">
           <Outlet />
@@ -34,7 +34,7 @@ const router = createBrowserRouter([
       { path: 'scenes/:sceneId', element: <ScenePage /> },
       { path: 'jobs/:jobId', element: <JobPollingPage /> },
       { path: 'jobs/:jobId/results', element: <JobResultsPage /> },
-      { path: '*', element: <div className="p-8 text-center"><h1 className="text-2xl font-bold">404 Not Found</h1><p className="text-surface-800">The requested page does not exist.</p></div> }
+      { path: '*', element: <div className="p-8 text-center"><h1 className="text-2xl font-bold">404 Not Found</h1><p className="text-text-secondary">The requested page does not exist.</p></div> }
     ]
   }
 ]);

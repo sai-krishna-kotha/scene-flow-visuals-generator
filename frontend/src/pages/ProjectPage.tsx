@@ -131,14 +131,14 @@ export const ProjectPage = () => {
         </Link>
       </div>
 
-      <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 sm:gap-6 border-b border-surface-200 pb-6 sm:pb-8">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 sm:gap-6 border-b border-border-main pb-6 sm:pb-8">
         <div className="max-w-2xl">
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-surface-900 tracking-tight">{project?.name}</h1>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-text-main tracking-tight">{project?.name}</h1>
           <ExpandableContent
             content={project?.description || 'Build scripts, break them into scenes, and turn them into visual storyboards.'}
             collapsedLinesDesktop={3}
             collapsedLinesMobile={3}
-            textClassName="text-surface-500 mt-1 sm:mt-2 text-base sm:text-lg whitespace-pre-wrap"
+            textClassName="text-text-muted mt-1 sm:mt-2 text-base sm:text-lg whitespace-pre-wrap"
           />
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mt-2 md:mt-0 w-full md:w-auto">
@@ -170,14 +170,14 @@ export const ProjectPage = () => {
 
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold text-surface-900">Scripts</h2>
-          {scripts.length > 0 && <span className="text-sm font-medium text-surface-500">{scripts.length} Total</span>}
+          <h2 className="text-xl font-bold text-text-main">Scripts</h2>
+          {scripts.length > 0 && <span className="text-sm font-medium text-text-muted">{scripts.length} Total</span>}
         </div>
         
         {scripts.length === 0 ? (
-          <div className="text-center py-16 bg-surface-50 border border-surface-200 border-dashed rounded-xl text-surface-500 max-w-2xl mx-auto">
-            <FileText className="w-12 h-12 mx-auto text-surface-300 mb-4" />
-            <p className="text-lg font-medium text-surface-700">No scripts yet.</p>
+          <div className="text-center py-16 bg-surface-muted border border-border-main border-dashed rounded-xl text-text-muted max-w-2xl mx-auto">
+            <FileText className="w-12 h-12 mx-auto text-text-muted mb-4" />
+            <p className="text-lg font-medium text-text-secondary">No scripts yet.</p>
             <p className="mt-1 mb-6 text-sm">Create a script to begin turning your story into scenes.</p>
             <Button onClick={() => setIsModalOpen(true)} variant="outline">
               <Plus className="w-4 h-4 mr-2" /> New Script
@@ -186,10 +186,10 @@ export const ProjectPage = () => {
         ) : (
           <div className="flex flex-col gap-4">
             {scripts.map(s => (
-              <div key={s.id} className="bg-white border border-surface-200 shadow-sm rounded-xl p-5 hover:border-surface-300 hover:shadow transition-all flex flex-col gap-3">
+              <div key={s.id} className="bg-surface border border-border-main shadow-sm rounded-xl p-5 hover:border-border-subtle hover:shadow transition-all flex flex-col gap-3">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 md:gap-4">
                   <div className="flex items-center gap-3 min-w-0">
-                    <h3 className="text-surface-900 font-bold text-base truncate">{s.title}</h3>
+                    <h3 className="text-text-main font-bold text-base truncate">{s.title}</h3>
                     <Badge variant="outline" className="capitalize shrink-0">{s.orientation_preference}</Badge>
                   </div>
                 </div>
@@ -199,19 +199,19 @@ export const ProjectPage = () => {
                     content={s.full_text}
                     linesDesktop={3}
                     linesMobile={2}
-                    className="text-surface-600 text-sm leading-relaxed"
+                    className="text-text-secondary text-sm leading-relaxed"
                   />
                 </div>
                 
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-3 mt-1 border-t border-surface-100 gap-3 sm:gap-0">
-                  <div className="flex items-center text-xs font-medium text-surface-400">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-3 mt-1 border-t border-border-subtle gap-3 sm:gap-0">
+                  <div className="flex items-center text-xs font-medium text-text-muted">
                     {s.updated_at && (
                       <span>Updated {new Date(s.updated_at).toLocaleDateString()}</span>
                     )}
                   </div>
                   <div className="flex items-center gap-2 w-full sm:w-auto">
                     <Link to={`/projects/${projectId}/scripts/${s.id}`} className="flex-1 sm:flex-none">
-                      <Button variant="outline" size="sm" className="bg-white hover:bg-surface-50 w-full sm:w-auto">
+                      <Button variant="outline" size="sm" className="bg-surface hover:bg-surface-muted w-full sm:w-auto">
                         Open Script
                       </Button>
                     </Link>
@@ -239,7 +239,7 @@ export const ProjectPage = () => {
         )}
         
         {!loading && scripts.length > 0 && (
-          <div className="mt-8 border-t border-surface-200 pt-4">
+          <div className="mt-8 border-t border-border-main pt-4">
             <PaginationControls
               page={page}
               pageSize={pageSize}
@@ -254,35 +254,35 @@ export const ProjectPage = () => {
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create New Script" maxWidth="max-w-lg">
         <form onSubmit={handleCreate} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-surface-700 mb-1">Title</label>
+            <label className="block text-sm font-medium text-text-secondary mb-1">Title</label>
             <input 
               type="text" 
               value={newTitle}
               onChange={e => setNewTitle(e.target.value)}
               placeholder="e.g. Scene 1 - Intro"
-              className="w-full px-3 py-2 bg-surface-50 border border-surface-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white transition-colors text-sm"
+              className="w-full px-3 py-2 bg-surface-muted border border-border-main rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-surface transition-colors text-sm"
               disabled={isCreating}
               required
               autoFocus
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-surface-700 mb-1">Script Text</label>
+            <label className="block text-sm font-medium text-text-secondary mb-1">Script Text</label>
             <textarea 
               value={newText}
               onChange={e => setNewText(e.target.value)}
               placeholder="Enter the full text for this script..."
-              className="w-full px-3 py-2 bg-surface-50 border border-surface-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white transition-colors text-sm min-h-40 resize-y"
+              className="w-full px-3 py-2 bg-surface-muted border border-border-main rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-surface transition-colors text-sm min-h-40 resize-y"
               disabled={isCreating}
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-surface-700 mb-1">Orientation</label>
+            <label className="block text-sm font-medium text-text-secondary mb-1">Orientation</label>
             <select 
               value={newOrientation}
               onChange={e => setNewOrientation(e.target.value as any)}
-              className="w-full px-3 py-2 bg-surface-50 border border-surface-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white transition-colors text-sm"
+              className="w-full px-3 py-2 bg-surface-muted border border-border-main rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-surface transition-colors text-sm"
               disabled={isCreating}
             >
               <option value="all">All</option>
@@ -291,7 +291,7 @@ export const ProjectPage = () => {
               <option value="square">Square</option>
             </select>
           </div>
-          <div className="flex flex-col sm:flex-row items-center gap-3 pt-4 border-t border-surface-100">
+          <div className="flex flex-col sm:flex-row items-center gap-3 pt-4 border-t border-border-subtle">
             <Button type="submit" isLoading={isCreating} disabled={!newTitle.trim() || !newText.trim()} className="w-full sm:flex-1">
               Create Script
             </Button>

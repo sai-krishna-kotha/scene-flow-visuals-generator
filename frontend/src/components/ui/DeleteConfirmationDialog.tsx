@@ -45,27 +45,27 @@ export const DeleteConfirmationDialog: React.FC<DeleteConfirmationDialogProps> =
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-surface-900/50 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
       <div 
         ref={dialogRef}
-        className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+        className="bg-surface rounded-xl shadow-xl border border-border-main w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200"
         role="dialog"
         aria-modal="true"
         aria-labelledby="delete-dialog-title"
       >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-surface-200 bg-red-50/50">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border-subtle bg-red-500/10">
           <div className="flex items-center gap-3">
-            <div className="bg-red-100 p-2 rounded-full">
-              <AlertTriangle className="w-5 h-5 text-red-600" />
+            <div className="bg-red-500/20 p-2 rounded-full">
+              <AlertTriangle className="w-5 h-5 text-red-500" />
             </div>
-            <h2 id="delete-dialog-title" className="text-lg font-bold text-surface-900">
+            <h2 id="delete-dialog-title" className="text-lg font-bold text-text-main">
               {title}
             </h2>
           </div>
           <button 
             onClick={onClose}
             disabled={isDeleting}
-            className="text-surface-400 hover:text-surface-600 transition-colors disabled:opacity-50"
+            className="text-text-muted hover:text-text-secondary transition-colors disabled:opacity-50"
             aria-label="Close dialog"
           >
             <X className="w-5 h-5" />
@@ -73,25 +73,25 @@ export const DeleteConfirmationDialog: React.FC<DeleteConfirmationDialogProps> =
         </div>
         
         <div className="p-6">
-          <p className="text-surface-700 mb-4">
-            Are you sure you want to delete <span className="font-bold text-surface-900">"{itemName}"</span>?
+          <p className="text-text-secondary mb-4">
+            Are you sure you want to delete <span className="font-bold text-text-main">"{itemName}"</span>?
           </p>
           
-          <div className="bg-surface-50 border border-surface-200 rounded-lg p-4 mb-6">
-            <p className="text-sm font-semibold text-surface-900 mb-2">This will permanently delete:</p>
-            <ul className="list-disc pl-5 text-sm text-surface-600 space-y-1">
+          <div className="bg-surface-muted border border-border-main rounded-lg p-4 mb-6">
+            <p className="text-sm font-semibold text-text-main mb-2">This will permanently delete:</p>
+            <ul className="list-disc pl-5 text-sm text-text-secondary space-y-1">
               {warnings.map((warning, idx) => (
                 <li key={idx}>{warning}</li>
               ))}
             </ul>
           </div>
           
-          <p className="text-sm text-red-600 font-medium">
+          <p className="text-sm text-red-500 font-medium">
             This action cannot be undone.
           </p>
         </div>
         
-        <div className="px-6 py-4 bg-surface-50 border-t border-surface-200 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3">
+        <div className="px-6 py-4 bg-surface-muted border-t border-border-main flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3">
           <button
             onClick={onConfirm}
             disabled={isDeleting}

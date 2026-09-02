@@ -67,7 +67,7 @@ export const ExpandableContent: React.FC<ExpandableContentProps> = ({
       </div>
 
       {!isExpanded && needsExpansion && (
-        <div className="absolute bottom-6 left-0 right-0 h-16 bg-linear-to-t from-white to-transparent pointer-events-none" />
+        <div className="absolute bottom-6 left-0 right-0 h-16 bg-linear-to-t from-surface to-transparent pointer-events-none" />
       )}
 
       {needsExpansion && (

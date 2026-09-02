@@ -34,7 +34,7 @@ export const MoreMenu: React.FC<MoreMenuProps> = ({ children, className = '', bu
           e.stopPropagation();
           setIsOpen(!isOpen);
         }}
-        className={`p-2 text-surface-400 hover:text-surface-600 hover:bg-surface-100 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 ${buttonClassName}`}
+        className={`p-2 text-text-muted hover:text-text-secondary hover:bg-surface-muted rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 ${buttonClassName}`}
         aria-haspopup="true"
         aria-expanded={isOpen}
         aria-label="More options"
@@ -43,7 +43,7 @@ export const MoreMenu: React.FC<MoreMenuProps> = ({ children, className = '', bu
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none animate-in fade-in zoom-in-95 duration-100">
+        <div className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-surface border border-border-main shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none animate-in fade-in zoom-in-95 duration-100">
           <div className="py-1" role="menu" aria-orientation="vertical">
             {React.Children.map(children, child => {
               if (React.isValidElement(child)) {
@@ -75,8 +75,8 @@ export const MoreMenuItem: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement
 }) => {
   const baseStyle = "block w-full text-left px-4 py-2 text-sm font-medium transition-colors focus:outline-none";
   const stateStyle = destructive 
-    ? "text-red-600 hover:bg-red-50 hover:text-red-700" 
-    : "text-surface-700 hover:bg-surface-50 hover:text-surface-900";
+    ? "text-red-600 hover:bg-red-500/10 hover:text-red-700" 
+    : "text-text-secondary hover:bg-surface-muted hover:text-text-main";
     
   return (
     <button

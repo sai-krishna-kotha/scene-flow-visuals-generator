@@ -64,11 +64,11 @@ export const JobPollingPage = () => {
     <div className="max-w-3xl mx-auto mt-12">
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-extrabold text-surface-900 tracking-tight">Visual Search</h1>
+          <h1 className="text-3xl font-extrabold text-text-main tracking-tight">Visual Search</h1>
           {searchNumber ? (
-            <p className="text-surface-500 mt-2 font-medium">Search #{searchNumber}</p>
+            <p className="text-text-muted mt-2 font-medium">Search #{searchNumber}</p>
           ) : (
-            <p className="text-surface-500 mt-2 font-medium">Loading search context...</p>
+            <p className="text-text-muted mt-2 font-medium">Loading search context...</p>
           )}
         </div>
         {job?.scene_id && (
@@ -80,15 +80,15 @@ export const JobPollingPage = () => {
         )}
       </div>
 
-      <div className="bg-white p-10 rounded-2xl border border-surface-200 shadow-sm text-center">
+      <div className="bg-surface p-10 rounded-2xl border border-border-main shadow-sm text-center">
         <div className="flex justify-center mb-6">
           {display.icon}
         </div>
-        <h2 className="text-2xl font-bold text-surface-900 mb-2">{display.text}</h2>
-        <p className="text-surface-600 max-w-md mx-auto">{display.desc}</p>
+        <h2 className="text-2xl font-bold text-text-main mb-2">{display.text}</h2>
+        <p className="text-text-secondary max-w-md mx-auto">{display.desc}</p>
         
         {(job.status === 'RUNNING' || job.status === 'PENDING') && (
-          <div className="w-full max-w-md mx-auto bg-surface-100 h-1.5 rounded-full mt-8 overflow-hidden">
+          <div className="w-full max-w-md mx-auto bg-surface-muted h-1.5 rounded-full mt-8 overflow-hidden">
             <div className="bg-primary-500 h-full w-2/3 rounded-full animate-pulse transition-all"></div>
           </div>
         )}

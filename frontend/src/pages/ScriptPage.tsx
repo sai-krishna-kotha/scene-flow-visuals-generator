@@ -152,14 +152,14 @@ export const ScriptPage = () => {
         </Link>
       </div>
 
-      <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 sm:gap-6 border-b border-surface-200 pb-6 sm:pb-8">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 sm:gap-6 border-b border-border-main pb-6 sm:pb-8">
         <div className="max-w-3xl">
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-surface-900 tracking-tight mb-2 sm:mb-3">{script?.title}</h1>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-text-main tracking-tight mb-2 sm:mb-3">{script?.title}</h1>
           <div className="flex flex-wrap items-center gap-3">
             <Badge variant="outline" className="capitalize">
               {script?.orientation_preference}
             </Badge>
-            <span className="text-sm text-surface-500 font-medium">{scenes.length} Scenes</span>
+            <span className="text-sm text-text-muted font-medium">{scenes.length} Scenes</span>
           </div>
         </div>
         <div className="shrink-0 mt-2 md:mt-0 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full md:w-auto">
@@ -193,10 +193,10 @@ export const ScriptPage = () => {
 
       {error && <ErrorMessage message={error} onRetry={() => setError(null)} />}
 
-      <div className="bg-white rounded-xl border border-surface-200 shadow-sm overflow-hidden mb-8">
-        <div className="bg-surface-50 px-6 py-4 border-b border-surface-200 flex items-center justify-between">
-          <h2 className="text-sm font-bold text-surface-700 uppercase tracking-wider flex items-center gap-2">
-            <Settings className="w-4 h-4 text-surface-400" /> Source Script
+      <div className="bg-surface rounded-xl border border-border-main shadow-sm overflow-hidden mb-8">
+        <div className="bg-surface-muted px-6 py-4 border-b border-border-main flex items-center justify-between">
+          <h2 className="text-sm font-bold text-text-secondary uppercase tracking-wider flex items-center gap-2">
+            <Settings className="w-4 h-4 text-text-muted" /> Source Script
           </h2>
         </div>
         <div className="p-6 md:p-8">
@@ -204,20 +204,20 @@ export const ScriptPage = () => {
             content={script?.full_text}
             collapsedLinesDesktop={10}
             collapsedLinesMobile={6}
-            textClassName="text-surface-800 text-lg leading-relaxed whitespace-pre-wrap font-serif"
+            textClassName="text-text-main text-lg leading-relaxed whitespace-pre-wrap font-serif"
           />
         </div>
       </div>
 
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold text-surface-900">Storyboard Scenes</h2>
+          <h2 className="text-xl font-bold text-text-main">Storyboard Scenes</h2>
         </div>
         
         {scenes.length === 0 ? (
-          <div className="text-center py-16 bg-surface-50 border border-surface-200 border-dashed rounded-xl text-surface-500 max-w-2xl mx-auto">
-            <Clapperboard className="w-12 h-12 mx-auto text-surface-300 mb-4" />
-            <p className="text-lg font-medium text-surface-700">No scenes yet.</p>
+          <div className="text-center py-16 bg-surface-muted border border-border-main border-dashed rounded-xl text-text-muted max-w-2xl mx-auto">
+            <Clapperboard className="w-12 h-12 mx-auto text-text-muted mb-4" />
+            <p className="text-lg font-medium text-text-secondary">No scenes yet.</p>
             <p className="mt-1 mb-6 text-sm">Break down your script into specific scenes to begin generating visual intelligence.</p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <Button onClick={handleGenerateScenes} isLoading={isGenerating}>
@@ -231,16 +231,16 @@ export const ScriptPage = () => {
         ) : (
           <div className="flex flex-col gap-4">
             {scenes.map(s => (
-              <div key={s.id} className="bg-white border border-surface-200 shadow-sm rounded-xl p-5 hover:border-surface-300 hover:shadow transition-all flex flex-col gap-3">
+              <div key={s.id} className="bg-surface border border-border-main shadow-sm rounded-xl p-5 hover:border-border-subtle hover:shadow transition-all flex flex-col gap-3">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 md:gap-4">
                   <div className="flex items-center gap-3 min-w-0">
-                    <span className="text-xs font-bold text-surface-500 bg-surface-100 px-2 py-1 rounded shrink-0">
+                    <span className="text-xs font-bold text-text-muted bg-surface-muted px-2 py-1 rounded shrink-0">
                       {s.order < 10 ? `0${s.order}` : s.order}
                     </span>
                     {s.title ? (
-                      <h3 className="text-surface-900 font-bold text-base truncate">{s.title}</h3>
+                      <h3 className="text-text-main font-bold text-base truncate">{s.title}</h3>
                     ) : (
-                      <h3 className="text-surface-400 font-medium text-base italic truncate">Untitled Scene</h3>
+                      <h3 className="text-text-muted font-medium text-base italic truncate">Untitled Scene</h3>
                     )}
                   </div>
                 </div>
@@ -250,21 +250,21 @@ export const ScriptPage = () => {
                     content={s.sentence_text}
                     linesDesktop={3}
                     linesMobile={2}
-                    className="text-surface-600 text-sm leading-relaxed"
+                    className="text-text-secondary text-sm leading-relaxed"
                   />
                 </div>
                 
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-3 mt-1 border-t border-surface-100 md:ml-13 gap-3 sm:gap-0">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-3 mt-1 border-t border-border-subtle md:ml-13 gap-3 sm:gap-0">
                   <div className="flex items-center">
                     {s.status === 'analyzed' ? (
                       <Badge variant="success">Analyzed</Badge>
                     ) : (
-                      <span className="text-xs font-medium text-surface-400">Unanalyzed</span>
+                      <span className="text-xs font-medium text-text-muted">Unanalyzed</span>
                     )}
                   </div>
                   <div className="flex items-center gap-2 w-full sm:w-auto">
                     <Link to={`/scenes/${s.id}`} className="flex-1 sm:flex-none">
-                      <Button variant="outline" size="sm" className="bg-white hover:bg-surface-50 w-full sm:w-auto">
+                      <Button variant="outline" size="sm" className="bg-surface hover:bg-surface-muted w-full sm:w-auto">
                         Open Scene
                       </Button>
                     </Link>
@@ -292,7 +292,7 @@ export const ScriptPage = () => {
         )}
         
         {!loading && scenes.length > 0 && (
-          <div className="mt-8 border-t border-surface-200 pt-4">
+          <div className="mt-8 border-t border-border-main pt-4">
             <PaginationControls
               page={page}
               pageSize={pageSize}
@@ -307,18 +307,18 @@ export const ScriptPage = () => {
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Add Scene" maxWidth="max-w-lg">
         <form onSubmit={handleCreate} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-surface-700 mb-1">Scene Text</label>
+            <label className="block text-sm font-medium text-text-secondary mb-1">Scene Text</label>
             <textarea 
               value={newText}
               onChange={e => setNewText(e.target.value)}
               placeholder="Describe the visual action or setting..."
-              className="w-full px-3 py-2 bg-surface-50 border border-surface-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white transition-colors text-sm min-h-35 resize-y"
+              className="w-full px-3 py-2 bg-surface-muted border border-border-main rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-surface transition-colors text-sm min-h-35 resize-y"
               disabled={isCreating}
               required
               autoFocus
             />
           </div>
-          <div className="flex flex-col sm:flex-row items-center gap-3 pt-4 border-t border-surface-100">
+          <div className="flex flex-col sm:flex-row items-center gap-3 pt-4 border-t border-border-subtle">
             <Button type="submit" isLoading={isCreating} disabled={!newText.trim()} className="w-full sm:flex-1">
               Add Scene
             </Button>

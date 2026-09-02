@@ -133,22 +133,22 @@ export const DashboardPage = () => {
 
   return (
     <div className="space-y-8 w-full">
-      <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 sm:gap-6 border-b border-surface-200 pb-6 sm:pb-8">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 sm:gap-6 border-b border-border-main pb-6 sm:pb-8">
         <div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-surface-900 tracking-tight mb-1 sm:mb-2">SceneFlow</h1>
-          <h2 className="text-xl sm:text-2xl font-bold text-surface-700 tracking-tight mb-2 sm:mb-3">AI Storyboard Intelligence</h2>
-          <p className="text-surface-500 text-base sm:text-lg">Turn scripts into intelligently ranked visual assets.</p>
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-text-main tracking-tight mb-1 sm:mb-2">SceneFlow</h1>
+          <h2 className="text-xl sm:text-2xl font-bold text-text-secondary tracking-tight mb-2 sm:mb-3">AI Storyboard Intelligence</h2>
+          <p className="text-text-muted text-base sm:text-lg">Turn scripts into intelligently ranked visual assets.</p>
         </div>
         
-        <div className="w-full md:w-auto bg-white p-4 rounded-xl border border-surface-200 shadow-sm shrink-0 mt-2 md:mt-0">
-          <h3 className="text-sm font-bold text-surface-900 mb-2">Create New Project</h3>
+        <div className="w-full md:w-auto bg-surface p-4 rounded-xl border border-border-main shadow-sm shrink-0 mt-2 md:mt-0">
+          <h3 className="text-sm font-bold text-text-main mb-2">Create New Project</h3>
           <form onSubmit={handleCreate} className="flex gap-2">
             <input 
               type="text" 
               value={newProjectName}
               onChange={e => setNewProjectName(e.target.value)}
               placeholder="Project Name..." 
-              className="w-full md:w-56 px-3 py-2 text-sm bg-surface-50 border border-surface-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white transition-colors"
+              className="w-full md:w-56 px-3 py-2 text-sm bg-surface-muted border border-border-main rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-surface transition-colors"
               disabled={isCreating}
             />
             <Button type="submit" isLoading={isCreating} disabled={!newProjectName.trim()} size="sm" className="shrink-0">
@@ -161,20 +161,20 @@ export const DashboardPage = () => {
       {error && <ErrorMessage message={error} onRetry={() => setError(null)} />}
 
       <div>
-        <h2 className="text-xl font-bold text-surface-900 mb-4">Recent Projects</h2>
+        <h2 className="text-xl font-bold text-text-main mb-4">Recent Projects</h2>
         {projects.length === 0 && !loading ? (
-          <div className="text-center py-16 bg-surface-50 border border-surface-200 border-dashed rounded-xl text-surface-500">
-            <Folder className="w-12 h-12 mx-auto text-surface-300 mb-4" />
-            <p className="text-lg font-medium text-surface-700">No projects yet</p>
+          <div className="text-center py-16 bg-surface-muted border border-border-main border-dashed rounded-xl text-text-muted">
+            <Folder className="w-12 h-12 mx-auto text-text-muted mb-4" />
+            <p className="text-lg font-medium text-text-secondary">No projects yet</p>
             <p className="mt-1">Create your first storyboard project and start turning scenes into visual assets.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {projects.map(p => (
-              <div key={p.id} className="bg-white border border-surface-200 shadow-sm rounded-xl p-5 hover:border-surface-300 hover:shadow transition-all flex flex-col gap-3 h-full">
+              <div key={p.id} className="bg-surface border border-border-main shadow-sm rounded-xl p-5 hover:border-border-subtle hover:shadow transition-all flex flex-col gap-3 h-full">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 md:gap-4">
                   <div className="flex items-center gap-3 min-w-0">
-                    <h3 className="text-surface-900 font-bold text-base truncate">{p.name}</h3>
+                    <h3 className="text-text-main font-bold text-base truncate">{p.name}</h3>
                   </div>
                 </div>
                 
@@ -184,20 +184,20 @@ export const DashboardPage = () => {
                       content={p.description}
                       linesDesktop={2}
                       linesMobile={2}
-                      className="text-surface-600 text-sm leading-relaxed"
+                      className="text-text-secondary text-sm leading-relaxed"
                     />
                   ) : (
-                    <div className="text-surface-400 text-sm italic">No description</div>
+                    <div className="text-text-muted text-sm italic">No description</div>
                   )}
                 </div>
                 
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-3 mt-1 border-t border-surface-100 gap-3 sm:gap-0">
-                  <div className="flex items-center text-xs font-medium text-surface-400">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-3 mt-1 border-t border-border-subtle gap-3 sm:gap-0">
+                  <div className="flex items-center text-xs font-medium text-text-muted">
                     <span>Updated {new Date(p.updated_at).toLocaleDateString()}</span>
                   </div>
                   <div className="flex items-center gap-2 w-full sm:w-auto">
                     <Link to={`/projects/${p.id}`} className="flex-1 sm:flex-none">
-                      <Button variant="outline" size="sm" className="bg-white hover:bg-surface-50 w-full sm:w-auto">
+                      <Button variant="outline" size="sm" className="bg-surface hover:bg-surface-muted w-full sm:w-auto">
                         Open Project
                       </Button>
                     </Link>
@@ -225,7 +225,7 @@ export const DashboardPage = () => {
         )}
         
         {!loading && projects.length > 0 && (
-          <div className="mt-8 border-t border-surface-200 pt-4">
+          <div className="mt-8 border-t border-border-main pt-4">
             <PaginationControls
               page={page}
               pageSize={pageSize}

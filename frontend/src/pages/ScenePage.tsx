@@ -145,20 +145,20 @@ export const ScenePage = () => {
         </Link>
       </div>
 
-      <div className="border-b border-surface-200 pb-6 space-y-6">
+      <div className="border-b border-border-main pb-6 space-y-6">
         <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 md:gap-6">
           <div>
-            <div className="text-sm font-semibold text-surface-500 tracking-wide mb-1">
+            <div className="text-sm font-semibold text-text-muted tracking-wide mb-1">
               {script?.title}
             </div>
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-surface-900 tracking-tight">
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-text-main tracking-tight">
                 {`Scene ${scene?.order} of ${scriptScenes.length}`}
               </h1>
               {isAnalyzing ? (
-                <span className="text-sm font-medium text-surface-500 bg-surface-100 px-2.5 py-1 rounded-md">Analyzing...</span>
+                <span className="text-sm font-medium text-text-muted bg-surface-muted px-2.5 py-1 rounded-md">Analyzing...</span>
               ) : scene?.status === 'analyzed' ? (
-                <span className="text-sm font-medium text-surface-500 bg-surface-100 px-2.5 py-1 rounded-md">Analyzed</span>
+                <span className="text-sm font-medium text-text-muted bg-surface-muted px-2.5 py-1 rounded-md">Analyzed</span>
               ) : null}
             </div>
           </div>
@@ -201,8 +201,8 @@ export const ScenePage = () => {
         </div>
 
         {scriptScenes.length > 1 && (
-          <div className="flex flex-col sm:flex-row sm:justify-between items-center bg-surface-50 p-4 sm:px-4 sm:py-2.5 rounded-lg border border-surface-200 gap-3 sm:gap-0">
-            <span className="text-sm font-bold text-surface-700 sm:hidden w-full text-center mb-1">
+          <div className="flex flex-col sm:flex-row sm:justify-between items-center bg-surface-muted p-4 sm:px-4 sm:py-2.5 rounded-lg border border-border-main gap-3 sm:gap-0">
+            <span className="text-sm font-bold text-text-secondary sm:hidden w-full text-center mb-1">
               {`Scene ${scene?.order || 0} of ${scriptScenes.length || 0}`}
             </span>
             <div className="flex w-full sm:contents justify-between gap-3">
@@ -211,11 +211,11 @@ export const ScenePage = () => {
                 size="sm" 
                 disabled={!prevScene} 
                 onClick={() => prevScene && navigate(`/scenes/${prevScene.id}`)}
-                className="bg-white flex-1 sm:flex-none"
+                className="bg-surface flex-1 sm:flex-none"
               >
                 Previous Scene
               </Button>
-              <span className="text-sm font-bold text-surface-700 hidden sm:block mx-4">
+              <span className="text-sm font-bold text-text-secondary hidden sm:block mx-4">
                 {`Scene ${scene?.order || 0} of ${scriptScenes.length || 0}`}
               </span>
               <Button 
@@ -223,7 +223,7 @@ export const ScenePage = () => {
                 size="sm" 
                 disabled={!nextScene} 
                 onClick={() => nextScene && navigate(`/scenes/${nextScene.id}`)}
-                className="bg-white flex-1 sm:flex-none"
+                className="bg-surface flex-1 sm:flex-none"
               >
                 Next Scene
               </Button>
@@ -236,9 +236,9 @@ export const ScenePage = () => {
 
       <div className="flex flex-col lg:grid lg:grid-cols-2 lg:items-stretch gap-5 lg:h-100">
         {/* Scene Context Panel */}
-        <div className="flex flex-col h-75 lg:h-full overflow-hidden bg-white rounded-xl border border-surface-200 shadow-sm">
-          <div className="shrink-0 bg-surface-50 px-4 py-3 border-b border-surface-200">
-            <h2 className="text-xs font-bold text-surface-500 uppercase tracking-wider">Scene Context</h2>
+        <div className="flex flex-col h-75 lg:h-full overflow-hidden bg-surface rounded-xl border border-border-main shadow-sm">
+          <div className="shrink-0 bg-surface-muted px-4 py-3 border-b border-border-main">
+            <h2 className="text-xs font-bold text-text-muted uppercase tracking-wider">Scene Context</h2>
           </div>
           <div className="flex-1 overflow-y-auto p-4 md:p-5 scroll-smooth flex flex-col">
             <div className="my-auto max-w-full lg:max-w-[85%] -translate-y-1">
@@ -246,9 +246,9 @@ export const ScenePage = () => {
                 content={scene?.sentence_text ? `"${scene.sentence_text}"` : ""}
                 collapsedLinesDesktop={5}
                 collapsedLinesMobile={4}
-                textClassName="text-base sm:text-lg text-surface-900 font-medium leading-relaxed italic border-l-4 border-primary-200 pl-4 py-1 text-left whitespace-pre-wrap"
+                textClassName="text-base sm:text-lg text-text-main font-medium leading-relaxed italic border-l-4 border-primary-500 pl-4 py-1 text-left whitespace-pre-wrap"
               />
-              <div className="mt-4 flex flex-wrap items-center gap-2 text-sm text-surface-500 font-medium text-left">
+              <div className="mt-4 flex flex-wrap items-center gap-2 text-sm text-text-muted font-medium text-left">
                 <span className="capitalize">{script?.orientation_preference}</span>
                 {scene?.updated_at && (
                   <>
@@ -262,18 +262,18 @@ export const ScenePage = () => {
         </div>
 
         {/* AI Scene Intelligence Panel */}
-        <div className="flex flex-col h-95 lg:h-full overflow-hidden bg-white rounded-xl border border-surface-200 shadow-sm">
-          <div className="shrink-0 bg-surface-50 px-4 py-3 border-b border-surface-200">
-            <h2 className="text-xs font-bold text-surface-500 uppercase tracking-wider">AI Scene Intelligence</h2>
+        <div className="flex flex-col h-95 lg:h-full overflow-hidden bg-surface rounded-xl border border-border-main shadow-sm">
+          <div className="shrink-0 bg-surface-muted px-4 py-3 border-b border-border-main">
+            <h2 className="text-xs font-bold text-text-muted uppercase tracking-wider">AI Scene Intelligence</h2>
           </div>
           
           <div className="flex-1 overflow-y-auto p-4 md:p-5 scroll-smooth">
             {!analysis ? (
               <div className="h-full flex flex-col items-center justify-center text-center space-y-3">
-                <BrainCircuit className="w-8 h-8 text-surface-300" />
+                <BrainCircuit className="w-8 h-8 text-text-muted" />
                 <div>
-                  <p className="text-surface-700 font-medium text-sm mb-1">No analysis available</p>
-                  <p className="text-surface-500 text-xs mb-3">Turn this scene into structured visual intelligence.</p>
+                  <p className="text-text-secondary font-medium text-sm mb-1">No analysis available</p>
+                  <p className="text-text-muted text-xs mb-3">Turn this scene into structured visual intelligence.</p>
                 </div>
                 <Button onClick={handleAnalyze} isLoading={isAnalyzing} disabled={isAnalyzing || isSearching} variant="outline" size="sm">
                   {!isAnalyzing && <BrainCircuit className="w-3.5 h-3.5 mr-2 text-primary-600" />}
@@ -283,51 +283,51 @@ export const ScenePage = () => {
             ) : (
               <div className="space-y-5">
                 <div>
-                  <h3 className="text-[10px] font-bold text-surface-400 uppercase tracking-wider mb-1.5">Summary</h3>
-                  <p className="text-surface-900 text-sm font-medium leading-relaxed">
+                  <h3 className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1.5">Summary</h3>
+                  <p className="text-text-main text-sm font-medium leading-relaxed">
                     {analysis.summary}
                   </p>
                 </div>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <h3 className="text-[10px] font-bold text-surface-400 uppercase tracking-wider mb-1.5">Subjects</h3>
+                    <h3 className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1.5">Subjects</h3>
                     <div className="flex flex-wrap gap-1.5">
                       {analysis.subjects.map((item, i) => (
-                        <span key={i} className="text-xs font-medium text-surface-700 bg-surface-100 px-2 py-0.5 rounded-md">{item}</span>
+                        <span key={i} className="text-xs font-medium text-text-secondary bg-surface-muted px-2 py-0.5 rounded-md">{item}</span>
                       ))}
                     </div>
                   </div>
                   
                   <div>
-                    <h3 className="text-[10px] font-bold text-surface-400 uppercase tracking-wider mb-1.5">Actions</h3>
+                    <h3 className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1.5">Actions</h3>
                     <div className="flex flex-wrap gap-1.5">
                       {analysis.actions.map((item, i) => (
-                        <span key={i} className="text-xs font-medium text-surface-700 bg-surface-100 px-2 py-0.5 rounded-md">{item}</span>
+                        <span key={i} className="text-xs font-medium text-text-secondary bg-surface-muted px-2 py-0.5 rounded-md">{item}</span>
                       ))}
                     </div>
                   </div>
                   
                   <div>
-                    <h3 className="text-[10px] font-bold text-surface-400 uppercase tracking-wider mb-1.5">Environment</h3>
+                    <h3 className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1.5">Environment</h3>
                     <div className="flex flex-wrap gap-1.5">
                       {analysis.environment.map((item, i) => (
-                        <span key={i} className="text-xs font-medium text-surface-700 bg-surface-100 px-2 py-0.5 rounded-md">{item}</span>
+                        <span key={i} className="text-xs font-medium text-text-secondary bg-surface-muted px-2 py-0.5 rounded-md">{item}</span>
                       ))}
                     </div>
                   </div>
                   
                   <div>
-                    <h3 className="text-[10px] font-bold text-surface-400 uppercase tracking-wider mb-1.5">Mood & Time</h3>
-                    <div className="text-xs font-medium text-surface-700 space-y-1">
-                      <div className="flex items-center gap-2"><span className="w-1 h-1 rounded-full bg-surface-300"></span>{analysis.mood}</div>
-                      <div className="flex items-center gap-2"><span className="w-1 h-1 rounded-full bg-surface-300"></span>{analysis.time_context}</div>
+                    <h3 className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1.5">Mood & Time</h3>
+                    <div className="text-xs font-medium text-text-secondary space-y-1">
+                      <div className="flex items-center gap-2"><span className="w-1 h-1 rounded-full bg-border-subtle"></span>{analysis.mood}</div>
+                      <div className="flex items-center gap-2"><span className="w-1 h-1 rounded-full bg-border-subtle"></span>{analysis.time_context}</div>
                     </div>
                   </div>
                 </div>
                 
                 <div className="pt-1">
-                  <h3 className="text-[10px] font-bold text-surface-400 uppercase tracking-wider mb-2">Visual Search Intent</h3>
+                  <h3 className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Visual Search Intent</h3>
                   <div className="flex flex-col gap-1.5">
                     {analysis.visual_queries.map((q, i) => (
                       <div key={i} className="px-2.5 py-1.5 bg-primary-50/50 text-primary-800 border border-primary-100/50 rounded-lg text-sm font-medium">
@@ -342,20 +342,20 @@ export const ScenePage = () => {
         </div>
       </div>
 
-      <div className="mt-6 border-t border-surface-200 pt-6">
-        <h2 className="text-sm font-bold text-surface-500 uppercase tracking-wider mb-4">Visual Search History</h2>
+      <div className="mt-6 border-t border-border-main pt-6">
+        <h2 className="text-sm font-bold text-text-muted uppercase tracking-wider mb-4">Visual Search History</h2>
         
         {jobs.length === 0 ? (
-          <div className="text-surface-500 text-sm italic">
+          <div className="text-text-muted text-sm italic">
             No previous searches.
           </div>
         ) : (
           <div className="flex flex-col gap-4">
             {jobs.map((job, index) => (
-              <div key={job.job_id} className="bg-white border border-surface-200 shadow-sm rounded-xl p-5 hover:border-surface-300 hover:shadow transition-all flex flex-col gap-3">
+              <div key={job.job_id} className="bg-surface border border-border-main shadow-sm rounded-xl p-5 hover:border-border-subtle hover:shadow transition-all flex flex-col gap-3">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 md:gap-4">
                   <div className="flex items-center gap-3 min-w-0">
-                    <span className="text-xs font-bold text-surface-500 bg-surface-100 px-2 py-1 rounded shrink-0">
+                    <span className="text-xs font-bold text-text-muted bg-surface-muted px-2 py-1 rounded shrink-0">
                       Search {jobs.length - index}
                     </span>
                   </div>
@@ -366,11 +366,11 @@ export const ScenePage = () => {
                     content={job.requested_query ? `"${job.requested_query}"` : 'Original query unavailable'}
                     linesDesktop={2}
                     linesMobile={2}
-                    className="text-surface-600 text-sm leading-relaxed italic font-medium"
+                    className="text-text-secondary text-sm leading-relaxed italic font-medium"
                   />
                 </div>
                 
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-3 mt-1 border-t border-surface-100 gap-3 sm:gap-0">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-3 mt-1 border-t border-border-subtle gap-3 sm:gap-0">
                   <div className="flex items-center gap-3">
                     {job.status === 'COMPLETED' ? (
                       <Badge variant="success">Completed</Badge>
@@ -379,7 +379,7 @@ export const ScenePage = () => {
                     ) : (
                       <Badge variant="outline" className="capitalize">{job.status.toLowerCase()}</Badge>
                     )}
-                    <span className="text-xs font-medium text-surface-500">
+                    <span className="text-xs font-medium text-text-muted">
                       {job.status === 'COMPLETED' && job.result_count !== undefined ? (
                         `${job.result_count} assets`
                       ) : (
@@ -389,7 +389,7 @@ export const ScenePage = () => {
                   </div>
                   <div className="flex items-center gap-2 w-full sm:w-auto">
                     <Link to={`/jobs/${job.job_id}${job.status === 'COMPLETED' ? '/results' : ''}`} className="flex-1 sm:flex-none">
-                      <Button variant="outline" size="sm" className="bg-white hover:bg-surface-50 w-full sm:w-auto">
+                      <Button variant="outline" size="sm" className="bg-surface hover:bg-surface-muted w-full sm:w-auto">
                         {job.status === 'COMPLETED' ? 'View Results' : 'View Progress'}
                       </Button>
                     </Link>
@@ -401,7 +401,7 @@ export const ScenePage = () => {
         )}
         
         {!loading && jobs.length > 0 && (
-          <div className="mt-8 border-t border-surface-200 pt-4">
+          <div className="mt-8 border-t border-border-main pt-4">
             <PaginationControls
               page={page}
               pageSize={pageSize}
