@@ -53,7 +53,7 @@ describe('JobResultsPage', () => {
   });
 
   it('renders loading state initially and then empty state if no results', async () => {
-    vi.mocked(jobsApi.getResults).mockResolvedValue({ results: [] });
+    vi.mocked(jobsApi.getResults).mockResolvedValue({ results: [], page: 1, page_size: 20, total: 0, total_pages: 0 });
     vi.mocked(jobsApi.getJob).mockResolvedValue({ job_id: '1', scene_id: 's1', status: 'COMPLETED', created_at: '', updated_at: '', requested_query: 'test', ranking_version: '1', error_message: null });
     vi.mocked(scenesApi.get).mockResolvedValue({ id: 's1', script_id: 'sc1', order: 1, title: null, sentence_text: 'Test', created_at: '', updated_at: '', status: 'analyzed' });
     vi.mocked(scriptsApi.get).mockResolvedValue({ id: 'sc1', project_id: 'p1', title: 'Script', orientation_preference: 'landscape', created_at: '', updated_at: '', full_text: '' });
@@ -77,6 +77,7 @@ describe('JobResultsPage', () => {
     vi.mocked(scenesApi.listJobs).mockResolvedValue({ items: [], page: 1, page_size: 20, total: 1, total_pages: 1 });
 
     vi.mocked(jobsApi.getResults).mockResolvedValue({
+      page: 1, page_size: 20, total: 1, total_pages: 1,
       results: [
         {
           asset: {
@@ -120,6 +121,7 @@ describe('JobResultsPage', () => {
     vi.mocked(scenesApi.listJobs).mockResolvedValue({ items: [], page: 1, page_size: 20, total: 1, total_pages: 1 });
 
     vi.mocked(jobsApi.getResults).mockResolvedValue({
+      page: 1, page_size: 20, total: 2, total_pages: 1,
       results: [
         {
           asset: { id: 'a1', scene_id: 's1', provider: 'pexels', provider_asset_id: '1', url: 'http://img1', thumbnail_url: 'http://thumb1', source_url: 'http://source1', width: 1920, height: 1080, mime_type: 'image/jpeg', created_at: '2023-01-01' },
