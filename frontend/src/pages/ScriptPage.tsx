@@ -10,6 +10,7 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useWorkspace } from '../contexts/WorkspaceContext';
 import { MoreMenu, MoreMenuItem } from '../components/ui/MoreMenu';
 import { DeleteConfirmationDialog } from '../components/ui/DeleteConfirmationDialog';
+import { ExpandableContent } from '../components/ui/ExpandableContent';
 
 export const ScriptPage = () => {
   const { projectId, scriptId } = useParams<{ projectId: string, scriptId: string }>();
@@ -187,9 +188,12 @@ export const ScriptPage = () => {
           </h2>
         </div>
         <div className="p-6 md:p-8">
-          <p className="text-surface-800 text-lg leading-relaxed whitespace-pre-wrap font-serif">
-            {script?.full_text}
-          </p>
+          <ExpandableContent
+            content={script?.full_text}
+            collapsedLinesDesktop={10}
+            collapsedLinesMobile={6}
+            textClassName="text-surface-800 text-lg leading-relaxed whitespace-pre-wrap font-serif"
+          />
         </div>
       </div>
 
@@ -230,9 +234,12 @@ export const ScriptPage = () => {
                 </div>
                 
                 <div className="pl-0 md:pl-13">
-                  <p className="text-surface-600 text-sm leading-relaxed line-clamp-2">
-                    {s.sentence_text}
-                  </p>
+                  <ExpandableContent
+                    content={s.sentence_text}
+                    collapsedLinesDesktop={4}
+                    collapsedLinesMobile={3}
+                    textClassName="text-surface-600 text-sm leading-relaxed whitespace-pre-wrap"
+                  />
                 </div>
                 
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-3 mt-1 border-t border-surface-100 md:ml-13 gap-3 sm:gap-0">

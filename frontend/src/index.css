@@ -18,3 +18,15 @@ body {
   background-color: var(--color-surface-50);
   color: var(--color-surface-900);
 }
+
+.line-clamp-responsive {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  -webkit-line-clamp: var(--mobile-lines, 5);
+}
+@media (min-width: 768px) {
+  .line-clamp-responsive {
+    -webkit-line-clamp: var(--desktop-lines, 8);
+  }
+}

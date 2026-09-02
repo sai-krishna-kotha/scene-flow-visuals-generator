@@ -10,6 +10,7 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useWorkspace } from '../contexts/WorkspaceContext';
 import { MoreMenu, MoreMenuItem } from '../components/ui/MoreMenu';
 import { DeleteConfirmationDialog } from '../components/ui/DeleteConfirmationDialog';
+import { ExpandableContent } from '../components/ui/ExpandableContent';
 
 export const ScenePage = () => {
   const { sceneId } = useParams<{ sceneId: string }>();
@@ -228,9 +229,12 @@ export const ScenePage = () => {
           </div>
           <div className="flex-1 overflow-y-auto p-4 md:p-5 scroll-smooth flex flex-col">
             <div className="my-auto max-w-full lg:max-w-[85%] -translate-y-1">
-              <p className="text-base sm:text-lg text-surface-900 font-medium leading-relaxed italic border-l-4 border-primary-200 pl-4 py-1 text-left">
-                "{scene?.sentence_text}"
-              </p>
+              <ExpandableContent
+                content={scene?.sentence_text ? `"${scene.sentence_text}"` : ""}
+                collapsedLinesDesktop={5}
+                collapsedLinesMobile={4}
+                textClassName="text-base sm:text-lg text-surface-900 font-medium leading-relaxed italic border-l-4 border-primary-200 pl-4 py-1 text-left whitespace-pre-wrap"
+              />
               <div className="mt-4 flex flex-wrap items-center gap-2 text-sm text-surface-500 font-medium text-left">
                 <span className="capitalize">{script?.orientation_preference}</span>
                 {scene?.updated_at && (
@@ -352,9 +356,12 @@ export const ScenePage = () => {
                 </div>
                 
                 <div className="py-1">
-                  <p className="text-surface-600 text-sm leading-relaxed line-clamp-2 italic font-medium">
-                    {job.requested_query ? `"${job.requested_query}"` : 'Original query unavailable'}
-                  </p>
+                  <ExpandableContent
+                    content={job.requested_query ? `"${job.requested_query}"` : 'Original query unavailable'}
+                    collapsedLinesDesktop={3}
+                    collapsedLinesMobile={3}
+                    textClassName="text-surface-600 text-sm leading-relaxed italic font-medium whitespace-pre-wrap"
+                  />
                 </div>
                 
                 <div className="flex items-center justify-between pt-3 mt-1 border-t border-surface-100">

@@ -9,6 +9,7 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useWorkspace } from '../contexts/WorkspaceContext';
 import { MoreMenu, MoreMenuItem } from '../components/ui/MoreMenu';
 import { DeleteConfirmationDialog } from '../components/ui/DeleteConfirmationDialog';
+import { ExpandableContent } from '../components/ui/ExpandableContent';
 
 export const ProjectPage = () => {
   const { projectId } = useParams<{ projectId: string }>();
@@ -121,9 +122,12 @@ export const ProjectPage = () => {
       <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 sm:gap-6 border-b border-surface-200 pb-6 sm:pb-8">
         <div className="max-w-2xl">
           <h1 className="text-2xl sm:text-3xl font-extrabold text-surface-900 tracking-tight">{project?.name}</h1>
-          <p className="text-surface-500 mt-1 sm:mt-2 text-base sm:text-lg">
-            {project?.description || 'Build scripts, break them into scenes, and turn them into visual storyboards.'}
-          </p>
+          <ExpandableContent
+            content={project?.description || 'Build scripts, break them into scenes, and turn them into visual storyboards.'}
+            collapsedLinesDesktop={3}
+            collapsedLinesMobile={3}
+            textClassName="text-surface-500 mt-1 sm:mt-2 text-base sm:text-lg whitespace-pre-wrap"
+          />
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mt-2 md:mt-0 w-full md:w-auto">
           <Button onClick={() => setIsModalOpen(true)} className="shrink-0 w-full sm:w-auto">
@@ -176,8 +180,13 @@ export const ProjectPage = () => {
                     <h3 className="font-bold text-lg text-surface-900 truncate">{s.title}</h3>
                     <Badge variant="outline" className="capitalize shrink-0">{s.orientation_preference}</Badge>
                   </div>
-                  <p className="text-sm text-surface-600 line-clamp-2 leading-relaxed mb-3">{s.full_text}</p>
-                  <div className="text-xs font-medium text-surface-400">
+                  <ExpandableContent
+                    content={s.full_text}
+                    collapsedLinesDesktop={6}
+                    collapsedLinesMobile={4}
+                    textClassName="text-sm text-surface-600 leading-relaxed mb-3 whitespace-pre-wrap"
+                  />
+                  <div className="text-xs font-medium text-surface-400 mt-3">
                     {s.updated_at && (
                       <span>Updated {new Date(s.updated_at).toLocaleDateString()}</span>
                     )}
