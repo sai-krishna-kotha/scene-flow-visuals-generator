@@ -25,7 +25,7 @@ describe('DashboardPage', () => {
   });
 
   it('renders loading state initially and then empty state', async () => {
-    vi.mocked(projectsApi.list).mockResolvedValue([]);
+    vi.mocked(projectsApi.list).mockResolvedValue({ 'items': [], 'page': 1, 'page_size': 20, 'total': 0, 'total_pages': 0 });
     
     render(<DashboardPage />, { wrapper: Wrapper });
     
@@ -37,9 +37,15 @@ describe('DashboardPage', () => {
   });
 
   it('renders projects when available', async () => {
-    vi.mocked(projectsApi.list).mockResolvedValue([
-      { id: '1', name: 'Test Project', description: null, user_id: 'u1', created_at: '2023-01-01', updated_at: '2023-01-01' }
-    ]);
+    vi.mocked(projectsApi.list).mockResolvedValue({
+      items: [
+        { id: '1', name: 'Test Project', description: null, user_id: 'u1', created_at: '2023-01-01', updated_at: '2023-01-01' }
+      ],
+      page: 1,
+      page_size: 20,
+      total: 1,
+      total_pages: 1
+    });
     
     render(<DashboardPage />, { wrapper: Wrapper });
     
@@ -49,7 +55,7 @@ describe('DashboardPage', () => {
   });
 
   it('handles project creation', async () => {
-    vi.mocked(projectsApi.list).mockResolvedValue([]);
+    vi.mocked(projectsApi.list).mockResolvedValue({ 'items': [], 'page': 1, 'page_size': 20, 'total': 0, 'total_pages': 0 });
     vi.mocked(projectsApi.create).mockResolvedValue(
       { id: '2', name: 'New Project', description: null, user_id: 'u1', created_at: '2023-01-02', updated_at: '2023-01-02' }
     );
@@ -87,9 +93,15 @@ describe('DashboardPage', () => {
     const wakeupError = new Error('Network Error');
     vi.mocked(projectsApi.list)
       .mockRejectedValueOnce(wakeupError)
-      .mockResolvedValueOnce([
-        { id: '1', name: 'Woke Up Project', description: null, user_id: 'u1', created_at: '2023-01-01', updated_at: '2023-01-01' }
-      ]);
+      .mockResolvedValueOnce({
+        items: [
+          { id: '1', name: 'Woke Up Project', description: null, user_id: 'u1', created_at: '2023-01-01', updated_at: '2023-01-01' }
+        ],
+        page: 1,
+        page_size: 20,
+        total: 1,
+        total_pages: 1
+      });
       
     render(<DashboardPage />, { wrapper: Wrapper });
     

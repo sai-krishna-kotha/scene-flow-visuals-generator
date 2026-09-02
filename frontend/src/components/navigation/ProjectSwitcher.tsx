@@ -28,8 +28,8 @@ export const ProjectSwitcher = () => {
     if (!isOpen && projects.length === 0) {
       setLoading(true);
       try {
-        const data = await projectsApi.list();
-        setProjects(data);
+        const data = await projectsApi.list(1, 100);
+        setProjects(data.items);
       } catch (error) {
         console.error("Failed to load projects", error);
       } finally {

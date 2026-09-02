@@ -27,10 +27,12 @@ class ScriptService:
             raise ScriptNotFoundError()
         return script
 
-    def list_scripts(self, project_id: uuid.UUID, skip: int = 0, limit: int = 100) -> list[Script]:
+    def list_scripts(self, project_id: uuid.UUID, page: int = 1, page_size: int = 20):
         if not self.project_repository.get_by_id(project_id):
             raise ProjectNotFoundError()
-        return self.repository.list_by_project(project_id=project_id, skip=skip, limit=limit)
+        items, total = self.repository.list_by_project(project_id=project_id, page=page, page_size=page_size)
+        from app.api.pagination import paginate_query
+        return paginate_query(page, page_size, total, items)
 
     def update_script(self, script_id: uuid.UUID, script_in: ScriptUpdate) -> Script:
         script = self.get_script(script_id)
@@ -49,7 +51,7 @@ class ScriptService:
         if not self.scene_repository:
             raise RuntimeError("SceneRepository not injected into ScriptService")
 
-        existing_scenes = self.scene_repository.list_by_script(script_id, limit=1)
+        existing_scenes, _ = self.scene_repository.list_by_script(script_id, page_size=1)
         if existing_scenes:
             raise ScenesAlreadyExistError(str(script_id))
 

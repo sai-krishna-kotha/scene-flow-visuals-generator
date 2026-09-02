@@ -1,9 +1,11 @@
 import { apiClient } from './client';
-import { Project } from '../../types/api';
+import { Project, PaginatedResponse } from '../../types/api';
 
 export const projectsApi = {
-  list: async (): Promise<Project[]> => {
-    const response = await apiClient.get<Project[]>('/projects/');
+  list: async (page = 1, pageSize = 20): Promise<PaginatedResponse<Project>> => {
+    const response = await apiClient.get<PaginatedResponse<Project>>('/projects/', {
+      params: { page, page_size: pageSize }
+    });
     return response.data;
   },
   

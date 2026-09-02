@@ -31,8 +31,11 @@ def get_job_status(
 @router.get("/{job_id}/results", response_model=SemanticSearchResponse)
 def get_job_results(
     job_id: uuid.UUID,
+    page: int = 1,
+    page_size: int = 20,
     db: Session = Depends(get_db)
 ):
+    from sqlalchemy import func
     job = db.query(SearchJob).filter(SearchJob.id == job_id).first()
     if not job:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Search job not found")
@@ -44,14 +47,20 @@ def get_job_results(
     if job.status == JobStatus.FAILED:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Job failed: {job.error_message}")
         
-    # Fetch historically persisted results
-    assets = db.query(Asset).filter(Asset.search_job_id == job_id).order_by(
+    offset = (page - 1) * page_size
+    
+    # Fetch historically persisted results with pagination
+    stmt = db.query(Asset).filter(Asset.search_job_id == job_id)
+    total = db.query(func.count(Asset.id)).filter(Asset.search_job_id == job_id).scalar() or 0
+    
+    assets = stmt.order_by(
         Asset.final_score.desc(),
         Asset.semantic_score.desc(),
         (Asset.width * Asset.height).desc(),
         Asset.provider_name.asc(),
-        Asset.provider_asset_id.asc()
-    ).all()
+        Asset.provider_asset_id.asc(),
+        Asset.id.asc()
+    ).offset(offset).limit(page_size).all()
     
     # Map back to SemanticSearchResult
     from app.schemas.semantic_search import SemanticSearchResultItem
@@ -87,7 +96,13 @@ def get_job_results(
             )
         )
         
+    import math
+    total_pages = math.ceil(total / page_size) if total > 0 else 0
     return SemanticSearchResponse(
         query=job.requested_query,
-        results=final_results
+        results=final_results,
+        page=page,
+        page_size=page_size,
+        total=total,
+        total_pages=total_pages
     )

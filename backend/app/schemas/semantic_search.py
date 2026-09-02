@@ -18,3 +18,7 @@ class SemanticSearchResultItem(BaseModel):
 class SemanticSearchResponse(BaseModel):
     query: str
     results: List[SemanticSearchResultItem]
+    page: int = 1
+    page_size: int = 20
+    total: int = 0
+    total_pages: int = 0

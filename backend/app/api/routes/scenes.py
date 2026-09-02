@@ -4,6 +4,7 @@ import uuid
 
 from app.db.session import get_db
 from app.schemas.scene import SceneCreate, SceneUpdate, SceneResponse
+from app.schemas.pagination import PaginatedResponse
 from app.repositories.scene_repository import SceneRepository
 from app.repositories.script_repository import ScriptRepository
 from app.services.scene_service import SceneService
@@ -25,9 +26,9 @@ def get_search_service(db: Session = Depends(get_db)) -> SearchService:
 def create_scene(script_id: uuid.UUID, scene_in: SceneCreate, service: SceneService = Depends(get_scene_service)):
     return service.create_scene(scene_in, script_id=script_id)
 
-@router.get("/scripts/{script_id}/scenes", response_model=list[SceneResponse])
-def list_scenes(script_id: uuid.UUID, skip: int = 0, limit: int = 100, service: SceneService = Depends(get_scene_service)):
-    return service.list_scenes(script_id=script_id, skip=skip, limit=limit)
+@router.get("/scripts/{script_id}/scenes", response_model=PaginatedResponse[SceneResponse])
+def list_scenes(script_id: uuid.UUID, page: int = 1, page_size: int = 20, service: SceneService = Depends(get_scene_service)):
+    return service.list_scenes(script_id=script_id, page=page, page_size=page_size)
 
 @router.get("/scenes/{scene_id}", response_model=SceneResponse)
 def get_scene(scene_id: uuid.UUID, service: SceneService = Depends(get_scene_service)):
@@ -86,15 +87,18 @@ async def search_scene_assets(
         ranking_version=job.ranking_version
     )
 
-@router.get("/scenes/{scene_id}/jobs", response_model=list[SearchJobResponse])
+@router.get("/scenes/{scene_id}/jobs", response_model=PaginatedResponse[SearchJobResponse])
 def list_scene_jobs(
     scene_id: uuid.UUID,
+    page: int = 1,
+    page_size: int = 20,
     db: Session = Depends(get_db),
     user_id: uuid.UUID = Depends(get_current_user)
 ):
     """
     Returns historical SearchJobs for a scene, newest first.
     """
+    from sqlalchemy import func
     repo = SceneRepository(db)
     scene = repo.get_by_id(scene_id)
     if not scene:
@@ -102,7 +106,11 @@ def list_scene_jobs(
     if scene.script.project.user_id != user_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to access this scene")
 
-    jobs = db.query(SearchJob).filter(SearchJob.scene_id == scene_id).order_by(SearchJob.created_at.desc()).all()
+    offset = (page - 1) * page_size
+    stmt = db.query(SearchJob).filter(SearchJob.scene_id == scene_id)
+    total = db.query(func.count(SearchJob.id)).filter(SearchJob.scene_id == scene_id).scalar() or 0
+    
+    jobs = stmt.order_by(SearchJob.created_at.desc(), SearchJob.id.desc()).offset(offset).limit(page_size).all()
     
     responses = []
     for job in jobs:
@@ -120,4 +128,5 @@ def list_scene_jobs(
             )
         )
         
-    return responses
+    from app.api.pagination import paginate_query
+    return paginate_query(page, page_size, total, responses)

@@ -21,8 +21,8 @@ export const MobileWorkspaceMenu = () => {
       // Load projects if empty
       if (projects.length === 0) {
         setLoadingProjects(true);
-        projectsApi.list()
-          .then(setProjects)
+        projectsApi.list(1, 100)
+          .then(res => setProjects(res.items))
           .catch(err => console.error(err))
           .finally(() => setLoadingProjects(false));
       }
@@ -30,8 +30,8 @@ export const MobileWorkspaceMenu = () => {
       // Load scripts for current project if empty
       if (currentProject && scripts.length === 0) {
         setLoadingScripts(true);
-        scriptsApi.listForProject(currentProject.id)
-          .then(setScripts)
+        scriptsApi.listForProject(currentProject.id, 1, 100)
+          .then(res => setScripts(res.items))
           .catch(err => console.error(err))
           .finally(() => setLoadingScripts(false));
       }

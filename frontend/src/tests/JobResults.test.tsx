@@ -58,7 +58,7 @@ describe('JobResultsPage', () => {
     vi.mocked(scenesApi.get).mockResolvedValue({ id: 's1', script_id: 'sc1', order: 1, title: null, sentence_text: 'Test', created_at: '', updated_at: '', status: 'analyzed' });
     vi.mocked(scriptsApi.get).mockResolvedValue({ id: 'sc1', project_id: 'p1', title: 'Script', orientation_preference: 'landscape', created_at: '', updated_at: '', full_text: '' });
     vi.mocked(projectsApi.get).mockResolvedValue({ id: 'p1', name: 'Project', description: '', created_at: '', updated_at: '', user_id: 'u1' });
-    vi.mocked(scenesApi.listJobs).mockResolvedValue([{ job_id: '1', scene_id: 's1', status: 'COMPLETED', created_at: '', updated_at: '', requested_query: 'test', ranking_version: '1', error_message: null }]);
+    vi.mocked(scenesApi.listJobs).mockResolvedValue({ items: [], page: 1, page_size: 20, total: 1, total_pages: 1 });
     
     renderWithRouter(<JobResultsPage />);
     
@@ -74,7 +74,7 @@ describe('JobResultsPage', () => {
     vi.mocked(scenesApi.get).mockResolvedValue({ id: 's1', script_id: 'sc1', order: 1, title: null, sentence_text: 'Test', created_at: '', updated_at: '', status: 'analyzed' });
     vi.mocked(scriptsApi.get).mockResolvedValue({ id: 'sc1', project_id: 'p1', title: 'Script', orientation_preference: 'landscape', created_at: '', updated_at: '', full_text: '' });
     vi.mocked(projectsApi.get).mockResolvedValue({ id: 'p1', name: 'Project', description: '', created_at: '', updated_at: '', user_id: 'u1' });
-    vi.mocked(scenesApi.listJobs).mockResolvedValue([{ job_id: '1', scene_id: 's1', status: 'COMPLETED', created_at: '', updated_at: '', requested_query: 'test', ranking_version: '1', error_message: null }]);
+    vi.mocked(scenesApi.listJobs).mockResolvedValue({ items: [], page: 1, page_size: 20, total: 1, total_pages: 1 });
 
     vi.mocked(jobsApi.getResults).mockResolvedValue({
       results: [
@@ -117,7 +117,7 @@ describe('JobResultsPage', () => {
     vi.mocked(scenesApi.get).mockResolvedValue({ id: 's1', script_id: 'sc1', order: 1, title: null, sentence_text: 'Test', created_at: '', updated_at: '', status: 'analyzed' });
     vi.mocked(scriptsApi.get).mockResolvedValue({ id: 'sc1', project_id: 'p1', title: 'Script', orientation_preference: 'landscape', created_at: '', updated_at: '', full_text: '' });
     vi.mocked(projectsApi.get).mockResolvedValue({ id: 'p1', name: 'Project', description: '', created_at: '', updated_at: '', user_id: 'u1' });
-    vi.mocked(scenesApi.listJobs).mockResolvedValue([{ job_id: '1', scene_id: 's1', status: 'COMPLETED', created_at: '', updated_at: '', requested_query: 'test', ranking_version: '1', error_message: null }]);
+    vi.mocked(scenesApi.listJobs).mockResolvedValue({ items: [], page: 1, page_size: 20, total: 1, total_pages: 1 });
 
     vi.mocked(jobsApi.getResults).mockResolvedValue({
       results: [

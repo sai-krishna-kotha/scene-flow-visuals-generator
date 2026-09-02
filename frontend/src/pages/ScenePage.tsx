@@ -12,6 +12,7 @@ import { MoreMenu, MoreMenuItem } from '../components/ui/MoreMenu';
 import { DeleteConfirmationDialog } from '../components/ui/DeleteConfirmationDialog';
 import { ExpandableContent } from '../components/ui/ExpandableContent';
 import { CompactTextPreview } from '../components/ui/CompactTextPreview';
+import { PaginationControls } from '../components/ui/PaginationControls';
 
 export const ScenePage = () => {
   const { sceneId } = useParams<{ sceneId: string }>();
@@ -30,6 +31,10 @@ export const ScenePage = () => {
   const [project, setProject] = useState<Project | null>(null);
   const [scriptScenes, setScriptScenes] = useState<Scene[]>([]);
   const [jobs, setJobs] = useState<SearchJobResponse[]>([]);
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(5);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
   // Delete state
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -53,12 +58,14 @@ export const ScenePage = () => {
 
       const [projData, scenesData, jobsData] = await Promise.all([
         projectsApi.get(scriptData.project_id),
-        scenesApi.listForScript(sceneData.script_id),
-        scenesApi.listJobs(sceneId)
+        scenesApi.listForScript(sceneData.script_id, 1, 100), // Load all scenes for prev/next nav for now
+        scenesApi.listJobs(sceneId, page, pageSize)
       ]);
       setProject(projData);
-      setScriptScenes(scenesData.sort((a, b) => a.order - b.order));
-      setJobs(jobsData);
+      setScriptScenes(scenesData.items.sort((a, b) => a.order - b.order));
+      setJobs(jobsData.items);
+      setTotal(jobsData.total);
+      setTotalPages(jobsData.total_pages);
       
       setContext(projData, scriptData);
 
@@ -71,8 +78,12 @@ export const ScenePage = () => {
   };
 
   useEffect(() => {
-    fetchData();
+    setPage(1);
   }, [sceneId]);
+
+  useEffect(() => {
+    fetchData();
+  }, [sceneId, page]);
 
   const handleAnalyze = async () => {
     if (!sceneId) return;
@@ -386,6 +397,18 @@ export const ScenePage = () => {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+        
+        {!loading && jobs.length > 0 && (
+          <div className="mt-8 border-t border-surface-200 pt-4">
+            <PaginationControls
+              page={page}
+              pageSize={pageSize}
+              total={total}
+              totalPages={totalPages}
+              onPageChange={setPage}
+            />
           </div>
         )}
       </div>

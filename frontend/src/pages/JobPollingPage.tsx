@@ -18,9 +18,9 @@ export const JobPollingPage = () => {
   useEffect(() => {
     if (job?.scene_id && jobId) {
       scenesApi.listJobs(job.scene_id).then(jobsData => {
-        const jobIndex = jobsData.findIndex(j => j.job_id === jobId);
+        const jobIndex = jobsData.items.findIndex(j => j.job_id === jobId);
         if (jobIndex !== -1) {
-          setSearchNumber(jobsData.length - jobIndex);
+          setSearchNumber(jobsData.items.length - jobIndex);
         }
       }).catch(err => console.error("Failed to fetch jobs for search number", err));
     }

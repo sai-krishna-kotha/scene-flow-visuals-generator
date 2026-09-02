@@ -7,8 +7,10 @@ export const jobsApi = {
     return response.data;
   },
   
-  getResults: async (jobId: string): Promise<JobResultsResponse> => {
-    const response = await apiClient.get<JobResultsResponse>(`/jobs/${jobId}/results`);
+  getResults: async (jobId: string, page = 1, pageSize = 20): Promise<JobResultsResponse> => {
+    const response = await apiClient.get<JobResultsResponse>(`/jobs/${jobId}/results`, {
+      params: { page, page_size: pageSize }
+    });
     return response.data;
   }
 };

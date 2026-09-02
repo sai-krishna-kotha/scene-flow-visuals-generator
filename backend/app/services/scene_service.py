@@ -24,10 +24,12 @@ class SceneService:
             raise SceneNotFoundError()
         return scene
 
-    def list_scenes(self, script_id: uuid.UUID, skip: int = 0, limit: int = 100) -> list[Scene]:
+    def list_scenes(self, script_id: uuid.UUID, page: int = 1, page_size: int = 20):
         if not self.script_repository.get_by_id(script_id):
             raise ScriptNotFoundError()
-        return self.repository.list_by_script(script_id=script_id, skip=skip, limit=limit)
+        items, total = self.repository.list_by_script(script_id=script_id, page=page, page_size=page_size)
+        from app.api.pagination import paginate_query
+        return paginate_query(page, page_size, total, items)
 
     def update_scene(self, scene_id: uuid.UUID, scene_in: SceneUpdate) -> Scene:
         scene = self.get_scene(scene_id)

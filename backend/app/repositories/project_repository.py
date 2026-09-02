@@ -22,9 +22,16 @@ class ProjectRepository:
     def get_by_id(self, project_id: uuid.UUID) -> Project | None:
         return self.session.get(Project, project_id)
 
-    def list_by_user(self, user_id: uuid.UUID, skip: int = 0, limit: int = 100) -> list[Project]:
-        stmt = select(Project).where(Project.user_id == user_id).offset(skip).limit(limit)
-        return list(self.session.execute(stmt).scalars().all())
+    def list_by_user(self, user_id: uuid.UUID, page: int = 1, page_size: int = 20) -> tuple[list[Project], int]:
+        from sqlalchemy import func
+        offset = (page - 1) * page_size
+        
+        stmt = select(Project).where(Project.user_id == user_id)
+        total = self.session.execute(select(func.count()).select_from(stmt.subquery())).scalar() or 0
+        
+        items_stmt = stmt.order_by(Project.created_at.desc(), Project.id.desc()).offset(offset).limit(page_size)
+        items = list(self.session.execute(items_stmt).scalars().all())
+        return items, total
 
     def update(self, project: Project, project_in: ProjectUpdate) -> Project:
         update_data = project_in.model_dump(exclude_unset=True)

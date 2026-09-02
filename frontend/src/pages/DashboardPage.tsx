@@ -9,9 +9,14 @@ import { useWorkspace } from '../contexts/WorkspaceContext';
 import { MoreMenu, MoreMenuItem } from '../components/ui/MoreMenu';
 import { DeleteConfirmationDialog } from '../components/ui/DeleteConfirmationDialog';
 import { CompactTextPreview } from '../components/ui/CompactTextPreview';
+import { PaginationControls } from '../components/ui/PaginationControls';
 
 export const DashboardPage = () => {
   const [projects, setProjects] = useState<Project[]>([]);
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(12);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [wakeupAttempts, setWakeupAttempts] = useState(0);
@@ -33,8 +38,10 @@ export const DashboardPage = () => {
     }
     
     try {
-      const data = await projectsApi.list();
-      setProjects(data);
+      const data = await projectsApi.list(page, pageSize);
+      setProjects(data.items);
+      setTotal(data.total);
+      setTotalPages(data.total_pages);
       setError(null);
       setWakeupAttempts(0);
       setLoading(false);
@@ -64,7 +71,7 @@ export const DashboardPage = () => {
   useEffect(() => {
     clearContext();
     fetchProjects();
-  }, [clearContext]);
+  }, [clearContext, page]);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -214,6 +221,18 @@ export const DashboardPage = () => {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+        
+        {!loading && projects.length > 0 && (
+          <div className="mt-8 border-t border-surface-200 pt-4">
+            <PaginationControls
+              page={page}
+              pageSize={pageSize}
+              total={total}
+              totalPages={totalPages}
+              onPageChange={setPage}
+            />
           </div>
         )}
       </div>

@@ -11,12 +11,17 @@ import { MoreMenu, MoreMenuItem } from '../components/ui/MoreMenu';
 import { DeleteConfirmationDialog } from '../components/ui/DeleteConfirmationDialog';
 import { ExpandableContent } from '../components/ui/ExpandableContent';
 import { CompactTextPreview } from '../components/ui/CompactTextPreview';
+import { PaginationControls } from '../components/ui/PaginationControls';
 
 export const ProjectPage = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
   const [project, setProject] = useState<Project | null>(null);
   const [scripts, setScripts] = useState<Script[]>([]);
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(10);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -42,10 +47,12 @@ export const ProjectPage = () => {
     try {
       const [projData, scriptsData] = await Promise.all([
         projectsApi.get(projectId),
-        scriptsApi.listForProject(projectId)
+        scriptsApi.listForProject(projectId, page, pageSize)
       ]);
       setProject(projData);
-      setScripts(scriptsData);
+      setScripts(scriptsData.items);
+      setTotal(scriptsData.total);
+      setTotalPages(scriptsData.total_pages);
       setContext(projData, null);
       setError(null);
     } catch (err: any) {
@@ -56,8 +63,12 @@ export const ProjectPage = () => {
   };
 
   useEffect(() => {
-    fetchData();
+    setPage(1);
   }, [projectId]);
+
+  useEffect(() => {
+    fetchData();
+  }, [projectId, page]);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -224,6 +235,18 @@ export const ProjectPage = () => {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+        
+        {!loading && scripts.length > 0 && (
+          <div className="mt-8 border-t border-surface-200 pt-4">
+            <PaginationControls
+              page={page}
+              pageSize={pageSize}
+              total={total}
+              totalPages={totalPages}
+              onPageChange={setPage}
+            />
           </div>
         )}
       </div>

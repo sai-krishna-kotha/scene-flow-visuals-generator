@@ -49,8 +49,8 @@ describe('ScenePage Component', () => {
     vi.mocked(scenesApi.get).mockResolvedValue(mockScene);
     vi.mocked(scriptsApi.get).mockResolvedValue({ id: 'script-123', title: 'Script 1', project_id: 'proj-123', full_text: '...', orientation_preference: 'landscape', created_at: '2023-01-01', updated_at: '2023-01-01' });
     vi.mocked(projectsApi.get).mockResolvedValue({ id: 'proj-123', name: 'Project 1', description: null, user_id: 'u1', created_at: '2023-01-01', updated_at: '2023-01-01' });
-    vi.mocked(scenesApi.listForScript).mockResolvedValue([mockScene]);
-    vi.mocked(scenesApi.listJobs).mockResolvedValue([]);
+    vi.mocked(scenesApi.listForScript).mockResolvedValue({ items: [mockScene], page: 1, page_size: 20, total: 1, total_pages: 1 });
+    vi.mocked(scenesApi.listJobs).mockResolvedValue({ 'items': [], 'page': 1, 'page_size': 20, 'total': 0, 'total_pages': 0 });
     vi.mocked(scenesApi.search).mockResolvedValue({ job_id: 'job-123', scene_id: 'scene-1', status: 'PENDING', requested_query: 'test', ranking_version: 'v1', created_at: null, updated_at: null, error_message: null });
 
     render(
@@ -84,8 +84,8 @@ describe('ScenePage Component', () => {
     vi.mocked(scenesApi.get).mockResolvedValue(mockScene);
     vi.mocked(scriptsApi.get).mockResolvedValue({ id: 'script-123', title: 'Script 1', project_id: 'proj-123', full_text: '...', orientation_preference: 'landscape', created_at: '', updated_at: '' });
     vi.mocked(projectsApi.get).mockResolvedValue({ id: 'proj-123', name: 'Project 1', description: null, user_id: 'u1', created_at: '', updated_at: '' });
-    vi.mocked(scenesApi.listForScript).mockResolvedValue([mockScene]); // Only 1 scene
-    vi.mocked(scenesApi.listJobs).mockResolvedValue([]);
+    vi.mocked(scenesApi.listForScript).mockResolvedValue({ items: [mockScene], page: 1, page_size: 20, total: 1, total_pages: 1 }); // Only 1 scene
+    vi.mocked(scenesApi.listJobs).mockResolvedValue({ 'items': [], 'page': 1, 'page_size': 20, 'total': 0, 'total_pages': 0 });
 
     render(
       <MemoryRouter initialEntries={['/scenes/scene-123']}>
@@ -109,8 +109,8 @@ describe('ScenePage Component', () => {
     vi.mocked(scenesApi.get).mockResolvedValue(scene2); // Currently on middle scene
     vi.mocked(scriptsApi.get).mockResolvedValue({ id: 'script-123', title: 'Script 1', project_id: 'proj-123', full_text: '...', orientation_preference: 'landscape', created_at: '', updated_at: '' });
     vi.mocked(projectsApi.get).mockResolvedValue({ id: 'proj-123', name: 'Project 1', description: null, user_id: 'u1', created_at: '', updated_at: '' });
-    vi.mocked(scenesApi.listForScript).mockResolvedValue([mockScene, scene2, scene3]);
-    vi.mocked(scenesApi.listJobs).mockResolvedValue([]);
+    vi.mocked(scenesApi.listForScript).mockResolvedValue({ items: [mockScene, scene2, scene3], page: 1, page_size: 20, total: 3, total_pages: 1 });
+    vi.mocked(scenesApi.listJobs).mockResolvedValue({ 'items': [], 'page': 1, 'page_size': 20, 'total': 0, 'total_pages': 0 });
 
     render(
       <MemoryRouter initialEntries={['/scenes/scene-2']}>
@@ -149,8 +149,8 @@ describe('ScenePage Component', () => {
     vi.mocked(scenesApi.get).mockResolvedValue(unanalyzedScene);
     vi.mocked(scriptsApi.get).mockResolvedValue({ id: 'script-123', title: 'Script 1', project_id: 'proj-123', full_text: '...', orientation_preference: 'landscape', created_at: '', updated_at: '' });
     vi.mocked(projectsApi.get).mockResolvedValue({ id: 'proj-123', name: 'Project 1', description: null, user_id: 'u1', created_at: '', updated_at: '' });
-    vi.mocked(scenesApi.listForScript).mockResolvedValue([unanalyzedScene]);
-    vi.mocked(scenesApi.listJobs).mockResolvedValue([{ job_id: 'job-123', scene_id: 'scene-1', status: 'COMPLETED', requested_query: 'test', ranking_version: 'v1', created_at: null, updated_at: null, error_message: null }]); // Has completed visual search!
+    vi.mocked(scenesApi.listForScript).mockResolvedValue({ items: [mockScene], page: 1, page_size: 20, total: 1, total_pages: 1 });
+    vi.mocked(scenesApi.listJobs).mockResolvedValue({ items: [{ job_id: 'job-123', scene_id: 'scene-1', status: 'COMPLETED', requested_query: 'test', ranking_version: 'v1', created_at: null, updated_at: null, error_message: null }], page: 1, page_size: 20, total: 1, total_pages: 1 }); // Has completed visual search!
 
     render(
       <MemoryRouter initialEntries={['/scenes/scene-123']}>

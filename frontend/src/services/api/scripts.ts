@@ -1,9 +1,11 @@
 import { apiClient } from './client';
-import { Script, Scene } from '../../types/api';
+import { Script, Scene, PaginatedResponse } from '../../types/api';
 
 export const scriptsApi = {
-  listForProject: async (projectId: string): Promise<Script[]> => {
-    const response = await apiClient.get<Script[]>(`/projects/${projectId}/scripts`);
+  listForProject: async (projectId: string, page = 1, pageSize = 20): Promise<PaginatedResponse<Script>> => {
+    const response = await apiClient.get<PaginatedResponse<Script>>(`/projects/${projectId}/scripts`, {
+      params: { page, page_size: pageSize }
+    });
     return response.data;
   },
   

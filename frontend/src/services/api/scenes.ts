@@ -1,9 +1,11 @@
 import { apiClient } from './client';
-import { Scene, SceneAnalysisResponse, SearchJobResponse } from '../../types/api';
+import { Scene, SceneAnalysisResponse, SearchJobResponse, PaginatedResponse } from '../../types/api';
 
 export const scenesApi = {
-  listForScript: async (scriptId: string): Promise<Scene[]> => {
-    const response = await apiClient.get<Scene[]>(`/scripts/${scriptId}/scenes`);
+  listForScript: async (scriptId: string, page = 1, pageSize = 20): Promise<PaginatedResponse<Scene>> => {
+    const response = await apiClient.get<PaginatedResponse<Scene>>(`/scripts/${scriptId}/scenes`, {
+      params: { page, page_size: pageSize }
+    });
     return response.data;
   },
   
@@ -31,8 +33,10 @@ export const scenesApi = {
     await apiClient.delete(`/scenes/${id}`);
   },
 
-  listJobs: async (sceneId: string): Promise<SearchJobResponse[]> => {
-    const response = await apiClient.get<SearchJobResponse[]>(`/scenes/${sceneId}/jobs`);
+  listJobs: async (sceneId: string, page = 1, pageSize = 20): Promise<PaginatedResponse<SearchJobResponse>> => {
+    const response = await apiClient.get<PaginatedResponse<SearchJobResponse>>(`/scenes/${sceneId}/jobs`, {
+      params: { page, page_size: pageSize }
+    });
     return response.data;
   }
 };

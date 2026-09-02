@@ -40,9 +40,14 @@ class SceneRepository:
     def get_by_id(self, scene_id: uuid.UUID) -> Scene | None:
         return self.session.get(Scene, scene_id)
 
-    def list_by_script(self, script_id: uuid.UUID, skip: int = 0, limit: int = 100) -> list[Scene]:
-        stmt = select(Scene).where(Scene.script_id == script_id).order_by(Scene.order).offset(skip).limit(limit)
-        return list(self.session.execute(stmt).scalars().all())
+    def list_by_script(self, script_id: uuid.UUID, page: int = 1, page_size: int = 20) -> tuple[list[Scene], int]:
+        from sqlalchemy import func
+        offset = (page - 1) * page_size
+        stmt = select(Scene).where(Scene.script_id == script_id)
+        total = self.session.execute(select(func.count()).select_from(stmt.subquery())).scalar() or 0
+        items_stmt = stmt.order_by(Scene.order.asc(), Scene.id.asc()).offset(offset).limit(page_size)
+        items = list(self.session.execute(items_stmt).scalars().all())
+        return items, total
 
     def update(self, scene: Scene, scene_in: SceneUpdate) -> Scene:
         update_data = scene_in.model_dump(exclude_unset=True)

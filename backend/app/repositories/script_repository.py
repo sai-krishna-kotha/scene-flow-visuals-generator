@@ -23,9 +23,14 @@ class ScriptRepository:
     def get_by_id(self, script_id: uuid.UUID) -> Script | None:
         return self.session.get(Script, script_id)
 
-    def list_by_project(self, project_id: uuid.UUID, skip: int = 0, limit: int = 100) -> list[Script]:
-        stmt = select(Script).where(Script.project_id == project_id).offset(skip).limit(limit)
-        return list(self.session.execute(stmt).scalars().all())
+    def list_by_project(self, project_id: uuid.UUID, page: int = 1, page_size: int = 20) -> tuple[list[Script], int]:
+        from sqlalchemy import func
+        offset = (page - 1) * page_size
+        stmt = select(Script).where(Script.project_id == project_id)
+        total = self.session.execute(select(func.count()).select_from(stmt.subquery())).scalar() or 0
+        items_stmt = stmt.order_by(Script.created_at.desc(), Script.id.desc()).offset(offset).limit(page_size)
+        items = list(self.session.execute(items_stmt).scalars().all())
+        return items, total
 
     def update(self, script: Script, script_in: ScriptUpdate) -> Script:
         update_data = script_in.model_dump(exclude_unset=True)

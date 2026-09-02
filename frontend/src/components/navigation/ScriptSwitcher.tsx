@@ -28,8 +28,8 @@ export const ScriptSwitcher = () => {
     if (!isOpen && currentProject && scripts.length === 0) {
       setLoading(true);
       try {
-        const data = await scriptsApi.listForProject(currentProject.id);
-        setScripts(data);
+        const data = await scriptsApi.listForProject(currentProject.id, 1, 100);
+        setScripts(data.items);
       } catch (error) {
         console.error("Failed to load scripts", error);
       } finally {

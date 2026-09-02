@@ -26,7 +26,7 @@ describe('ScriptPage Component', () => {
   it('renders script text and empty scenes', async () => {
     vi.mocked(projectsApi.get).mockResolvedValue({ id: 'proj-1', name: 'Project 1' } as any);
     vi.mocked(scriptsApi.get).mockResolvedValue({ id: 'script-1', title: 'Script 1', full_text: 'Full Script Text Content', orientation_preference: 'landscape' } as any);
-    vi.mocked(scenesApi.listForScript).mockResolvedValue([]);
+    vi.mocked(scenesApi.listForScript).mockResolvedValue({ 'items': [], 'page': 1, 'page_size': 20, 'total': 0, 'total_pages': 0 });
 
     render(
       <MemoryRouter initialEntries={['/projects/proj-1/scripts/script-1']}>
@@ -49,9 +49,9 @@ describe('ScriptPage Component', () => {
   it('handles generate scenes success', async () => {
     vi.mocked(projectsApi.get).mockResolvedValue({ id: 'proj-1', name: 'Project 1' } as any);
     vi.mocked(scriptsApi.get).mockResolvedValue({ id: 'script-1', title: 'Script 1', full_text: 'Full Script Text Content', orientation_preference: 'landscape' } as any);
-    vi.mocked(scenesApi.listForScript).mockResolvedValue([]);
+    vi.mocked(scenesApi.listForScript).mockResolvedValue({ 'items': [], 'page': 1, 'page_size': 20, 'total': 0, 'total_pages': 0 });
     vi.mocked(scriptsApi.segment).mockResolvedValue([
-      { id: 'scene-1', order: 1, title: 'Gen Scene', sentence_text: 'Generated text 1', status: 'pending' } as any
+      { id: 's1', script_id: 'script-1', title: 'Gen Scene', order: 1, sentence_text: 'Generated text 1', status: 'pending', created_at: '', updated_at: '' } as any
     ]);
 
     render(
@@ -77,9 +77,15 @@ describe('ScriptPage Component', () => {
   it('renders scene list correctly and handles modal', async () => {
     vi.mocked(projectsApi.get).mockResolvedValue({ id: 'proj-1', name: 'Project 1' } as any);
     vi.mocked(scriptsApi.get).mockResolvedValue({ id: 'script-1', title: 'Script 1', full_text: 'Content', orientation_preference: 'landscape' } as any);
-    vi.mocked(scenesApi.listForScript).mockResolvedValue([
-      { id: 'scene-1', order: 1, sentence_text: 'Scene text 1', status: 'pending' } as any
-    ]);
+    vi.mocked(scenesApi.listForScript).mockResolvedValue({
+      items: [
+        { id: 'sc1', script_id: 'script-1', title: 'Scene 1', order: 1, sentence_text: 'Scene text 1', status: 'pending', created_at: '', updated_at: '' } as any
+      ],
+      page: 1,
+      page_size: 20,
+      total: 1,
+      total_pages: 1
+    });
 
     render(
       <MemoryRouter initialEntries={['/projects/proj-1/scripts/script-1']}>

@@ -5,6 +5,7 @@ import uuid
 from app.db.session import get_db
 from app.schemas.script import ScriptCreate, ScriptUpdate, ScriptResponse
 from app.schemas.scene import SceneResponse
+from app.schemas.pagination import PaginatedResponse
 from app.repositories.script_repository import ScriptRepository
 from app.repositories.project_repository import ProjectRepository
 from app.repositories.scene_repository import SceneRepository
@@ -23,9 +24,9 @@ def get_script_service(db: Session = Depends(get_db)) -> ScriptService:
 def create_script(project_id: uuid.UUID, script_in: ScriptCreate, service: ScriptService = Depends(get_script_service)):
     return service.create_script(script_in, project_id=project_id)
 
-@router.get("/projects/{project_id}/scripts", response_model=list[ScriptResponse])
-def list_scripts(project_id: uuid.UUID, skip: int = 0, limit: int = 100, service: ScriptService = Depends(get_script_service)):
-    return service.list_scripts(project_id=project_id, skip=skip, limit=limit)
+@router.get("/projects/{project_id}/scripts", response_model=PaginatedResponse[ScriptResponse])
+def list_scripts(project_id: uuid.UUID, page: int = 1, page_size: int = 20, service: ScriptService = Depends(get_script_service)):
+    return service.list_scripts(project_id=project_id, page=page, page_size=page_size)
 
 @router.get("/scripts/{script_id}", response_model=ScriptResponse)
 def get_script(script_id: uuid.UUID, service: ScriptService = Depends(get_script_service)):

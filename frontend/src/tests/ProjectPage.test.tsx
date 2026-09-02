@@ -27,7 +27,7 @@ describe('ProjectPage Component', () => {
 
   it('renders project page empty state and opens script modal', async () => {
     vi.mocked(projectsApi.get).mockResolvedValue({ id: 'proj-1', name: 'Test Project', description: 'Desc', user_id: 'u1', created_at: '', updated_at: '' });
-    vi.mocked(scriptsApi.listForProject).mockResolvedValue([]);
+    vi.mocked(scriptsApi.listForProject).mockResolvedValue({ 'items': [], 'page': 1, 'page_size': 20, 'total': 0, 'total_pages': 0 });
 
     render(
       <MemoryRouter initialEntries={['/projects/proj-1']}>
@@ -64,9 +64,15 @@ describe('ProjectPage Component', () => {
 
   it('renders script items correctly', async () => {
     vi.mocked(projectsApi.get).mockResolvedValue({ id: 'proj-1', name: 'Test Project', description: null, user_id: 'u1', created_at: '', updated_at: '' });
-    vi.mocked(scriptsApi.listForProject).mockResolvedValue([
-      { id: 'script-1', project_id: 'proj-1', title: 'Script 1', full_text: 'Preview text for script 1', orientation_preference: 'landscape', created_at: '', updated_at: '2026-08-27T00:00:00Z' }
-    ]);
+    vi.mocked(scriptsApi.listForProject).mockResolvedValue({
+      items: [
+        { id: 'sc1', project_id: 'proj-1', title: 'Script 1', full_text: 'Preview text for script 1', orientation_preference: 'landscape', created_at: '2023-01-01', updated_at: '2023-01-01' }
+      ],
+      page: 1,
+      page_size: 20,
+      total: 1,
+      total_pages: 1
+    });
 
     render(
       <MemoryRouter initialEntries={['/projects/proj-1']}>

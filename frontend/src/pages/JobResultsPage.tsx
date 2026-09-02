@@ -4,6 +4,7 @@ import { Image as ImageIcon, ExternalLink, Info } from 'lucide-react';
 import { jobsApi } from '../services/api/jobs';
 import { SemanticSearchResult, SearchJobResponse, Scene, Script, Project } from '../types/api';
 import { Card, Loader, ErrorMessage, Button } from '../components/ui';
+import { PaginationControls } from '../components/ui/PaginationControls';
 import { scenesApi } from '../services/api/scenes';
 import { scriptsApi } from '../services/api/scripts';
 import { projectsApi } from '../services/api/projects';
@@ -21,6 +22,11 @@ export const JobResultsPage = () => {
   
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(20);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
   const { setContext, clearContext } = useWorkspace();
 
@@ -32,10 +38,12 @@ export const JobResultsPage = () => {
       clearContext();
       try {
         const [resultsData, jobData] = await Promise.all([
-          jobsApi.getResults(jobId),
+          jobsApi.getResults(jobId, page, pageSize),
           jobsApi.getJob(jobId)
         ]);
         setResults(resultsData.results);
+        setTotal(resultsData.total);
+        setTotalPages(resultsData.total_pages);
         setJob(jobData);
 
         const sceneData = await scenesApi.get(jobData.scene_id);
@@ -54,9 +62,9 @@ export const JobResultsPage = () => {
 
         // Calculate search number based on descending chronology
         // The newest job (index 0) gets the highest number
-        const jobIndex = jobsData.findIndex(j => j.job_id === jobId);
+        const jobIndex = jobsData.items.findIndex((j: any) => j.job_id === jobId);
         if (jobIndex !== -1) {
-          setSearchNumber(jobsData.length - jobIndex);
+          setSearchNumber(jobsData.items.length - jobIndex);
         }
       } catch (err: any) {
         setError(err.message || 'Failed to load job results context');
@@ -65,7 +73,7 @@ export const JobResultsPage = () => {
       }
     };
     fetchData();
-  }, [jobId]);
+  }, [jobId, page]);
 
 
   if (loading) return <Loader text="Loading visual assets..." />;
@@ -112,14 +120,26 @@ export const JobResultsPage = () => {
           <p className="mt-1">We couldn't find any relevant visual assets for this scene.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {results.map((item, idx) => (
-            <AssetCard 
-              key={item.asset.id} 
-              item={item} 
-              rank={idx + 1} 
+        <div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {results.map((item, idx) => (
+              <AssetCard 
+                key={item.asset.id} 
+                item={item} 
+                rank={(page - 1) * pageSize + idx + 1} 
+              />
+            ))}
+          </div>
+          
+          <div className="mt-8 border-t border-surface-200 pt-4">
+            <PaginationControls
+              page={page}
+              pageSize={pageSize}
+              total={total}
+              totalPages={totalPages}
+              onPageChange={setPage}
             />
-          ))}
+          </div>
         </div>
       )}
     </div>

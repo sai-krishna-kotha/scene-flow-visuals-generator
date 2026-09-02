@@ -62,7 +62,11 @@ def test_project_crud():
     # List Projects
     response = client.get("/api/v1/projects/")
     assert response.status_code == 200
-    assert len(response.json()) == 1
+    data = response.json()
+    assert "items" in data
+    assert len(data["items"]) == 1
+    assert data["total"] == 1
+    assert data["page"] == 1
 
 def test_script_crud():
     # Setup Project
@@ -109,7 +113,10 @@ def test_scene_crud():
     # List Scenes
     response = client.get(f"/api/v1/scripts/{script_id}/scenes")
     assert response.status_code == 200
-    assert len(response.json()) == 1
+    data = response.json()
+    assert "items" in data
+    assert len(data["items"]) == 1
+    assert data["total"] == 1
 
 def test_gemini_analysis_endpoint():
     # Setup DB state
