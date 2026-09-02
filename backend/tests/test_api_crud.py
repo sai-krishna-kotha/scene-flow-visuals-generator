@@ -143,5 +143,62 @@ def test_gemini_analysis_endpoint():
     assert data["scene_id"] == scene_id
     assert data["analysis"]["subjects"] == ["boy"]
     
-    # Restore override
-    fastapi_app.dependency_overrides.pop(get_gemini_service, None)
+    # Verify persistence
+    get_response = client.get(f"/api/v1/scenes/{scene_id}")
+    assert get_response.status_code == 200
+    scene_data = get_response.json()
+    assert scene_data["status"] == "analyzed"
+    assert scene_data["analysis"]["subjects"] == ["boy"]
+    assert scene_data["analyzed_at"] is not None
+
+def test_gemini_reanalyze_failure_preserves_analysis():
+    # Setup DB state
+    proj_res = client.post("/api/v1/projects/", json={"name": "P1"})
+    project_id = proj_res.json()["id"]
+    script_res = client.post(f"/api/v1/projects/{project_id}/scripts", json={"title": "S1", "full_text": "T"})
+    script_id = script_res.json()["id"]
+    scene_res = client.post(f"/api/v1/scripts/{script_id}/scenes", json={"sentence_text": "A boy walks.", "order": 1})
+    scene_id = scene_res.json()["id"]
+
+    # Mock the Gemini service (success)
+    mock_analyzer = MagicMock()
+    mock_analysis = SceneAnalysis(
+        summary="A summary", subjects=["boy"], actions=["walks"],
+        environment=["outside"], mood="neutral", time_context="day",
+        visual_queries=["boy walking"]
+    )
+    mock_analyzer.analyze_scene.return_value = mock_analysis
+
+    from app.api.routes.ai import get_gemini_service
+    fastapi_app.dependency_overrides[get_gemini_service] = lambda: mock_analyzer
+
+    # First analyze succeeds
+    client.post(f"/api/v1/scenes/{scene_id}/analyze")
+
+    # Mock the Gemini service (failure)
+    mock_analyzer.analyze_scene.side_effect = Exception("Gemini API Error")
+    
+    # Second analyze fails
+    with pytest.raises(Exception):
+        client.post(f"/api/v1/scenes/{scene_id}/analyze")
+
+    # Verify previous analysis is preserved
+    get_response = client.get(f"/api/v1/scenes/{scene_id}")
+    assert get_response.status_code == 200
+    scene_data = get_response.json()
+    assert scene_data["status"] == "analyzed"
+    assert scene_data["analysis"]["subjects"] == ["boy"]
+
+def test_search_requires_analysis():
+    # Setup DB state
+    proj_res = client.post("/api/v1/projects/", json={"name": "P1"})
+    project_id = proj_res.json()["id"]
+    script_res = client.post(f"/api/v1/projects/{project_id}/scripts", json={"title": "S1", "full_text": "T"})
+    script_id = script_res.json()["id"]
+    scene_res = client.post(f"/api/v1/scripts/{script_id}/scenes", json={"sentence_text": "A boy walks.", "order": 1})
+    scene_id = scene_res.json()["id"]
+
+    # Try searching before analysis
+    search_res = client.post(f"/api/v1/scenes/{scene_id}/search", json={"query": "test"})
+    assert search_res.status_code == 400
+    assert "analyzed before searching" in search_res.json()["detail"]

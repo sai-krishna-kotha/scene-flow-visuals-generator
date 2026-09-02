@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import DateTime, ForeignKey, Text, Integer, String
+from sqlalchemy import DateTime, ForeignKey, Text, Integer, String, JSON
 from sqlalchemy.sql import func
 import uuid
 import datetime
@@ -14,6 +14,9 @@ class Scene(Base):
     title: Mapped[str | None] = mapped_column(String(255), nullable=True)
     sentence_text: Mapped[str] = mapped_column(Text, nullable=False)
     order: Mapped[int] = mapped_column(Integer, nullable=False)
+    status: Mapped[str] = mapped_column(String(50), default="pending", server_default="pending", nullable=False)
+    analysis: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    analyzed_at: Mapped[datetime.datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     
     created_at: Mapped[datetime.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())

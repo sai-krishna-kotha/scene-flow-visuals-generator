@@ -28,6 +28,9 @@ def analyze_scene(
     scene = scene_service.get_scene(scene_id)
     analysis = gemini_service.analyze_scene(scene.sentence_text)
     
+    # Persist the analysis
+    scene_service.update_scene_analysis(scene_id, analysis)
+    
     return SceneAnalysisResponse(
         scene_id=str(scene_id),
         analysis=analysis

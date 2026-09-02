@@ -24,6 +24,8 @@ export interface Scene {
   title: string | null;
   sentence_text: string;
   status: 'pending' | 'analyzed';
+  analysis?: SceneAnalysis;
+  analyzed_at?: string;
   created_at: string;
   updated_at: string;
 }

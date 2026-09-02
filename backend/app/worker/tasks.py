@@ -6,7 +6,7 @@ from app.worker.celery_app import celery_app
 from app.db.session import SessionLocal
 from app.models.search_job import SearchJob, JobStatus
 from app.models.scene import Scene
-from app.services.ai.gemini_service import GeminiSceneAnalyzer
+
 from app.services.providers.asset_search_service import AssetSearchService
 from app.services.vector_indexing_service import VectorIndexingService
 from app.services.semantic_search_service import SemanticSearchService
@@ -39,6 +39,8 @@ def process_search_job(self, search_job_id_str: str):
         job.status = JobStatus.RUNNING
         scene_id = job.scene_id
         scene_text = job.scene.sentence_text
+        scene_analysis = job.scene.analysis
+        scene_status = job.scene.status
         db.commit()
     except Exception as e:
         db.rollback()
@@ -49,13 +51,18 @@ def process_search_job(self, search_job_id_str: str):
         db.close()
 
     try:
-        # 2. Gemini Analysis (No DB session held)
-        gemini = GeminiSceneAnalyzer()
-        analysis = gemini.analyze_scene(scene_text)
-        queries = analysis.visual_queries if analysis.visual_queries else [analysis.summary]
-        
+        # 2. Extract persisted analysis (No Gemini call here)
+        if scene_status != "analyzed" or not scene_analysis:
+            raise ValueError(f"Scene {scene_id} is not analyzed. Visual assets search requires a valid analysis.")
+            
+        queries = scene_analysis.get("visual_queries", [])
         if not queries:
-            raise ValueError("Gemini returned no visual queries or summary.")
+            summary = scene_analysis.get("summary")
+            if summary:
+                queries = [summary]
+            
+        if not queries:
+            raise ValueError("Persisted analysis returned no visual queries or summary.")
 
         # 3. Provider Aggregation (No DB session held)
         provider_service = AssetSearchService()

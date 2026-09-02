@@ -3,7 +3,9 @@ from app.repositories.script_repository import ScriptRepository
 from app.schemas.scene import SceneCreate, SceneUpdate
 from app.models.scene import Scene
 from fastapi import HTTPException
+from app.schemas.ai import SceneAnalysis
 from app.exceptions import SceneNotFoundError, ScriptNotFoundError
+from sqlalchemy.sql import func
 import uuid
 
 class SceneService:
@@ -34,3 +36,18 @@ class SceneService:
     def delete_scene(self, scene_id: uuid.UUID) -> None:
         scene = self.get_scene(scene_id)
         self.repository.delete(scene)
+        
+    def update_scene_analysis(self, scene_id: uuid.UUID, analysis: SceneAnalysis) -> Scene:
+        scene = self.get_scene(scene_id)
+        
+        # Validate visual_queries before saving (User requirement #3)
+        if not analysis.visual_queries:
+            analysis.visual_queries = [analysis.summary] if analysis.summary else []
+            
+        scene.analysis = analysis.model_dump()
+        scene.status = "analyzed"
+        scene.analyzed_at = func.now()
+        
+        self.repository.session.commit()
+        self.repository.session.refresh(scene)
+        return scene

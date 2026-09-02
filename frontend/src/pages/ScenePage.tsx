@@ -46,6 +46,7 @@ export const ScenePage = () => {
     try {
       const sceneData = await scenesApi.get(sceneId);
       setScene(sceneData);
+      setAnalysis(sceneData.analysis || null);
       
       const scriptData = await scriptsApi.get(sceneData.script_id);
       setScript(scriptData);
@@ -80,7 +81,7 @@ export const ScenePage = () => {
     try {
       const res = await scenesApi.analyze(sceneId);
       setAnalysis(res.analysis);
-      setScene(prev => prev ? { ...prev, status: 'analyzed' } : null);
+      setScene(prev => prev ? { ...prev, status: 'analyzed', analysis: res.analysis } : null);
     } catch (err: any) {
       setError(err.message || 'Failed to analyze scene');
     } finally {

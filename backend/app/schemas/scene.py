@@ -1,6 +1,7 @@
 from pydantic import BaseModel, ConfigDict
 import uuid
 from datetime import datetime
+from typing import Optional, Any
 
 class SceneBase(BaseModel):
     sentence_text: str
@@ -17,6 +18,9 @@ class SceneUpdate(BaseModel):
 class SceneResponse(SceneBase):
     id: uuid.UUID
     script_id: uuid.UUID
+    status: str
+    analysis: Optional[Any] = None
+    analyzed_at: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
     
