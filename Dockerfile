@@ -4,8 +4,9 @@ WORKDIR /app
 
 # Copy backend requirements and install
 COPY backend/requirements.txt .
+# Install CPU-only torch first to prevent massive CUDA binaries in production
+RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
 RUN pip install --no-cache-dir -r requirements.txt
-
 # Copy backend source code
 COPY backend/ /app/
 

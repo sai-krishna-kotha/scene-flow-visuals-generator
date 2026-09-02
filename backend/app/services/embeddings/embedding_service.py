@@ -19,9 +19,13 @@ class EmbeddingService:
             logger.info(f"Loading embedding model: {settings.EMBEDDING_MODEL}")
             # Import here to avoid slow loading at the top level
             from sentence_transformers import SentenceTransformer
+            import torch
+            
+            device = "cuda" if torch.cuda.is_available() else "cpu"
+            logger.info(f"Using device: {device}")
             
             # This downloads the model on first run if not present
-            self._model = SentenceTransformer(settings.EMBEDDING_MODEL)
+            self._model = SentenceTransformer(settings.EMBEDDING_MODEL, device=device)
             logger.info("Embedding model loaded successfully.")
 
     @property
