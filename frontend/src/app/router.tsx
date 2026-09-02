@@ -29,22 +29,22 @@ const Header = () => {
   const isActive = (path: string) => location.pathname === path || (path !== '/' && location.pathname.startsWith(path));
 
   return (
-    <header className="h-16 bg-white border-b border-surface-200 flex items-center px-4 md:px-8 shadow-sm z-10 sticky top-0">
-      <Link to="/" className="flex items-center mr-8">
+    <header className="h-14 sm:h-16 bg-white border-b border-surface-200 flex items-center px-4 md:px-8 shadow-sm z-10 sticky top-0">
+      <Link to="/" className="flex items-center shrink-0 mr-4 sm:mr-8">
         <Logo />
-        <span className="text-lg font-bold text-surface-900 tracking-tight">SceneFlow</span>
+        <span className="text-base sm:text-lg font-bold text-surface-900 tracking-tight hidden xs:inline-block sm:inline-block">SceneFlow</span>
       </Link>
       
-      <nav className="hidden md:flex space-x-6">
+      <nav className="flex space-x-4 sm:space-x-6 overflow-x-auto no-scrollbar">
         <Link 
           to="/" 
-          className={`text-sm font-medium transition-colors ${isActive('/') && location.pathname === '/' ? 'text-primary-600 border-b-2 border-primary-600 py-5' : 'text-surface-600 hover:text-surface-900 py-5'}`}
+          className={`text-sm font-medium transition-colors whitespace-nowrap ${isActive('/') && location.pathname === '/' ? 'text-primary-600 border-b-2 border-primary-600 py-4 sm:py-5' : 'text-surface-600 hover:text-surface-900 py-4 sm:py-5'}`}
         >
           Dashboard
         </Link>
         <Link 
-          to="/" 
-          className={`text-sm font-medium transition-colors ${(isActive('/projects') || (location.pathname !== '/' && !location.pathname.startsWith('/jobs'))) ? 'text-primary-600 border-b-2 border-primary-600 py-5' : 'text-surface-600 hover:text-surface-900 py-5'}`}
+          to="/projects" 
+          className={`text-sm font-medium transition-colors whitespace-nowrap ${(isActive('/projects') || (location.pathname !== '/' && !location.pathname.startsWith('/jobs'))) ? 'text-primary-600 border-b-2 border-primary-600 py-4 sm:py-5' : 'text-surface-600 hover:text-surface-900 py-4 sm:py-5'}`}
         >
           Projects
         </Link>
@@ -61,7 +61,7 @@ const Layout = () => {
   return (
     <div className="flex flex-col min-h-screen bg-surface-50 font-sans">
       <Header />
-      <main className="flex-1 overflow-y-auto p-4 md:p-8 max-w-350 mx-auto w-full">
+      <main className="flex-1 overflow-y-auto p-4 md:p-8 max-w-7xl mx-auto w-full">
         <Outlet />
       </main>
     </div>

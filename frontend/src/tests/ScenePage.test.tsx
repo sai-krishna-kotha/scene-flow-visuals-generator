@@ -115,7 +115,7 @@ describe('ScenePage Component', () => {
       </MemoryRouter>
     );
 
-    await screen.findByText(/Scene 2 of 3/i);
+    await screen.findAllByText(/Scene 2 of 3/i);
     const prevBtn = screen.getByRole('button', { name: /Previous Scene/i });
     const nextBtn = screen.getByRole('button', { name: /Next Scene/i });
     expect(prevBtn).not.toBeDisabled();
@@ -130,7 +130,7 @@ describe('ScenePage Component', () => {
         </Routes>
       </MemoryRouter>
     );
-    await screen.findByText(/Scene 1 of 3/i);
+    await screen.findAllByText(/Scene 1 of 3/i);
     expect(screen.getAllByRole('button', { name: /Previous Scene/i })[1]).toBeDisabled();
     expect(screen.getAllByRole('button', { name: /Next Scene/i })[1]).not.toBeDisabled();
   });

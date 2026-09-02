@@ -117,25 +117,25 @@ export const ScenePage = () => {
 
   return (
     <div className="space-y-8 w-full">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-4">
         <Breadcrumbs items={[
           { label: 'Projects', href: '/' },
           { label: project?.name || 'Project', href: `/projects/${project?.id}` },
           { label: script?.title || 'Script', href: `/projects/${project?.id}/scripts/${script?.id}` },
           { label: `Scene ${scene?.order || ''}` }
         ]} />
-        <Link to={`/projects/${project?.id}/scripts/${script?.id}`}>
-          <Button variant="outline" size="sm" className="gap-2">
+        <Link to={`/projects/${project?.id}/scripts/${script?.id}`} className="shrink-0 w-full sm:w-auto">
+          <Button variant="outline" size="sm" className="w-full sm:w-auto gap-2">
             Back to Script
           </Button>
         </Link>
       </div>
 
       <div className="border-b border-surface-200 pb-6 space-y-6">
-        <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-6">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 md:gap-6">
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-extrabold text-surface-900 tracking-tight">Scene {scene?.order}</h1>
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-surface-900 tracking-tight">Scene {scene?.order}</h1>
               {isAnalyzing ? (
                 <span className="text-sm font-medium text-surface-500 bg-surface-100 px-2.5 py-1 rounded-md">Analyzing...</span>
               ) : scene?.status === 'analyzed' ? (
@@ -144,12 +144,13 @@ export const ScenePage = () => {
             </div>
           </div>
           
-          <div className="flex flex-wrap items-center gap-3 shrink-0">
+          <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 shrink-0 w-full md:w-auto mt-2 md:mt-0">
             <Button 
               onClick={handleAnalyze} 
               isLoading={isAnalyzing}
               disabled={isAnalyzing || isSearching} 
               variant="outline"
+              className="w-full sm:w-auto"
             >
               {!isAnalyzing && <BrainCircuit className="w-4 h-4 mr-2 text-primary-600" />}
               {isAnalyzing ? 'Analyzing...' : 'Analyze with Gemini'}
@@ -158,59 +159,74 @@ export const ScenePage = () => {
               onClick={handleSearch} 
               isLoading={isSearching}
               disabled={isSearching || isAnalyzing || scene?.status !== 'analyzed'} 
+              className="w-full sm:w-auto"
             >
               {!isSearching && <Search className="w-4 h-4 mr-2" />}
               Find Visual Assets
             </Button>
-            <MoreMenu>
-              <MoreMenuItem destructive onClick={() => setIsDeleteDialogOpen(true)}>
-                Delete Scene
-              </MoreMenuItem>
-            </MoreMenu>
+            <div className="hidden sm:block">
+              <MoreMenu>
+                <MoreMenuItem destructive onClick={() => setIsDeleteDialogOpen(true)}>
+                  Delete Scene
+                </MoreMenuItem>
+              </MoreMenu>
+            </div>
+            <Button 
+              variant="outline" 
+              className="w-full sm:hidden border-red-200 text-red-600 bg-red-50"
+              onClick={() => setIsDeleteDialogOpen(true)}
+            >
+              Delete Scene
+            </Button>
           </div>
         </div>
 
         {scriptScenes.length > 1 && (
-          <div className="flex justify-between items-center bg-surface-50 px-4 py-2.5 rounded-lg border border-surface-200">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              disabled={!prevScene} 
-              onClick={() => prevScene && navigate(`/scenes/${prevScene.id}`)}
-              className="bg-white"
-            >
-              Previous Scene
-            </Button>
-            <span className="text-sm font-bold text-surface-700">
-              Scene {scene?.order || 0} of {scriptScenes.length || 0}
+          <div className="flex flex-col sm:flex-row sm:justify-between items-center bg-surface-50 p-4 sm:px-4 sm:py-2.5 rounded-lg border border-surface-200 gap-3 sm:gap-0">
+            <span className="text-sm font-bold text-surface-700 sm:hidden w-full text-center mb-1">
+              {`Scene ${scene?.order || 0} of ${scriptScenes.length || 0}`}
             </span>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              disabled={!nextScene} 
-              onClick={() => nextScene && navigate(`/scenes/${nextScene.id}`)}
-              className="bg-white"
-            >
-              Next Scene
-            </Button>
+            <div className="flex w-full sm:contents justify-between gap-3">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                disabled={!prevScene} 
+                onClick={() => prevScene && navigate(`/scenes/${prevScene.id}`)}
+                className="bg-white flex-1 sm:flex-none"
+              >
+                Previous Scene
+              </Button>
+              <span className="text-sm font-bold text-surface-700 hidden sm:block mx-4">
+                {`Scene ${scene?.order || 0} of ${scriptScenes.length || 0}`}
+              </span>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                disabled={!nextScene} 
+                onClick={() => nextScene && navigate(`/scenes/${nextScene.id}`)}
+                className="bg-white flex-1 sm:flex-none"
+              >
+                Next Scene
+              </Button>
+            </div>
           </div>
         )}
       </div>
 
       {error && <ErrorMessage message={error} onRetry={fetchData} />}
 
-      <div className="flex flex-col lg:grid lg:grid-cols-2 lg:items-stretch gap-5 lg:h-95">
+      <div className="flex flex-col lg:grid lg:grid-cols-2 lg:items-stretch gap-5 lg:h-[400px]">
         {/* Scene Context Panel */}
-        <div className="flex flex-col h-70 lg:h-full overflow-hidden bg-white rounded-xl border border-surface-200 shadow-sm">
+        <div className="flex flex-col h-[300px] lg:h-full overflow-hidden bg-white rounded-xl border border-surface-200 shadow-sm">
           <div className="shrink-0 bg-surface-50 px-4 py-3 border-b border-surface-200">
             <h2 className="text-xs font-bold text-surface-500 uppercase tracking-wider">Scene Context</h2>
           </div>
           <div className="flex-1 overflow-y-auto p-4 md:p-5 scroll-smooth flex flex-col">
-            <div className="my-auto max-w-[85%] -translate-y-1">
-              <p className="text-lg text-surface-900 font-medium leading-relaxed italic border-l-4 border-primary-200 pl-4 py-1 text-left">
+            <div className="my-auto max-w-full lg:max-w-[85%] -translate-y-1">
+              <p className="text-base sm:text-lg text-surface-900 font-medium leading-relaxed italic border-l-4 border-primary-200 pl-4 py-1 text-left">
                 "{scene?.sentence_text}"
               </p>
-              <div className="mt-4 flex items-center gap-2 text-sm text-surface-500 font-medium text-left">
+              <div className="mt-4 flex flex-wrap items-center gap-2 text-sm text-surface-500 font-medium text-left">
                 <span className="capitalize">{script?.orientation_preference}</span>
                 {scene?.updated_at && (
                   <>
@@ -224,7 +240,7 @@ export const ScenePage = () => {
         </div>
 
         {/* AI Scene Intelligence Panel */}
-        <div className="flex flex-col h-80 lg:h-full overflow-hidden bg-white rounded-xl border border-surface-200 shadow-sm">
+        <div className="flex flex-col h-[380px] lg:h-full overflow-hidden bg-white rounded-xl border border-surface-200 shadow-sm">
           <div className="shrink-0 bg-surface-50 px-4 py-3 border-b border-surface-200">
             <h2 className="text-xs font-bold text-surface-500 uppercase tracking-wider">AI Scene Intelligence</h2>
           </div>
@@ -314,7 +330,7 @@ export const ScenePage = () => {
         ) : (
           <div className="flex flex-col gap-4">
             {jobs.map((job, index) => (
-              <div key={job.job_id} className="bg-white border border-surface-200 shadow-sm rounded-xl p-5 hover:border-surface-300 hover:shadow transition-all flex flex-col gap-3">
+              <div key={job.job_id} className="bg-white border border-surface-200 shadow-sm rounded-xl p-4 sm:p-5 hover:border-surface-300 hover:shadow transition-all flex flex-col gap-3">
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-xs font-bold text-surface-500 bg-surface-100 px-2 py-1 rounded shrink-0">
                     Search {jobs.length - index}

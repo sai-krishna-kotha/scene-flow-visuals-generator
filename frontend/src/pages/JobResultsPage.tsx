@@ -72,7 +72,7 @@ export const JobResultsPage = () => {
 
   return (
     <div className="space-y-6 w-full">
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-4">
         <Breadcrumbs items={[
           { label: 'Projects', href: '/' },
           { label: project?.name || 'Project', href: `/projects/${project?.id}` },
@@ -80,24 +80,24 @@ export const JobResultsPage = () => {
           { label: `Scene ${scene?.order || ''}`, href: `/scenes/${scene?.id}` },
           { label: `Search #${searchNumber || ''}` }
         ]} />
-        <Link to={`/scenes/${scene?.id}`}>
-          <Button variant="outline" size="sm" className="gap-2">
+        <Link to={`/scenes/${scene?.id}`} className="shrink-0 w-full sm:w-auto">
+          <Button variant="outline" size="sm" className="w-full sm:w-auto gap-2">
             Back to Scene
           </Button>
         </Link>
       </div>
 
-      <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 border-b border-surface-200 pb-6 mb-8">
-        <div>
-          <h1 className="text-3xl font-extrabold text-surface-900 flex items-center gap-3 tracking-tight">
-            <ImageIcon className="w-8 h-8 text-primary-600" />
-            Visual Results
+      <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 border-b border-surface-200 pb-4 sm:pb-6 mb-6 sm:mb-8">
+        <div className="w-full md:w-auto overflow-hidden">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-surface-900 flex items-center gap-2 sm:gap-3 tracking-tight">
+            <ImageIcon className="w-6 h-6 sm:w-8 sm:h-8 text-primary-600 shrink-0" />
+            <span className="truncate">Visual Results</span>
           </h1>
-          <p className="text-surface-600 mt-2 font-medium">
+          <p className="text-surface-600 mt-2 font-medium text-sm sm:text-base line-clamp-2">
             Search #{searchNumber} &middot; Scene {scene?.order} {scene?.sentence_text ? `· "${scene.sentence_text}"` : ''}
           </p>
         </div>
-        <div className="flex items-center gap-4 bg-white px-4 py-2 rounded-lg border border-surface-200 shadow-sm">
+        <div className="flex items-center gap-4 bg-white px-4 py-2.5 sm:py-2 rounded-lg border border-surface-200 shadow-sm w-full md:w-auto justify-between md:justify-start mt-2 md:mt-0">
           <span className="text-sm font-semibold text-surface-700">{results.length} visual assets</span>
         </div>
       </div>
@@ -109,7 +109,7 @@ export const JobResultsPage = () => {
           <p className="mt-1">We couldn't find any relevant visual assets for this scene.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {results.map((item, idx) => (
             <AssetCard 
               key={item.asset.id} 
@@ -170,24 +170,24 @@ const AssetCard = ({ item, rank }: { item: SemanticSearchResult, rank: number })
               <div className="text-xs font-semibold text-surface-600 bg-surface-100 px-2 py-1 rounded">
                 {item.asset.width} &times; {item.asset.height}
               </div>
-              <div className="flex gap-1 relative z-10">
+              <div className="flex gap-2 sm:gap-1 relative z-10">
                 <button 
                   aria-label="Why this ranked here"
                   onClick={(e) => { e.stopPropagation(); setIsFlipped(true); }}
-                  className="p-1.5 rounded text-surface-400 hover:text-surface-700 hover:bg-surface-50 transition-colors"
+                  className="p-2 sm:p-1.5 rounded text-surface-400 hover:text-surface-700 hover:bg-surface-50 transition-colors"
                   title="Ranking Explanation"
                 >
-                  <Info className="w-4 h-4" />
+                  <Info className="w-5 h-5 sm:w-4 sm:h-4" />
                 </button>
                 <a 
                   href={item.asset.source_url} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="p-1.5 rounded text-surface-400 hover:text-surface-700 hover:bg-surface-50 transition-colors"
+                  className="p-2 sm:p-1.5 rounded text-surface-400 hover:text-surface-700 hover:bg-surface-50 transition-colors"
                   title="View Source"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <ExternalLink className="w-4 h-4" />
+                  <ExternalLink className="w-5 h-5 sm:w-4 sm:h-4" />
                 </a>
               </div>
             </div>

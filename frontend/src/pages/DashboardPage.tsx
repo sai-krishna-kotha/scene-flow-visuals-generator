@@ -121,14 +121,14 @@ export const DashboardPage = () => {
 
   return (
     <div className="space-y-8 w-full">
-      <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-6 border-b border-surface-200 pb-8">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 sm:gap-6 border-b border-surface-200 pb-6 sm:pb-8">
         <div>
-          <h1 className="text-4xl font-extrabold text-surface-900 tracking-tight mb-2">SceneFlow</h1>
-          <h2 className="text-2xl font-bold text-surface-700 tracking-tight mb-3">AI Storyboard Intelligence</h2>
-          <p className="text-surface-500 text-lg">Turn scripts into intelligently ranked visual assets.</p>
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-surface-900 tracking-tight mb-1 sm:mb-2">SceneFlow</h1>
+          <h2 className="text-xl sm:text-2xl font-bold text-surface-700 tracking-tight mb-2 sm:mb-3">AI Storyboard Intelligence</h2>
+          <p className="text-surface-500 text-base sm:text-lg">Turn scripts into intelligently ranked visual assets.</p>
         </div>
         
-        <div className="w-full md:w-auto bg-white p-4 rounded-xl border border-surface-200 shadow-sm shrink-0">
+        <div className="w-full md:w-auto bg-white p-4 rounded-xl border border-surface-200 shadow-sm shrink-0 mt-2 md:mt-0">
           <h3 className="text-sm font-bold text-surface-900 mb-2">Create New Project</h3>
           <form onSubmit={handleCreate} className="flex gap-2">
             <input 
@@ -136,11 +136,11 @@ export const DashboardPage = () => {
               value={newProjectName}
               onChange={e => setNewProjectName(e.target.value)}
               placeholder="Project Name..." 
-              className="w-full md:w-48 px-3 py-2 text-sm bg-surface-50 border border-surface-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white transition-colors"
+              className="w-full md:w-56 px-3 py-2 text-sm bg-surface-50 border border-surface-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white transition-colors"
               disabled={isCreating}
             />
-            <Button type="submit" isLoading={isCreating} disabled={!newProjectName.trim()} size="sm">
-              <Plus className="w-4 h-4 mr-1" /> Create
+            <Button type="submit" isLoading={isCreating} disabled={!newProjectName.trim()} size="sm" className="shrink-0">
+              <Plus className="w-4 h-4 mr-1 sm:mr-0" /> <span className="hidden sm:inline-block ml-1">Create</span>
             </Button>
           </form>
         </div>

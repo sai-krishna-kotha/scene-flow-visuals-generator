@@ -110,23 +110,34 @@ export const ProjectPage = () => {
         { label: project?.name || 'Project' }
       ]} />
 
-      <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-6 border-b border-surface-200 pb-8">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 sm:gap-6 border-b border-surface-200 pb-6 sm:pb-8">
         <div className="max-w-2xl">
-          <h1 className="text-3xl font-extrabold text-surface-900 tracking-tight">{project?.name}</h1>
-          <p className="text-surface-500 mt-2 text-lg">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-surface-900 tracking-tight">{project?.name}</h1>
+          <p className="text-surface-500 mt-1 sm:mt-2 text-base sm:text-lg">
             {project?.description || 'Build scripts, break them into scenes, and turn them into visual storyboards.'}
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button onClick={() => setIsModalOpen(true)} className="shrink-0">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mt-2 md:mt-0 w-full md:w-auto">
+          <Button onClick={() => setIsModalOpen(true)} className="shrink-0 w-full sm:w-auto">
             <Plus className="w-4 h-4 mr-2" /> New Script
           </Button>
           {project && (
-            <MoreMenu>
-              <MoreMenuItem destructive onClick={() => setProjectToDelete(project)}>
+            <>
+              <div className="hidden sm:block">
+                <MoreMenu>
+                  <MoreMenuItem destructive onClick={() => setProjectToDelete(project)}>
+                    Delete Project
+                  </MoreMenuItem>
+                </MoreMenu>
+              </div>
+              <Button 
+                variant="outline" 
+                className="w-full sm:hidden border-red-200 text-red-600 bg-red-50"
+                onClick={() => setProjectToDelete(project)}
+              >
                 Delete Project
-              </MoreMenuItem>
-            </MoreMenu>
+              </Button>
+            </>
           )}
         </div>
       </div>
@@ -149,9 +160,9 @@ export const ProjectPage = () => {
             </Button>
           </div>
         ) : (
-            <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4">
             {scripts.map(s => (
-              <div key={s.id} className="bg-white border border-surface-200 rounded-xl p-5 hover:border-primary-400 transition-colors flex flex-col md:flex-row md:items-start justify-between gap-4 min-h-40">
+              <div key={s.id} className="bg-white border border-surface-200 rounded-xl p-4 sm:p-5 hover:border-primary-400 transition-colors flex flex-col md:flex-row md:items-start justify-between gap-4 min-h-40">
                 <div className="flex-1 min-w-0 max-w-3xl">
                   <div className="flex items-center gap-3 mb-1">
                     <h3 className="font-bold text-lg text-surface-900 truncate">{s.title}</h3>
@@ -164,17 +175,28 @@ export const ProjectPage = () => {
                     )}
                   </div>
                 </div>
-                <div className="shrink-0 flex items-center mt-2 md:mt-0 gap-2">
-                  <Link to={`/projects/${projectId}/scripts/${s.id}`}>
-                    <Button variant="outline" size="sm">
+                <div className="shrink-0 flex items-center mt-2 md:mt-0 gap-2 w-full md:w-auto">
+                  <Link to={`/projects/${projectId}/scripts/${s.id}`} className="flex-1 md:flex-none">
+                    <Button variant="outline" size="sm" className="w-full md:w-auto">
                       Open Script
                     </Button>
                   </Link>
-                  <MoreMenu>
-                    <MoreMenuItem destructive onClick={() => setScriptToDelete(s)}>
-                      Delete Script
-                    </MoreMenuItem>
-                  </MoreMenu>
+                  <div className="hidden sm:block">
+                    <MoreMenu>
+                      <MoreMenuItem destructive onClick={() => setScriptToDelete(s)}>
+                        Delete Script
+                      </MoreMenuItem>
+                    </MoreMenu>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="sm:hidden border-red-200 text-red-600 bg-red-50 flex-none px-3"
+                    onClick={() => setScriptToDelete(s)}
+                    aria-label="Delete Script"
+                  >
+                    Delete
+                  </Button>
                 </div>
               </div>
             ))}
@@ -222,12 +244,12 @@ export const ProjectPage = () => {
               <option value="square">Square</option>
             </select>
           </div>
-          <div className="flex items-center gap-3 pt-4 border-t border-surface-100">
-            <Button type="button" variant="ghost" onClick={() => setIsModalOpen(false)} disabled={isCreating} className="flex-1">
-              Cancel
-            </Button>
-            <Button type="submit" isLoading={isCreating} disabled={!newTitle.trim() || !newText.trim()} className="flex-1">
+          <div className="flex flex-col sm:flex-row items-center gap-3 pt-4 border-t border-surface-100">
+            <Button type="submit" isLoading={isCreating} disabled={!newTitle.trim() || !newText.trim()} className="w-full sm:flex-1">
               Create Script
+            </Button>
+            <Button type="button" variant="ghost" onClick={() => setIsModalOpen(false)} disabled={isCreating} className="w-full sm:flex-1">
+              Cancel
             </Button>
           </div>
         </form>

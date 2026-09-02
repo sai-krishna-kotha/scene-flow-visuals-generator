@@ -126,45 +126,54 @@ export const ScriptPage = () => {
 
   return (
     <div className="space-y-8 w-full">
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-4">
         <Breadcrumbs items={[
           { label: 'Projects', href: '/' },
           { label: project?.name || 'Project', href: `/projects/${projectId}` },
           { label: script?.title || 'Script' }
         ]} />
-        <Link to={`/projects/${projectId}`}>
-          <Button variant="outline" size="sm" className="gap-2">
+        <Link to={`/projects/${projectId}`} className="shrink-0 w-full sm:w-auto">
+          <Button variant="outline" size="sm" className="w-full sm:w-auto gap-2">
             Back to Project
           </Button>
         </Link>
       </div>
 
-      <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 border-b border-surface-200 pb-8">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 sm:gap-6 border-b border-surface-200 pb-6 sm:pb-8">
         <div className="max-w-3xl">
-          <h1 className="text-3xl font-extrabold text-surface-900 tracking-tight mb-3">{script?.title}</h1>
-          <div className="flex items-center gap-3">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-surface-900 tracking-tight mb-2 sm:mb-3">{script?.title}</h1>
+          <div className="flex flex-wrap items-center gap-3">
             <Badge variant="outline" className="capitalize">
               {script?.orientation_preference}
             </Badge>
             <span className="text-sm text-surface-500 font-medium">{scenes.length} Scenes</span>
           </div>
         </div>
-        <div className="shrink-0 mt-4 md:mt-0 flex items-center gap-2">
-          <div className="flex flex-col md:flex-row gap-2">
-            <Button onClick={handleGenerateScenes} isLoading={isGenerating} disabled={scenes.length > 0} className="w-full md:w-auto">
-              <Sparkles className="w-4 h-4 mr-2" /> 
-              {scenes.length > 0 ? 'Scenes Generated' : 'Generate Scenes'}
-            </Button>
-            <Button onClick={() => setIsModalOpen(true)} variant="outline" className="w-full md:w-auto">
-              <Plus className="w-4 h-4 mr-2" /> Add Scene
-            </Button>
-          </div>
+        <div className="shrink-0 mt-2 md:mt-0 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full md:w-auto">
+          <Button onClick={handleGenerateScenes} isLoading={isGenerating} disabled={scenes.length > 0} className="w-full sm:w-auto">
+            <Sparkles className="w-4 h-4 mr-2 shrink-0" /> 
+            {scenes.length > 0 ? 'Scenes Generated' : 'Generate Scenes'}
+          </Button>
+          <Button onClick={() => setIsModalOpen(true)} variant="outline" className="w-full sm:w-auto">
+            <Plus className="w-4 h-4 mr-2 shrink-0" /> Add Scene
+          </Button>
           {script && (
-            <MoreMenu>
-              <MoreMenuItem destructive onClick={() => setScriptToDelete(script)}>
+            <>
+              <div className="hidden sm:block">
+                <MoreMenu>
+                  <MoreMenuItem destructive onClick={() => setScriptToDelete(script)}>
+                    Delete Script
+                  </MoreMenuItem>
+                </MoreMenu>
+              </div>
+              <Button 
+                variant="outline" 
+                className="w-full sm:hidden border-red-200 text-red-600 bg-red-50"
+                onClick={() => setScriptToDelete(script)}
+              >
                 Delete Script
-              </MoreMenuItem>
-            </MoreMenu>
+              </Button>
+            </>
           )}
         </div>
       </div>
@@ -226,7 +235,7 @@ export const ScriptPage = () => {
                   </p>
                 </div>
                 
-                <div className="flex items-center justify-between pt-3 mt-1 border-t border-surface-100 md:ml-13">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-3 mt-1 border-t border-surface-100 md:ml-13 gap-3 sm:gap-0">
                   <div className="flex items-center">
                     {s.status === 'analyzed' ? (
                       <Badge variant="success">Analyzed</Badge>
@@ -234,17 +243,28 @@ export const ScriptPage = () => {
                       <span className="text-xs font-medium text-surface-400">Unanalyzed</span>
                     )}
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Link to={`/scenes/${s.id}`}>
-                      <Button variant="outline" size="sm" className="bg-white hover:bg-surface-50">
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <Link to={`/scenes/${s.id}`} className="flex-1 sm:flex-none">
+                      <Button variant="outline" size="sm" className="bg-white hover:bg-surface-50 w-full sm:w-auto">
                         Open Scene
                       </Button>
                     </Link>
-                    <MoreMenu>
-                      <MoreMenuItem destructive onClick={() => setSceneToDelete(s)}>
-                        Delete Scene
-                      </MoreMenuItem>
-                    </MoreMenu>
+                    <div className="hidden sm:block">
+                      <MoreMenu>
+                        <MoreMenuItem destructive onClick={() => setSceneToDelete(s)}>
+                          Delete Scene
+                        </MoreMenuItem>
+                      </MoreMenu>
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="sm:hidden border-red-200 text-red-600 bg-red-50 flex-none px-3"
+                      onClick={() => setSceneToDelete(s)}
+                      aria-label="Delete Scene"
+                    >
+                      Delete
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -267,12 +287,12 @@ export const ScriptPage = () => {
               autoFocus
             />
           </div>
-          <div className="flex items-center gap-3 pt-4 border-t border-surface-100">
-            <Button type="button" variant="ghost" onClick={() => setIsModalOpen(false)} disabled={isCreating} className="flex-1">
-              Cancel
-            </Button>
-            <Button type="submit" isLoading={isCreating} disabled={!newText.trim()} className="flex-1">
+          <div className="flex flex-col sm:flex-row items-center gap-3 pt-4 border-t border-surface-100">
+            <Button type="submit" isLoading={isCreating} disabled={!newText.trim()} className="w-full sm:flex-1">
               Add Scene
+            </Button>
+            <Button type="button" variant="ghost" onClick={() => setIsModalOpen(false)} disabled={isCreating} className="w-full sm:flex-1">
+              Cancel
             </Button>
           </div>
         </form>

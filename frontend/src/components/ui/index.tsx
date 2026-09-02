@@ -77,19 +77,19 @@ export const Badge = ({ children, variant = 'default', className = '' }: { child
 
 export const Breadcrumbs = ({ items }: { items: { label: string, href?: string }[] }) => {
   return (
-    <nav className="flex text-sm text-surface-500 mb-6 font-medium">
-      <ol className="flex items-center space-x-2">
+    <nav className="text-sm text-surface-500 mb-4 sm:mb-6 font-medium w-full">
+      <ol className="flex flex-wrap items-center gap-x-2 gap-y-1">
         {items.map((item, index) => (
-          <li key={index} className="flex items-center">
+          <li key={index} className="flex items-center whitespace-nowrap">
             {item.href ? (
-              <a href={item.href} className="hover:text-primary-600 transition-colors">
+              <a href={item.href} className="hover:text-primary-600 transition-colors max-w-[120px] sm:max-w-xs truncate" title={item.label}>
                 {item.label}
               </a>
             ) : (
-              <span className="text-surface-900">{item.label}</span>
+              <span className="text-surface-900 max-w-[150px] sm:max-w-xs truncate" title={item.label}>{item.label}</span>
             )}
             {index < items.length - 1 && (
-              <span className="mx-2 text-surface-300">/</span>
+              <span className="ml-2 text-surface-300 shrink-0">/</span>
             )}
           </li>
         ))}

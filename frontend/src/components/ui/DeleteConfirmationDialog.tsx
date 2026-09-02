@@ -91,31 +91,32 @@ export const DeleteConfirmationDialog: React.FC<DeleteConfirmationDialogProps> =
           </p>
         </div>
         
-        <div className="px-6 py-4 bg-surface-50 border-t border-surface-200 flex items-center justify-end gap-3">
-          <Button 
-            variant="outline" 
-            onClick={onClose} 
-            disabled={isDeleting}
-          >
-            Cancel
-          </Button>
+        <div className="px-6 py-4 bg-surface-50 border-t border-surface-200 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3">
           <button
             onClick={onConfirm}
             disabled={isDeleting}
-            className="inline-flex items-center justify-center rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 h-10 px-4 py-2 text-sm bg-red-600 text-white hover:bg-red-700 shadow-sm disabled:opacity-50 disabled:pointer-events-none"
+            className="w-full sm:w-auto inline-flex items-center justify-center rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 h-10 px-4 py-2 text-sm bg-red-600 text-white hover:bg-red-700 shadow-sm disabled:opacity-50 disabled:pointer-events-none"
           >
             {isDeleting ? (
               <>
-                <Trash2 className="w-4 h-4 mr-2 animate-pulse" />
+                <Trash2 className="w-4 h-4 mr-2 animate-pulse shrink-0" />
                 Deleting...
               </>
             ) : (
               <>
-                <Trash2 className="w-4 h-4 mr-2" />
+                <Trash2 className="w-4 h-4 mr-2 shrink-0" />
                 {deleteButtonText}
               </>
             )}
           </button>
+          <Button 
+            variant="outline" 
+            onClick={onClose} 
+            disabled={isDeleting}
+            className="w-full sm:w-auto"
+          >
+            Cancel
+          </Button>
         </div>
       </div>
     </div>
