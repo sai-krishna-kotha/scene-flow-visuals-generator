@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Clapperboard, Plus, Settings, Sparkles } from 'lucide-react';
+import { Clapperboard, Plus, Settings, Sparkles, ChevronLeft } from 'lucide-react';
 import { scriptsApi } from '../services/api/scripts';
 import { scenesApi } from '../services/api/scenes';
 import { Script, Scene, Project } from '../types/api';
@@ -144,13 +144,13 @@ export const ScriptPage = () => {
 
   return (
     <div className="space-y-6 sm:space-y-8 w-full">
-      <div className="mb-2">
-        <Link to={`/projects/${projectId}`} className="shrink-0 w-full sm:w-auto">
-          <Button variant="outline" size="sm" className="w-full sm:w-auto gap-2">
-            Back to Project
-          </Button>
-        </Link>
-      </div>
+      <Link
+        to={`/projects/${projectId}`}
+        className="inline-flex items-center gap-1 text-sm font-medium text-text-muted hover:text-text-main transition-colors mb-1"
+      >
+        <ChevronLeft className="w-4 h-4" />
+        Project
+      </Link>
 
       <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 sm:gap-6 border-b border-border-main pb-6 sm:pb-8">
         <div className="max-w-3xl">
@@ -160,33 +160,27 @@ export const ScriptPage = () => {
               {script?.orientation_preference}
             </Badge>
             <span className="text-sm text-text-muted font-medium">{scenes.length} Scenes</span>
+            {scenes.length > 0 && (
+              <Badge variant="success">Scenes Generated</Badge>
+            )}
           </div>
         </div>
-        <div className="shrink-0 mt-2 md:mt-0 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full md:w-auto">
-          <Button onClick={handleGenerateScenes} isLoading={isGenerating} disabled={scenes.length > 0} className="w-full sm:w-auto">
-            <Sparkles className="w-4 h-4 mr-2 shrink-0" /> 
-            {scenes.length > 0 ? 'Scenes Generated' : 'Generate Scenes'}
-          </Button>
-          <Button onClick={() => setIsModalOpen(true)} variant="outline" className="w-full sm:w-auto">
-            <Plus className="w-4 h-4 mr-2 shrink-0" /> Add Scene
+        <div className="shrink-0 mt-2 md:mt-0 flex flex-wrap items-center gap-2">
+          {scenes.length === 0 && (
+            <Button onClick={handleGenerateScenes} isLoading={isGenerating} size="sm" className="gap-1.5">
+              <Sparkles className="w-3.5 h-3.5" />
+              Generate Scenes
+            </Button>
+          )}
+          <Button onClick={() => setIsModalOpen(true)} variant="outline" size="sm" className="gap-1.5">
+            <Plus className="w-3.5 h-3.5" /> Add Scene
           </Button>
           {script && (
-            <>
-              <div className="hidden sm:block">
-                <MoreMenu>
-                  <MoreMenuItem destructive onClick={() => setScriptToDelete(script)}>
-                    Delete Script
-                  </MoreMenuItem>
-                </MoreMenu>
-              </div>
-              <Button 
-                variant="outline" 
-                className="w-full sm:hidden border-red-200 text-red-600 bg-red-50"
-                onClick={() => setScriptToDelete(script)}
-              >
+            <MoreMenu>
+              <MoreMenuItem destructive onClick={() => setScriptToDelete(script)}>
                 Delete Script
-              </Button>
-            </>
+              </MoreMenuItem>
+            </MoreMenu>
           )}
         </div>
       </div>
@@ -268,22 +262,11 @@ export const ScriptPage = () => {
                         Open Scene
                       </Button>
                     </Link>
-                    <div className="hidden sm:block">
-                      <MoreMenu>
-                        <MoreMenuItem destructive onClick={() => setSceneToDelete(s)}>
-                          Delete Scene
-                        </MoreMenuItem>
-                      </MoreMenu>
-                    </div>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      className="sm:hidden border-red-200 text-red-600 bg-red-50 flex-none px-3"
-                      onClick={() => setSceneToDelete(s)}
-                      aria-label="Delete Scene"
-                    >
-                      Delete
-                    </Button>
+                    <MoreMenu>
+                      <MoreMenuItem destructive onClick={() => setSceneToDelete(s)}>
+                        Delete Scene
+                      </MoreMenuItem>
+                    </MoreMenu>
                   </div>
                 </div>
               </div>

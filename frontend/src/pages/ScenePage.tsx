@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { BrainCircuit, Search } from 'lucide-react';
+import { BrainCircuit, Search, ChevronLeft } from 'lucide-react';
 import { scenesApi } from '../services/api/scenes';
 import { Scene, SceneAnalysis, Script, Project, SearchJobResponse } from '../types/api';
 import { Button, Loader, ErrorMessage, Badge } from '../components/ui';
@@ -137,13 +137,13 @@ export const ScenePage = () => {
 
   return (
     <div className="space-y-6 sm:space-y-8 w-full">
-      <div className="mb-2">
-        <Link to={`/projects/${project?.id}/scripts/${script?.id}`} className="shrink-0 w-full sm:w-auto">
-          <Button variant="outline" size="sm" className="w-full sm:w-auto gap-2">
-            Back to Script
-          </Button>
-        </Link>
-      </div>
+      <Link
+        to={`/projects/${project?.id}/scripts/${script?.id}`}
+        className="inline-flex items-center gap-1 text-sm font-medium text-text-muted hover:text-text-main transition-colors mb-1"
+      >
+        <ChevronLeft className="w-4 h-4" />
+        Script
+      </Link>
 
       <div className="border-b border-border-main pb-6 space-y-6">
         <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 md:gap-6">
@@ -163,40 +163,33 @@ export const ScenePage = () => {
             </div>
           </div>
           
-          <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 shrink-0 w-full md:w-auto mt-2 md:mt-0">
+          <div className="shrink-0 mt-2 md:mt-0 flex flex-wrap items-center gap-2">
             <Button 
               onClick={handleAnalyze} 
               isLoading={isAnalyzing}
               disabled={isAnalyzing || isSearching} 
               variant="outline"
-              className="w-full sm:w-auto"
+              size="sm"
+              className="gap-1.5"
             >
-              {!isAnalyzing && <BrainCircuit className="w-4 h-4 mr-2 text-primary-600" />}
+              {!isAnalyzing && <BrainCircuit className="w-3.5 h-3.5 text-primary-600" />}
               {isAnalyzing ? 'Analyzing...' : 'Analyze with Gemini'}
             </Button>
             <Button 
               onClick={handleSearch} 
               isLoading={isSearching}
               disabled={isSearching || isAnalyzing || scene?.status !== 'analyzed'} 
-              className="w-full sm:w-auto"
+              size="sm"
+              className="gap-1.5"
             >
-              {!isSearching && <Search className="w-4 h-4 mr-2" />}
+              {!isSearching && <Search className="w-3.5 h-3.5" />}
               Find Visual Assets
             </Button>
-            <div className="hidden sm:block">
-              <MoreMenu>
-                <MoreMenuItem destructive onClick={() => setIsDeleteDialogOpen(true)}>
-                  Delete Scene
-                </MoreMenuItem>
-              </MoreMenu>
-            </div>
-            <Button 
-              variant="outline" 
-              className="w-full sm:hidden border-red-200 text-red-600 bg-red-50"
-              onClick={() => setIsDeleteDialogOpen(true)}
-            >
-              Delete Scene
-            </Button>
+            <MoreMenu>
+              <MoreMenuItem destructive onClick={() => setIsDeleteDialogOpen(true)}>
+                Delete Scene
+              </MoreMenuItem>
+            </MoreMenu>
           </div>
         </div>
 

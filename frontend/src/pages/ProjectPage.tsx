@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { FileText, Plus } from 'lucide-react';
+import { FileText, Plus, ChevronLeft } from 'lucide-react';
 import { projectsApi } from '../services/api/projects';
 import { scriptsApi } from '../services/api/scripts';
 import { Project, Script } from '../types/api';
@@ -123,13 +123,13 @@ export const ProjectPage = () => {
 
   return (
     <div className="space-y-6 sm:space-y-8 w-full">
-      <div className="mb-2">
-        <Link to="/">
-          <Button variant="outline" size="sm" className="w-full sm:w-auto">
-            Back to Dashboard
-          </Button>
-        </Link>
-      </div>
+      <Link 
+        to="/"
+        className="inline-flex items-center gap-1 text-sm font-medium text-text-muted hover:text-text-main transition-colors mb-1"
+      >
+        <ChevronLeft className="w-4 h-4" />
+        Dashboard
+      </Link>
 
       <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 sm:gap-6 border-b border-border-main pb-6 sm:pb-8">
         <div className="max-w-2xl">
@@ -141,27 +141,16 @@ export const ProjectPage = () => {
             textClassName="text-text-muted mt-1 sm:mt-2 text-base sm:text-lg whitespace-pre-wrap"
           />
         </div>
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mt-2 md:mt-0 w-full md:w-auto">
-          <Button onClick={() => setIsModalOpen(true)} className="shrink-0 w-full sm:w-auto">
-            <Plus className="w-4 h-4 mr-2" /> New Script
+        <div className="shrink-0 mt-2 md:mt-0 flex flex-wrap items-center gap-2">
+          <Button onClick={() => setIsModalOpen(true)} size="sm" className="gap-1.5">
+            <Plus className="w-3.5 h-3.5" /> New Script
           </Button>
           {project && (
-            <>
-              <div className="hidden sm:block">
-                <MoreMenu>
-                  <MoreMenuItem destructive onClick={() => setProjectToDelete(project)}>
-                    Delete Project
-                  </MoreMenuItem>
-                </MoreMenu>
-              </div>
-              <Button 
-                variant="outline" 
-                className="w-full sm:hidden border-red-200 text-red-600 bg-red-50"
-                onClick={() => setProjectToDelete(project)}
-              >
+            <MoreMenu>
+              <MoreMenuItem destructive onClick={() => setProjectToDelete(project)}>
                 Delete Project
-              </Button>
-            </>
+              </MoreMenuItem>
+            </MoreMenu>
           )}
         </div>
       </div>
@@ -215,22 +204,11 @@ export const ProjectPage = () => {
                         Open Script
                       </Button>
                     </Link>
-                    <div className="hidden sm:block">
-                      <MoreMenu>
-                        <MoreMenuItem destructive onClick={() => setScriptToDelete(s)}>
-                          Delete Script
-                        </MoreMenuItem>
-                      </MoreMenu>
-                    </div>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      className="sm:hidden border-red-200 text-red-600 bg-red-50 flex-none px-3"
-                      onClick={() => setScriptToDelete(s)}
-                      aria-label="Delete Script"
-                    >
-                      Delete
-                    </Button>
+                    <MoreMenu>
+                      <MoreMenuItem destructive onClick={() => setScriptToDelete(s)}>
+                        Delete Script
+                      </MoreMenuItem>
+                    </MoreMenu>
                   </div>
                 </div>
               </div>

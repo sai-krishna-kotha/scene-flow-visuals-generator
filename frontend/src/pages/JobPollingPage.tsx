@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useJobPolling } from '../hooks/useJobPolling';
 import { Card, Loader, ErrorMessage, Button } from '../components/ui';
-import { CheckCircle2, Clock, PlayCircle, XCircle } from 'lucide-react';
+import { CheckCircle2, Clock, PlayCircle, XCircle, ChevronLeft } from 'lucide-react';
 import { scenesApi } from '../services/api/scenes';
 import { jobsApi } from '../services/api/jobs';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
@@ -62,21 +62,23 @@ export const JobPollingPage = () => {
 
   return (
     <div className="max-w-3xl mx-auto mt-12">
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-extrabold text-text-main tracking-tight">Visual Search</h1>
-          {searchNumber ? (
-            <p className="text-text-muted mt-2 font-medium">Search #{searchNumber}</p>
-          ) : (
-            <p className="text-text-muted mt-2 font-medium">Loading search context...</p>
-          )}
-        </div>
+      <div className="mb-4">
         {job?.scene_id && (
-          <Link to={`/scenes/${job.scene_id}`}>
-            <Button variant="outline" size="sm" className="gap-2">
-              Back to Scene
-            </Button>
+          <Link
+            to={`/scenes/${job.scene_id}`}
+            className="inline-flex items-center gap-1 text-sm font-medium text-text-muted hover:text-text-main transition-colors mb-1"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            Scene
           </Link>
+        )}
+      </div>
+      <div className="mb-8">
+        <h1 className="text-3xl font-extrabold text-text-main tracking-tight">Visual Search</h1>
+        {searchNumber ? (
+          <p className="text-text-muted mt-2 font-medium">Search #{searchNumber}</p>
+        ) : (
+          <p className="text-text-muted mt-2 font-medium">Loading search context...</p>
         )}
       </div>
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Image as ImageIcon, ExternalLink, Info } from 'lucide-react';
+import { Image as ImageIcon, ExternalLink, Info, ChevronLeft } from 'lucide-react';
 import { jobsApi } from '../services/api/jobs';
 import { SemanticSearchResult, SearchJobResponse, Scene, Script, Project } from '../types/api';
 import { Card, Loader, ErrorMessage, Button } from '../components/ui';
@@ -86,13 +86,13 @@ export const JobResultsPage = () => {
 
   return (
     <div className="space-y-6 sm:space-y-8 w-full">
-      <div className="mb-2">
-        <Link to={`/scenes/${scene?.id}`} className="shrink-0 w-full sm:w-auto">
-          <Button variant="outline" size="sm" className="w-full sm:w-auto gap-2">
-            Back to Scene
-          </Button>
-        </Link>
-      </div>
+      <Link
+        to={`/scenes/${scene?.id}`}
+        className="inline-flex items-center gap-1 text-sm font-medium text-text-muted hover:text-text-main transition-colors mb-1"
+      >
+        <ChevronLeft className="w-4 h-4" />
+        Scene
+      </Link>
 
       <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 border-b border-border-main pb-4 sm:pb-6 mb-6 sm:mb-8">
         <div className="w-full md:w-auto overflow-hidden">
