@@ -137,7 +137,7 @@ Deploy the `frontend/` directory to Vercel.
 - **Build Command**: `npm run build`
 - **Output Directory**: `dist`
 - **Required Environment Variables**:
-  - `VITE_API_BASE_URL`: The deployed API URL (e.g., `https://my-api-service.up.railway.app/api/v1`).
+  - `VITE_API_BASE_URL`: The deployed API URL (e.g., `https://my-api-service.up.railway.app`).
 
 
 ## License

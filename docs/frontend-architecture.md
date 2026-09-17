@@ -15,7 +15,7 @@ The Semantic Visual Asset Generator V2 features a lightweight, robust React fron
 
 1. **Strict API Contract Enforcement:** The frontend meticulously mirrors the FastAPI backend's Pydantic schemas. Types (`Project`, `Scene`, `SearchJobResponse`, `RankingFeatures`) precisely match backend structures. We do not invent arbitrary UI states.
 2. **Stateless UI Logic:** Global state libraries (Redux, Zustand) are avoided entirely. We rely on URL-based routing (React Router) for global state and local React state (`useState`, `useEffect`) for isolated component data.
-3. **Robust Asynchronous Polling:** Search requests dispatch background Celery jobs. The UI polls `GET /api/v1/jobs/{job_id}` every 2 seconds via a custom `useJobPolling` hook until a terminal `COMPLETED` or `FAILED` status is reached.
+3. **Robust Asynchronous Polling:** Search requests dispatch background Celery jobs. The UI polls `GET /jobs/{job_id}` every 2 seconds via a custom `useJobPolling` hook until a terminal `COMPLETED` or `FAILED` status is reached.
 4. **Security by Isolation:** Zero provider tokens or AI API keys exist on the frontend. The Vite application only knows the base API URL.
 
 ## Route Map

@@ -7,7 +7,7 @@ FastAPI was chosen to replace Django due to its native support for asynchronous 
 The FastAPI application is instantiated in `app/main.py`. This serves as the root entry point for uvicorn, configuring the app's title, version, and wiring up the primary `api_router`.
 
 ## API Routing
-Routing is modularized under `app/api/router.py`. All API endpoints are prefixed with `/api/v1` to allow seamless versioning. Sub-routers (such as `health.py`) are included into the main `api_router`, keeping `main.py` clean as the application grows.
+Routing is modularized under `app/api/router.py`. All API endpoints are prefixed with `` to allow seamless versioning. Sub-routers (such as `health.py`) are included into the main `api_router`, keeping `main.py` clean as the application grows.
 
 ## Configuration
 We use `pydantic-settings` in `app/config.py`. It securely loads environment variables (like `DATABASE_URL`) with type validation. An example configuration is stored in `.env.example`.

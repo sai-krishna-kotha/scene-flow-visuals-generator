@@ -79,7 +79,7 @@ def test_segment_script_api_success(client, test_script, mock_segmenter, db_sess
     )
     mock_segmenter.segment_script.return_value = mock_segmentation
 
-    response = client.post(f"/api/v1/scripts/{test_script.id}/segment")
+    response = client.post(f"/scripts/{test_script.id}/segment")
     
     assert response.status_code == 201
     data = response.json()
@@ -98,7 +98,7 @@ def test_segment_script_already_exists(client, test_script, mock_segmenter, db_s
     db_session.add(scene)
     db_session.commit()
     
-    response = client.post(f"/api/v1/scripts/{test_script.id}/segment")
+    response = client.post(f"/scripts/{test_script.id}/segment")
     
     assert response.status_code == 409
     assert "Scenes already exist" in response.json()["detail"]
@@ -109,14 +109,14 @@ def test_segment_script_empty_text(client, test_project, db_session, mock_segmen
     db_session.add(empty_script)
     db_session.commit()
     
-    response = client.post(f"/api/v1/scripts/{empty_script.id}/segment")
+    response = client.post(f"/scripts/{empty_script.id}/segment")
     
     assert response.status_code == 422
     assert "no content" in response.json()["detail"]
 
 def test_segment_script_not_found(client, mock_segmenter):
     fake_id = uuid.uuid4()
-    response = client.post(f"/api/v1/scripts/{fake_id}/segment")
+    response = client.post(f"/scripts/{fake_id}/segment")
     
     assert response.status_code == 404
 
@@ -124,7 +124,7 @@ def test_segment_script_gemini_error(client, test_script, mock_segmenter):
     from app.core.exceptions import GeminiError
     mock_segmenter.segment_script.side_effect = GeminiError("Gemini is down")
     
-    response = client.post(f"/api/v1/scripts/{test_script.id}/segment")
+    response = client.post(f"/scripts/{test_script.id}/segment")
     
     assert response.status_code == 502
     assert "Gemini is down" in response.json()["detail"]

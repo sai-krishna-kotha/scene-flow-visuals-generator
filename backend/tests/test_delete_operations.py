@@ -83,7 +83,7 @@ def test_delete_project_cascades(client: TestClient, db_session, test_project, t
     assert db_session.query(Scene).filter_by(id=scene_id).first() is not None
     assert db_session.query(SearchJob).filter_by(id=job_id).first() is not None
 
-    response = client.delete(f"/api/v1/projects/{proj_id}")
+    response = client.delete(f"/projects/{proj_id}")
     assert response.status_code == 204
 
     # Verify cascades
@@ -98,7 +98,7 @@ def test_delete_script_cascades(client: TestClient, db_session, test_project, te
     scene_id = test_scene.id
     job_id = test_job.id
 
-    response = client.delete(f"/api/v1/scripts/{script_id}")
+    response = client.delete(f"/scripts/{script_id}")
     assert response.status_code == 204
 
     # Verify cascades
@@ -113,7 +113,7 @@ def test_delete_scene_cascades(client: TestClient, db_session, test_project, tes
     scene_id = test_scene.id
     job_id = test_job.id
 
-    response = client.delete(f"/api/v1/scenes/{scene_id}")
+    response = client.delete(f"/scenes/{scene_id}")
     assert response.status_code == 204
 
     # Verify cascades
@@ -124,11 +124,11 @@ def test_delete_scene_cascades(client: TestClient, db_session, test_project, tes
 
 def test_delete_missing_returns_404(client: TestClient):
     fake_id = str(uuid.uuid4())
-    res1 = client.delete(f"/api/v1/projects/{fake_id}")
+    res1 = client.delete(f"/projects/{fake_id}")
     assert res1.status_code == 404
     
-    res2 = client.delete(f"/api/v1/scripts/{fake_id}")
+    res2 = client.delete(f"/scripts/{fake_id}")
     assert res2.status_code == 404
     
-    res3 = client.delete(f"/api/v1/scenes/{fake_id}")
+    res3 = client.delete(f"/scenes/{fake_id}")
     assert res3.status_code == 404

@@ -9,7 +9,7 @@ def test_read_root():
     assert response.json() == {"message": "Welcome to the Semantic Visual Asset Generator API V2"}
 
 def test_health_check():
-    response = client.get("/api/v1/health")
+    response = client.get("/health")
     assert response.status_code == 200
     data = response.json()
     assert data["status"] == "ok"

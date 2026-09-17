@@ -6,9 +6,6 @@ from app.config import settings
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.PROJECT_VERSION,
-    openapi_url=f"{settings.API_PREFIX}/openapi.json",
-    docs_url=f"{settings.API_PREFIX}/docs",
-    redoc_url=f"{settings.API_PREFIX}/redoc",
 )
 
 if settings.CORS_ORIGINS:
@@ -32,12 +29,12 @@ async def not_found_error_handler(request: Request, exc: NotFoundError):
         content={"detail": exc.message},
     )
 
-app.include_router(api_router, prefix=settings.API_PREFIX)
+app.include_router(api_router)
 
 @app.get("/")
 def read_root():
-    return {"message": "Welcome to the Semantic Visual Asset Generator API V2"}
+    return {"message": "Welcome to the Semantic Visual Asset Generator API"}
 
-@app.get("/health")
-def health_check():
-    return {"status": "ok", "service": "sceneflow-api"}
+# @app.get("/health")
+# def health_check():
+#     return {"status": "ok", "service": "sceneflow-api"}

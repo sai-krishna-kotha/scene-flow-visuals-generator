@@ -6,14 +6,14 @@ class Settings(BaseSettings):
     # Minimum required variables
     DATABASE_URL: str = Field(default="postgresql+psycopg2://postgres:postgres@localhost:5432/semantic_assets")
     ENVIRONMENT: str = Field(default="development")
-    API_PREFIX: str = Field(default="/api/v1")
+    API_PREFIX: str = Field(default="")
 
     # CORS
     CORS_ORIGINS: str = Field(default="http://localhost:5173")
 
     # FastAPI configs
     PROJECT_NAME: str = "Semantic Visual Asset Generator API"
-    PROJECT_VERSION: str = "2.0.0"
+    PROJECT_VERSION: str = "1.2.0"
 
     # Authentication / Identity
     # Temporary fallback user for development (00000000-0000-0000-0000-000000000000)
