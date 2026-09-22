@@ -26,13 +26,13 @@ def set_refresh_cookie(response: Response, token: str):
         secure=settings.COOKIE_SECURE,
         samesite=settings.COOKIE_SAMESITE,
         max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
-        path="/api/v1/auth"
+        path="/auth"
     )
 
 def clear_refresh_cookie(response: Response):
     response.delete_cookie(
         key="refresh_token",
-        path="/api/v1/auth"
+        path="/auth"
     )
 
 @router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
@@ -120,7 +120,12 @@ def refresh(request: Request, response: Response, db: Session = Depends(get_db))
     if not db_token:
         raise HTTPException(status_code=401, detail="Invalid refresh token")
         
-    if db_token.revoked_at is not None or db_token.expires_at < datetime.now(timezone.utc):
+    # Ensure tzinfo is set for SQLite naive datetimes before comparing
+    expires_at_aware = db_token.expires_at
+    if expires_at_aware.tzinfo is None:
+        expires_at_aware = expires_at_aware.replace(tzinfo=timezone.utc)
+        
+    if db_token.revoked_at is not None or expires_at_aware < datetime.now(timezone.utc):
         # Already revoked or expired
         raise HTTPException(status_code=401, detail="Refresh token expired or revoked")
         
