@@ -35,11 +35,33 @@ def override_get_db():
     finally:
         db.close()
 
+from app.api.deps import get_current_user
+from app.models.user import User
+import datetime
+import uuid
+
+TEST_USER_ID = uuid.uuid4()
+
+def override_get_current_user():
+    return TEST_USER_ID
+
 fastapi_app.dependency_overrides[get_db] = override_get_db
+fastapi_app.dependency_overrides[get_current_user] = override_get_current_user
 
 @pytest.fixture(autouse=True)
 def setup_db():
     Base.metadata.create_all(bind=engine)
+    db = TestingSessionLocal()
+    user = User(
+        id=TEST_USER_ID,
+        email="test@example.com",
+        hashed_password="hash",
+        role="user",
+        is_active=True
+    )
+    db.add(user)
+    db.commit()
+    db.close()
     yield
     Base.metadata.drop_all(bind=engine)
 

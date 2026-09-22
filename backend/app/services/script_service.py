@@ -16,34 +16,36 @@ class ScriptService:
         self.project_repository = project_repository
         self.scene_repository = scene_repository
 
-    def create_script(self, script_in: ScriptCreate, project_id: uuid.UUID) -> Script:
-        if not self.project_repository.get_by_id(project_id):
+    def create_script(self, script_in: ScriptCreate, project_id: uuid.UUID, user_id: uuid.UUID) -> Script:
+        project = self.project_repository.get_by_id(project_id)
+        if not project or project.user_id != user_id:
             raise ProjectNotFoundError()
         return self.repository.create(script_in, project_id=project_id)
 
-    def get_script(self, script_id: uuid.UUID) -> Script:
+    def get_script(self, script_id: uuid.UUID, user_id: uuid.UUID) -> Script:
         script = self.repository.get_by_id(script_id)
-        if not script:
+        if not script or script.project.user_id != user_id:
             raise ScriptNotFoundError()
         return script
 
-    def list_scripts(self, project_id: uuid.UUID, page: int = 1, page_size: int = 20):
-        if not self.project_repository.get_by_id(project_id):
+    def list_scripts(self, project_id: uuid.UUID, user_id: uuid.UUID, page: int = 1, page_size: int = 20):
+        project = self.project_repository.get_by_id(project_id)
+        if not project or project.user_id != user_id:
             raise ProjectNotFoundError()
         items, total = self.repository.list_by_project(project_id=project_id, page=page, page_size=page_size)
         from app.api.pagination import paginate_query
         return paginate_query(page, page_size, total, items)
 
-    def update_script(self, script_id: uuid.UUID, script_in: ScriptUpdate) -> Script:
-        script = self.get_script(script_id)
+    def update_script(self, script_id: uuid.UUID, script_in: ScriptUpdate, user_id: uuid.UUID) -> Script:
+        script = self.get_script(script_id, user_id)
         return self.repository.update(script, script_in)
 
-    def delete_script(self, script_id: uuid.UUID) -> None:
-        script = self.get_script(script_id)
+    def delete_script(self, script_id: uuid.UUID, user_id: uuid.UUID) -> None:
+        script = self.get_script(script_id, user_id)
         self.repository.delete(script)
 
-    def segment_and_create_scenes(self, script_id: uuid.UUID) -> list[Scene]:
-        script = self.get_script(script_id)
+    def segment_and_create_scenes(self, script_id: uuid.UUID, user_id: uuid.UUID) -> list[Scene]:
+        script = self.get_script(script_id, user_id)
         
         if not script.full_text or not script.full_text.strip():
             raise EmptyScriptError("Script has no content to segment.")

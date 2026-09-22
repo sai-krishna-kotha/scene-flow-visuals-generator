@@ -10,6 +10,14 @@ class Settings(BaseSettings):
 
     # CORS
     CORS_ORIGINS: str = Field(default="http://localhost:5173")
+    
+    # JWT and Auth
+    JWT_SECRET_KEY: str = Field(default="supersecretkey-change-in-production")
+    JWT_ALGORITHM: str = Field(default="HS256")
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(default=15)
+    REFRESH_TOKEN_EXPIRE_DAYS: int = Field(default=14)
+    COOKIE_SECURE: bool = Field(default=False)
+    COOKIE_SAMESITE: str = Field(default="lax")
 
     # FastAPI configs
     PROJECT_NAME: str = "Semantic Visual Asset Generator API"

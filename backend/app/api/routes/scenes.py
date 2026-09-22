@@ -23,24 +23,24 @@ def get_search_service(db: Session = Depends(get_db)) -> SearchService:
     return SearchService(db)
 
 @router.post("/scripts/{script_id}/scenes", response_model=SceneResponse, status_code=status.HTTP_201_CREATED)
-def create_scene(script_id: uuid.UUID, scene_in: SceneCreate, service: SceneService = Depends(get_scene_service)):
-    return service.create_scene(scene_in, script_id=script_id)
+def create_scene(script_id: uuid.UUID, scene_in: SceneCreate, service: SceneService = Depends(get_scene_service), user_id: uuid.UUID = Depends(get_current_user)):
+    return service.create_scene(scene_in, script_id=script_id, user_id=user_id)
 
 @router.get("/scripts/{script_id}/scenes", response_model=PaginatedResponse[SceneResponse])
-def list_scenes(script_id: uuid.UUID, page: int = 1, page_size: int = 20, service: SceneService = Depends(get_scene_service)):
-    return service.list_scenes(script_id=script_id, page=page, page_size=page_size)
+def list_scenes(script_id: uuid.UUID, page: int = 1, page_size: int = 20, service: SceneService = Depends(get_scene_service), user_id: uuid.UUID = Depends(get_current_user)):
+    return service.list_scenes(script_id=script_id, user_id=user_id, page=page, page_size=page_size)
 
 @router.get("/scenes/{scene_id}", response_model=SceneResponse)
-def get_scene(scene_id: uuid.UUID, service: SceneService = Depends(get_scene_service)):
-    return service.get_scene(scene_id)
+def get_scene(scene_id: uuid.UUID, service: SceneService = Depends(get_scene_service), user_id: uuid.UUID = Depends(get_current_user)):
+    return service.get_scene(scene_id, user_id)
 
 @router.patch("/scenes/{scene_id}", response_model=SceneResponse)
-def update_scene(scene_id: uuid.UUID, scene_in: SceneUpdate, service: SceneService = Depends(get_scene_service)):
-    return service.update_scene(scene_id, scene_in)
+def update_scene(scene_id: uuid.UUID, scene_in: SceneUpdate, service: SceneService = Depends(get_scene_service), user_id: uuid.UUID = Depends(get_current_user)):
+    return service.update_scene(scene_id, scene_in, user_id)
 
 @router.delete("/scenes/{scene_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_scene(scene_id: uuid.UUID, service: SceneService = Depends(get_scene_service)):
-    service.delete_scene(scene_id)
+def delete_scene(scene_id: uuid.UUID, service: SceneService = Depends(get_scene_service), user_id: uuid.UUID = Depends(get_current_user)):
+    service.delete_scene(scene_id, user_id)
 
 from app.worker.tasks import process_search_job
 from app.models.search_job import SearchJob, JobStatus

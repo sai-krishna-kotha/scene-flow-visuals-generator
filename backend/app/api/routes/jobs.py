@@ -8,16 +8,21 @@ from app.schemas.search_job import SearchJobResponse
 from app.schemas.semantic_search import SemanticSearchResponse, SemanticSearchRequest
 from app.models.asset import Asset
 
+from app.api.deps import get_current_user
+
 router = APIRouter()
 
 @router.get("/{job_id}", response_model=SearchJobResponse)
 def get_job_status(
     job_id: uuid.UUID,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    user_id: uuid.UUID = Depends(get_current_user)
 ):
     job = db.query(SearchJob).filter(SearchJob.id == job_id).first()
     if not job:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Search job not found")
+    if job.scene.script.project.user_id != user_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to access this job")
         
     return SearchJobResponse(
         job_id=job.id,
@@ -33,12 +38,15 @@ def get_job_results(
     job_id: uuid.UUID,
     page: int = 1,
     page_size: int = 20,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    user_id: uuid.UUID = Depends(get_current_user)
 ):
     from sqlalchemy import func
     job = db.query(SearchJob).filter(SearchJob.id == job_id).first()
     if not job:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Search job not found")
+    if job.scene.script.project.user_id != user_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to access this job")
         
     if job.status == JobStatus.PENDING or job.status == JobStatus.RUNNING:
         # According to standard APIs, maybe 409 or just empty results with status text

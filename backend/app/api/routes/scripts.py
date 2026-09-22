@@ -11,6 +11,7 @@ from app.repositories.project_repository import ProjectRepository
 from app.repositories.scene_repository import SceneRepository
 from app.services.script_service import ScriptService
 from app.core.exceptions import ScenesAlreadyExistError, GeminiError, SegmentationError, EmptyScriptError
+from app.api.deps import get_current_user
 
 router = APIRouter()
 
@@ -21,29 +22,29 @@ def get_script_service(db: Session = Depends(get_db)) -> ScriptService:
     return ScriptService(repo, project_repo, scene_repo)
 
 @router.post("/projects/{project_id}/scripts", response_model=ScriptResponse, status_code=status.HTTP_201_CREATED)
-def create_script(project_id: uuid.UUID, script_in: ScriptCreate, service: ScriptService = Depends(get_script_service)):
-    return service.create_script(script_in, project_id=project_id)
+def create_script(project_id: uuid.UUID, script_in: ScriptCreate, service: ScriptService = Depends(get_script_service), user_id: uuid.UUID = Depends(get_current_user)):
+    return service.create_script(script_in, project_id=project_id, user_id=user_id)
 
 @router.get("/projects/{project_id}/scripts", response_model=PaginatedResponse[ScriptResponse])
-def list_scripts(project_id: uuid.UUID, page: int = 1, page_size: int = 20, service: ScriptService = Depends(get_script_service)):
-    return service.list_scripts(project_id=project_id, page=page, page_size=page_size)
+def list_scripts(project_id: uuid.UUID, page: int = 1, page_size: int = 20, service: ScriptService = Depends(get_script_service), user_id: uuid.UUID = Depends(get_current_user)):
+    return service.list_scripts(project_id=project_id, user_id=user_id, page=page, page_size=page_size)
 
 @router.get("/scripts/{script_id}", response_model=ScriptResponse)
-def get_script(script_id: uuid.UUID, service: ScriptService = Depends(get_script_service)):
-    return service.get_script(script_id)
+def get_script(script_id: uuid.UUID, service: ScriptService = Depends(get_script_service), user_id: uuid.UUID = Depends(get_current_user)):
+    return service.get_script(script_id, user_id)
 
 @router.patch("/scripts/{script_id}", response_model=ScriptResponse)
-def update_script(script_id: uuid.UUID, script_in: ScriptUpdate, service: ScriptService = Depends(get_script_service)):
-    return service.update_script(script_id, script_in)
+def update_script(script_id: uuid.UUID, script_in: ScriptUpdate, service: ScriptService = Depends(get_script_service), user_id: uuid.UUID = Depends(get_current_user)):
+    return service.update_script(script_id, script_in, user_id)
 
 @router.delete("/scripts/{script_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_script(script_id: uuid.UUID, service: ScriptService = Depends(get_script_service)):
-    service.delete_script(script_id)
+def delete_script(script_id: uuid.UUID, service: ScriptService = Depends(get_script_service), user_id: uuid.UUID = Depends(get_current_user)):
+    service.delete_script(script_id, user_id)
 
 @router.post("/scripts/{script_id}/segment", response_model=list[SceneResponse], status_code=status.HTTP_201_CREATED)
-def segment_script(script_id: uuid.UUID, service: ScriptService = Depends(get_script_service)):
+def segment_script(script_id: uuid.UUID, service: ScriptService = Depends(get_script_service), user_id: uuid.UUID = Depends(get_current_user)):
     try:
-        return service.segment_and_create_scenes(script_id)
+        return service.segment_and_create_scenes(script_id, user_id)
     except EmptyScriptError as e:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(e))
     except ScenesAlreadyExistError as e:

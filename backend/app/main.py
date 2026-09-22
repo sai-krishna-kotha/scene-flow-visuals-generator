@@ -12,7 +12,7 @@ if settings.CORS_ORIGINS:
     origins = [origin.strip() for origin in settings.CORS_ORIGINS.split(",") if origin.strip()]
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=origins,
+        allow_origins=[origin.strip() for origin in settings.CORS_ORIGINS.split(",")],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
@@ -30,6 +30,10 @@ async def not_found_error_handler(request: Request, exc: NotFoundError):
     )
 
 app.include_router(api_router)
+
+from app.api.routes import projects, scripts, scenes, ai, search, jobs, health, auth
+app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
+app.include_router(health.router, prefix="/api/v1", tags=["health"])
 
 @app.get("/")
 def read_root():

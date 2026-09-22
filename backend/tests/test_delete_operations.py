@@ -9,6 +9,11 @@ from app.db.base import Base
 from app.main import app as fastapi_app
 from app.db.session import get_db
 
+TEST_USER_ID = uuid.uuid4()
+
+def override_get_current_user():
+    return TEST_USER_ID
+
 @pytest.fixture(scope="module")
 def module_engine():
     engine = create_engine(
@@ -19,6 +24,22 @@ def module_engine():
     Base.metadata.create_all(bind=engine)
     yield engine
     Base.metadata.drop_all(bind=engine)
+
+@pytest.fixture(autouse=True)
+def setup_db(module_engine):
+    TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=module_engine)
+    db = TestingSessionLocal()
+    user = User(
+        id=TEST_USER_ID,
+        email="test@example.com",
+        hashed_password="hash",
+        role="user",
+        is_active=True
+    )
+    db.add(user)
+    db.commit()
+    db.close()
+    yield
 
 @pytest.fixture
 def db_session(module_engine):

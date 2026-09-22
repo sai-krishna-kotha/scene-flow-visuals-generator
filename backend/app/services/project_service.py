@@ -12,9 +12,9 @@ class ProjectService:
     def create_project(self, project_in: ProjectCreate, user_id: uuid.UUID) -> Project:
         return self.repository.create(project_in, user_id=user_id)
 
-    def get_project(self, project_id: uuid.UUID) -> Project:
+    def get_project(self, project_id: uuid.UUID, user_id: uuid.UUID) -> Project:
         project = self.repository.get_by_id(project_id)
-        if not project:
+        if not project or project.user_id != user_id:
             raise ProjectNotFoundError()
         return project
 
@@ -23,10 +23,10 @@ class ProjectService:
         from app.api.pagination import paginate_query
         return paginate_query(page, page_size, total, items)
 
-    def update_project(self, project_id: uuid.UUID, project_in: ProjectUpdate) -> Project:
-        project = self.get_project(project_id)
+    def update_project(self, project_id: uuid.UUID, project_in: ProjectUpdate, user_id: uuid.UUID) -> Project:
+        project = self.get_project(project_id, user_id)
         return self.repository.update(project, project_in)
 
-    def delete_project(self, project_id: uuid.UUID) -> None:
-        project = self.get_project(project_id)
+    def delete_project(self, project_id: uuid.UUID, user_id: uuid.UUID) -> None:
+        project = self.get_project(project_id, user_id)
         self.repository.delete(project)
