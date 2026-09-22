@@ -42,7 +42,9 @@ def setup_db():
 
 @pytest.fixture
 def client():
-    return TestClient(fastapi_app)
+    fastapi_app.dependency_overrides[get_db] = override_get_db
+    with TestClient(fastapi_app) as c:
+        yield c
 
 @pytest.fixture
 def db():
