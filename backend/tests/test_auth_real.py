@@ -42,13 +42,14 @@ def client():
         finally:
             db.close()
 
+    fastapi_app.dependency_overrides.clear()
     fastapi_app.dependency_overrides[get_db] = override_get_db
     # NO overrides for get_current_user! We want to test real auth.
     
     with TestClient(fastapi_app) as c:
         yield c
 
-    fastapi_app.dependency_overrides.pop(get_db, None)
+    fastapi_app.dependency_overrides.clear()
 
 def test_auth_register_and_login(client, db_session):
     email = "realuser@example.com"

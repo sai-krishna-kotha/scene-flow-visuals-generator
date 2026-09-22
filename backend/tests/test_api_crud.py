@@ -45,9 +45,6 @@ TEST_USER_ID = uuid.uuid4()
 def override_get_current_user():
     return TEST_USER_ID
 
-fastapi_app.dependency_overrides[get_db] = override_get_db
-fastapi_app.dependency_overrides[get_current_user] = override_get_current_user
-
 @pytest.fixture(autouse=True)
 def setup_db():
     Base.metadata.create_all(bind=engine)
@@ -62,7 +59,11 @@ def setup_db():
     db.add(user)
     db.commit()
     db.close()
+    
+    fastapi_app.dependency_overrides[get_db] = override_get_db
+    fastapi_app.dependency_overrides[get_current_user] = override_get_current_user
     yield
+    fastapi_app.dependency_overrides.clear()
     Base.metadata.drop_all(bind=engine)
 
 def test_project_crud():
