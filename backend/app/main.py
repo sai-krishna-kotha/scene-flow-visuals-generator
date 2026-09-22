@@ -2,10 +2,19 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.router import api_router
 from app.config import settings
+from contextlib import asynccontextmanager
+from app.db.session import engine
+from app.db.base import Base
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    Base.metadata.create_all(bind=engine)
+    yield
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.PROJECT_VERSION,
+    lifespan=lifespan,
 )
 
 if settings.CORS_ORIGINS:
