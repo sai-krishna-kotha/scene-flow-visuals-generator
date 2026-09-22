@@ -8,6 +8,7 @@ from app.repositories.scene_repository import SceneRepository
 from app.repositories.script_repository import ScriptRepository
 from app.services.scene_service import SceneService
 from app.services.ai.gemini_service import GeminiSceneAnalyzer
+from app.api.deps import get_current_user
 
 router = APIRouter()
 
@@ -23,13 +24,14 @@ def get_gemini_service() -> GeminiSceneAnalyzer:
 def analyze_scene(
     scene_id: uuid.UUID, 
     scene_service: SceneService = Depends(get_scene_service),
-    gemini_service: GeminiSceneAnalyzer = Depends(get_gemini_service)
+    gemini_service: GeminiSceneAnalyzer = Depends(get_gemini_service),
+    user_id: uuid.UUID = Depends(get_current_user)
 ):
-    scene = scene_service.get_scene(scene_id)
+    scene = scene_service.get_scene(scene_id, user_id)
     analysis = gemini_service.analyze_scene(scene.sentence_text)
     
     # Persist the analysis
-    scene_service.update_scene_analysis(scene_id, analysis)
+    scene_service.update_scene_analysis(scene_id, analysis, user_id)
     
     return SceneAnalysisResponse(
         scene_id=str(scene_id),

@@ -43,13 +43,22 @@ def client(module_engine):
             db.close()
     
     fastapi_app.dependency_overrides[get_db] = override_get_db
+    from app.api.deps import get_current_user
+    fastapi_app.dependency_overrides[get_current_user] = lambda: TEST_USER_ID
     with TestClient(fastapi_app) as c:
         yield c
     fastapi_app.dependency_overrides.pop(get_db, None)
+    fastapi_app.dependency_overrides.pop(get_current_user, None)
+
+TEST_USER_ID = uuid.uuid4()
 
 @pytest.fixture
 def test_project(db_session):
-    project = Project(user_id=uuid.uuid4(), name="Segmentation Test", description="")
+    from app.models.user import User
+    user = User(id=TEST_USER_ID, email="test@example.com", hashed_password="hash", role="user", is_active=True)
+    db_session.merge(user)
+    db_session.commit()
+    project = Project(user_id=TEST_USER_ID, name="Segmentation Test", description="")
     db_session.add(project)
     db_session.commit()
     db_session.refresh(project)
