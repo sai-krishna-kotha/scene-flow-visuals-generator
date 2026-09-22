@@ -109,7 +109,9 @@ def process_search_job(self, search_job_id_str: str):
             db.close()
 
         # 5. Qdrant Indexing (No DB session held)
+        logger.info(f"Instantiating VectorIndexingService for job {search_job_id}...")
         indexing_service = VectorIndexingService()
+        logger.info("Instantiated VectorIndexingService. Now indexing assets...")
         try:
             indexing_service.index_assets(db_assets)
         except Exception as e:
@@ -134,7 +136,9 @@ def process_search_job(self, search_job_id_str: str):
             for q in queries:
                 pass
                 
+            logger.info("Instantiating VectorIndexingService to get vector_store...")
             vector_store = VectorIndexingService().vector_store
+            logger.info("Got vector_store.")
             
             # Fetch vectors from Qdrant
             asset_ids_str = [str(a.id) for a in session_assets]
@@ -213,7 +217,14 @@ def process_search_job(self, search_job_id_str: str):
             job = db.query(SearchJob).filter(SearchJob.id == search_job_id).first()
             if job:
                 job.status = JobStatus.FAILED
-                job.error_message = str(e)[:255] # Safe bounded application error
+                
+                # Do not expose raw infrastructure errors like [WinError 10054] to the frontend
+                error_str = str(e)
+                if "WinError" in error_str or "connection" in error_str.lower():
+                    job.error_message = "A connection interruption occurred while processing the search job. Please try again later."
+                else:
+                    job.error_message = "An unexpected error occurred while processing the search job."
+                
                 db.commit()
         except Exception as inner_e:
             db.rollback()
