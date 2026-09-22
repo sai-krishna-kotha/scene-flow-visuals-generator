@@ -32,8 +32,8 @@ async def not_found_error_handler(request: Request, exc: NotFoundError):
 app.include_router(api_router)
 
 from app.api.routes import projects, scripts, scenes, ai, search, jobs, health, auth
-app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
-app.include_router(health.router, prefix="/api/v1", tags=["health"])
+app.include_router(auth.router, prefix="/auth", tags=["auth"])
+app.include_router(health.router, tags=["health"])
 
 @app.get("/")
 def read_root():

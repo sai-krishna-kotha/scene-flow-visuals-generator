@@ -93,7 +93,7 @@ uvicorn app.main:app --reload
 ### Terminal 2: Celery Worker
 ```bash
 cd backend
-celery -A app.worker.celery_app worker --loglevel=info
+celery -A app.worker.celery_app worker --loglevel=info --pool=solo
 ```
 
 ### Terminal 3: React Frontend

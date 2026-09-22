@@ -131,7 +131,7 @@ def test_authorization_isolation_jobs(client: TestClient, db: Session):
     db.commit()
     db.refresh(proj)
     
-    script = Script(title="U1 Script", project_id=proj.id)
+    script = Script(title="U1 Script", project_id=proj.id, full_text="U1 script full text")
     db.add(script)
     db.commit()
     db.refresh(script)
