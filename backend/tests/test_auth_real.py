@@ -131,3 +131,46 @@ def test_inactive_user_login(client, db_session):
     login_response = client.post("/auth/login", json={"email": email, "password": password})
     assert login_response.status_code == 403
     assert "Account is inactive" in login_response.json()["detail"]
+
+def test_security_hash_and_verify():
+    from app.core.security import get_password_hash, verify_password
+    password = "12345678"
+    hashed = get_password_hash(password)
+    assert verify_password(password, hashed)
+    assert not verify_password("wrong-password", hashed)
+
+def test_wrong_password_login(client):
+    email = "wrongpwd@example.com"
+    password = "correctpassword"
+    client.post("/auth/register", json={"email": email, "password": password})
+    
+    login_response = client.post("/auth/login", json={"email": email, "password": "incorrectpassword"})
+    assert login_response.status_code == 401
+
+def test_overlong_password_validation(client):
+    overlong_password = "a" * 80
+    reg_res = client.post("/auth/register", json={"email": "overlong@example.com", "password": overlong_password})
+    assert reg_res.status_code == 422
+
+    login_res = client.post("/auth/login", json={"email": "overlong@example.com", "password": overlong_password})
+    assert login_res.status_code == 422
+
+def test_existing_user_hash_verification(client, db_session):
+    from app.core.security import get_password_hash
+    email = "kotha.saikrishna07@gmail.com"
+    raw_password = "12345678"
+    hashed = get_password_hash(raw_password)
+
+    user = User(
+        email=email,
+        hashed_password=hashed,
+        role="user",
+        is_active=True
+    )
+    db_session.add(user)
+    db_session.commit()
+
+    login_res = client.post("/auth/login", json={"email": email, "password": raw_password})
+    assert login_res.status_code == 200
+    assert "access_token" in login_res.json()
+
