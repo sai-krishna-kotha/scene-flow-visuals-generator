@@ -34,7 +34,7 @@ export const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen w-full items-center justify-center bg-surface-muted bg-gradient-to-br from-surface-muted to-surface-active p-4">
+    <div className="flex h-screen w-full items-center justify-center bg-surface-muted bg-linear-to-br from-surface-muted to-surface-active p-4">
       <div className="w-full max-w-md overflow-hidden rounded-2xl border border-surface-active bg-surface shadow-2xl transition-all duration-300 hover:shadow-accent/10">
         <div className="p-8">
           <div className="mb-8 text-center">

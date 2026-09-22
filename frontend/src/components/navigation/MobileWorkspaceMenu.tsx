@@ -118,7 +118,7 @@ export const MobileWorkspaceMenu = () => {
             <span className="flex items-center gap-2">
               <span className="text-xs font-bold text-text-muted uppercase tracking-wider">Project</span>
               {currentProject && (
-                <span className="text-text-secondary font-medium truncate max-w-[140px]">
+                <span className="text-text-secondary font-medium truncate max-w-35">
                   — {currentProject.name}
                 </span>
               )}
@@ -167,7 +167,7 @@ export const MobileWorkspaceMenu = () => {
               <span className="flex items-center gap-2">
                 <span className="text-xs font-bold text-text-muted uppercase tracking-wider">Script</span>
                 {currentScript && (
-                  <span className="text-text-secondary font-medium truncate max-w-[140px]">
+                  <span className="text-text-secondary font-medium truncate max-w-35">
                     — {currentScript.title}
                   </span>
                 )}
