@@ -5,6 +5,8 @@ import { ScriptSwitcher } from './ScriptSwitcher';
 import { MobileWorkspaceMenu } from './MobileWorkspaceMenu';
 import { useWorkspace } from '../../contexts/WorkspaceContext';
 import { ThemeToggle } from '../ui/ThemeToggle';
+import { useAuth } from '../../contexts/AuthContext';
+import { User, LogIn } from 'lucide-react';
 
 const Logo = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary-600 mr-2">
@@ -22,6 +24,7 @@ const Logo = () => (
 
 export const WorkspaceNav = () => {
   const { currentProject, currentScript } = useWorkspace();
+  const { user, isAuthenticated } = useAuth();
   const location = useLocation();
   const isDashboard = location.pathname === '/';
 
@@ -59,6 +62,25 @@ export const WorkspaceNav = () => {
         </Link>
         <div className="w-px h-5 bg-border-main mx-3"></div>
         <ThemeToggle />
+        <div className="w-px h-5 bg-border-main mx-3"></div>
+        {isAuthenticated && user ? (
+          <Link
+            to="/account"
+            className="flex items-center gap-2 text-sm font-medium text-text-secondary transition-colors hover:text-text-main"
+          >
+            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-accent/10 text-accent">
+              <User className="h-4 w-4" />
+            </div>
+          </Link>
+        ) : (
+          <Link
+            to="/login"
+            className="flex items-center gap-2 rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-accent-hover"
+          >
+            <LogIn className="h-4 w-4" />
+            Login
+          </Link>
+        )}
       </div>
 
       {/* Mobile Workspace Menu */}
