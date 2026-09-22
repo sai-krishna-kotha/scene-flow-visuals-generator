@@ -67,7 +67,7 @@ def register(user_in: UserCreate, response: Response, db: Session = Depends(get_
     
     set_refresh_cookie(response, raw_refresh_token)
     
-    access_token = create_access_token(data={"sub": str(user.id), "role": user.role})
+    access_token = create_access_token(data={"sub": str(user.id), "role": user.role or "user"})
     
     return TokenResponse(
         access_token=access_token,
@@ -100,7 +100,7 @@ def login(user_in: UserLogin, response: Response, db: Session = Depends(get_db))
     
     set_refresh_cookie(response, raw_refresh_token)
     
-    access_token = create_access_token(data={"sub": str(user.id), "role": user.role})
+    access_token = create_access_token(data={"sub": str(user.id), "role": user.role or "user"})
     
     return TokenResponse(
         access_token=access_token,
@@ -151,7 +151,7 @@ def refresh(request: Request, response: Response, db: Session = Depends(get_db))
     
     set_refresh_cookie(response, raw_refresh_token)
     
-    access_token = create_access_token(data={"sub": str(user.id), "role": user.role})
+    access_token = create_access_token(data={"sub": str(user.id), "role": user.role or "user"})
     
     return TokenResponse(
         access_token=access_token,

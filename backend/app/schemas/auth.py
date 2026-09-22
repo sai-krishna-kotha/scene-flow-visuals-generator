@@ -13,8 +13,8 @@ class UserLogin(BaseModel):
 class UserResponse(BaseModel):
     id: uuid.UUID
     email: str
-    role: str
-    is_active: bool
+    role: str = "user"
+    is_active: bool = True
     created_at: datetime
     last_login_at: datetime | None = None
     
