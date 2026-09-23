@@ -13,6 +13,11 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// React StrictMode intentionally mounts effects twice in development.
+// Deduplicate the one-time session bootstrap so both mounts share the same
+// refresh request instead of rotating the same refresh token concurrently.
+let authInitializationPromise: Promise<AuthResponse> | null = null;
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -23,12 +28,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     const initAuth = async () => {
       try {
-        // me() doesn't need token explicitly because if token is empty, the interceptor will try to refresh it using the cookie
-        const userData = await authApi.me();
-        if (isMounted) setUser(userData);
+        // The access token intentionally lives only in memory. On a fresh page
+        // load there is no access token yet, so rehydrate the session directly
+        // from the HttpOnly refresh cookie instead of making an expected 401
+        // request to /auth/me first.
+        if (!authInitializationPromise) {
+          authInitializationPromise = authApi.refresh().finally(() => {
+            authInitializationPromise = null;
+          });
+        }
+
+        const data = await authInitializationPromise;
+        if (isMounted) {
+          setAccessToken(data.access_token);
+          setUser(data.user);
+        }
       } catch (err) {
-        // Usually a 401 which the interceptor handled
-        if (isMounted) setUser(null);
+        // No valid refresh session means the user is simply signed out.
+        if (isMounted) {
+          setAccessToken(null);
+          setUser(null);
+        }
       } finally {
         if (isMounted) setLoading(false);
       }
