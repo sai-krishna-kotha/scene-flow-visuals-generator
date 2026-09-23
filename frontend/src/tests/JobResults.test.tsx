@@ -80,18 +80,15 @@ describe('JobResultsPage', () => {
       page: 1, page_size: 20, total: 1, total_pages: 1,
       results: [
         {
+          asset_id: 'a1',
           asset: {
-            id: 'a1',
-            scene_id: 's1',
             provider: 'pexels',
             provider_asset_id: '1',
-            url: 'http://img',
+            image_url: 'http://img',
             thumbnail_url: 'http://thumb',
             source_url: 'http://source',
             width: 1920,
-            height: 1080,
-            mime_type: 'image/jpeg',
-            created_at: '2023-01-01'
+            height: 1080
           },
           similarity: 0.9,
           features: {
@@ -124,12 +121,14 @@ describe('JobResultsPage', () => {
       page: 1, page_size: 20, total: 2, total_pages: 1,
       results: [
         {
-          asset: { id: 'a1', scene_id: 's1', provider: 'pexels', provider_asset_id: '1', url: 'http://img1', thumbnail_url: 'http://thumb1', source_url: 'http://source1', width: 1920, height: 1080, mime_type: 'image/jpeg', created_at: '2023-01-01' },
+          asset_id: 'a1',
+          asset: { provider: 'pexels', provider_asset_id: '1', image_url: 'http://img1', thumbnail_url: 'http://thumb1', source_url: 'http://source1', width: 1920, height: 1080 },
           similarity: 0.9,
           features: { semantic_score: 0.796, resolution_score: 0.900, orientation_score: 1.0, final_score: 0.844 }
         },
         {
-          asset: { id: 'a2', scene_id: 's1', provider: 'pexels', provider_asset_id: '2', url: 'http://img2', thumbnail_url: 'http://thumb2', source_url: 'http://source2', width: 1920, height: 1080, mime_type: 'image/jpeg', created_at: '2023-01-01' },
+          asset_id: 'a2',
+          asset: { provider: 'pexels', provider_asset_id: '2', image_url: 'http://img2', thumbnail_url: 'http://thumb2', source_url: 'http://source2', width: 1920, height: 1080 },
           similarity: 0.8,
           features: { semantic_score: 0.700, resolution_score: 0.800, orientation_score: 0.9, final_score: 0.750 }
         }
