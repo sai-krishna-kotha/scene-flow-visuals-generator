@@ -98,6 +98,7 @@ def get_job_results(
         
         final_results.append(
             SemanticSearchResultItem(
+                asset_id=str(asset.id),
                 asset=provider_asset,
                 similarity=asset.semantic_score,
                 features=features
