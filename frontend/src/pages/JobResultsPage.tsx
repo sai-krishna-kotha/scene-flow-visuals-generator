@@ -58,7 +58,7 @@ export const JobResultsPage = () => {
   };
 
   const selectedCount = selectionMode === 'all' ? total - selectedAssetIds.size : selectedAssetIds.size;
-  const currentPageSelectedCount = results.filter(r => isAssetSelected(r.asset.id)).length;
+  const currentPageSelectedCount = results.filter(r => isAssetSelected(getAssetSelectionKey(r.asset))).length;
   const isPageFullySelected = results.length > 0 && currentPageSelectedCount === results.length;
   const isGlobalFullySelected = selectionMode === 'all' && selectedAssetIds.size === 0;
 
