@@ -55,9 +55,13 @@ function getContentDispositionExtension(header: string | null): string | null {
   );
   if (!filenameMatch) return null;
 
-  const filename = decodeURIComponent(filenameMatch[1].trim());
-  const match = filename.match(/\.([a-zA-Z0-9]+)$/);
-  return match ? match[1] : null;
+  try {
+    const filename = decodeURIComponent(filenameMatch[1].trim());
+    const match = filename.match(/\.([a-zA-Z0-9]+)$/);
+    return match ? match[1] : null;
+  } catch {
+    return null;
+  }
 }
 
 function getSafeExtension(
