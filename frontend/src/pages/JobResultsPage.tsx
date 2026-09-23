@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Image as ImageIcon, ExternalLink, Info, ChevronLeft, Download, CheckSquare, Square } from 'lucide-react';
 import { downloadAssetsAsZip } from '../utils/zip';
 import { jobsApi } from '../services/api/jobs';
-import { SemanticSearchResult, SearchJobResponse, Scene, Script, Project } from '../types/api';
+import { SemanticSearchResult, SearchJobResponse, Scene, Project } from '../types/api';
 import { Card, Loader, ErrorMessage, Button } from '../components/ui';
 import { PaginationControls } from '../components/ui/PaginationControls';
 import { scenesApi } from '../services/api/scenes';
@@ -17,9 +17,7 @@ export const JobResultsPage = () => {
   const [results, setResults] = useState<SemanticSearchResult[]>([]);
   const [job, setJob] = useState<SearchJobResponse | null>(null);
   const [scene, setScene] = useState<Scene | null>(null);
-  const [script, setScript] = useState<Script | null>(null);
   const [project, setProject] = useState<Project | null>(null);
-  const [searchNumber, setSearchNumber] = useState<number | null>(null);
   
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -167,23 +165,13 @@ export const JobResultsPage = () => {
         const sceneData = await scenesApi.get(jobData.scene_id);
         setScene(sceneData);
 
-        const [scriptData, jobsData] = await Promise.all([
-          scriptsApi.get(sceneData.script_id),
-          scenesApi.listJobs(sceneData.id)
-        ]);
-        setScript(scriptData);
+        const scriptData = await scriptsApi.get(sceneData.script_id);
 
         const projData = await projectsApi.get(scriptData.project_id);
         setProject(projData);
         
         setContext(projData, scriptData);
 
-        // Calculate search number based on descending chronology
-        // The newest job (index 0) gets the highest number
-        const jobIndex = jobsData.items.findIndex((j: any) => j.job_id === jobId);
-        if (jobIndex !== -1) {
-          setSearchNumber(jobsData.items.length - jobIndex);
-        }
       } catch (err: any) {
         setError(err.message || 'Failed to load job results context');
       } finally {
@@ -214,12 +202,8 @@ export const JobResultsPage = () => {
 
       <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 border-b border-border-main pb-4 sm:pb-6 mb-6 sm:mb-8">
         <div className="w-full md:w-auto overflow-hidden">
-          <div className="flex flex-col gap-0.5 mb-2">
+          <div className="mb-2">
             <span className="text-xs font-semibold text-text-muted uppercase tracking-wider">{project?.name}</span>
-            <span className="text-sm font-semibold text-text-secondary tracking-wide">{script?.title}</span>
-          </div>
-          <div className="text-sm font-semibold text-text-muted mb-3">
-            Scene {scene?.order} &middot; Search #{searchNumber}
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-text-main flex items-center gap-2 sm:gap-3 tracking-tight">
             <ImageIcon className="w-6 h-6 sm:w-8 sm:h-8 text-primary-600 shrink-0" />
