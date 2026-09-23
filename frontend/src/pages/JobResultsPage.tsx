@@ -115,10 +115,20 @@ export const JobResultsPage = () => {
       }
       
       const pagesData = await Promise.all(promises);
+      // Pages are returned in result order; use the global position as the
+      // stable filename number shown to the user (01, 02, 03, ...).
       const allResults = pagesData.flatMap(res => res.results);
+
       const assetsToDownload = allResults
-        .filter(result => isAssetSelected(getAssetSelectionKey(result)))
-        .map(result => result.asset);
+        .map((result, index) => ({
+          result,
+          rank: index + 1,
+        }))
+        .filter(({ result }) => isAssetSelected(getAssetSelectionKey(result)))
+        .map(({ result, rank }) => ({
+          asset: result.asset,
+          rank,
+        }));
 
       const result = await downloadAssetsAsZip(assetsToDownload);
       if (result.success) {
