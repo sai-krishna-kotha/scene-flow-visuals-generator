@@ -8,39 +8,69 @@ export interface ZipResult {
   error?: string;
 }
 
-function getFilenameFromUrl(url: string, index: number, seenNames: Set<string>): string {
-  try {
-    const urlObj = new URL(url);
-    const pathname = urlObj.pathname;
-    let filename = pathname.split('/').pop() || `image-${index}.jpg`;
-    
-    // Sanitize filename: keep alphanumeric, dots, hyphens, and underscores
-    filename = filename.replace(/[^a-zA-Z0-9.\-_]/g, '_');
-    
-    // Fallback if no extension or if it's just an extension
-    if (!filename.includes('.') || filename.startsWith('.')) {
-      filename += '.jpg';
-    }
+const MIME_TO_EXTENSION: Record<string, string> = {
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/webp': 'webp',
+  'image/gif': 'gif',
+  'image/avif': 'avif',
+  'image/bmp': 'bmp',
+  'image/tiff': 'tiff',
+  'image/svg+xml': 'svg',
+};
 
-    // Handle duplicates
-    let finalName = filename;
-    let counter = 1;
-    const nameParts = filename.split('.');
-    const ext = nameParts.pop();
-    const base = nameParts.join('.');
-    
-    while (seenNames.has(finalName)) {
-      finalName = `${base}-${counter}.${ext}`;
-      counter++;
-    }
-    
-    seenNames.add(finalName);
-    return finalName;
+function extensionFromMimeType(contentType: string): string | null {
+  const normalized = contentType.split(';', 1)[0].trim().toLowerCase();
+  return MIME_TO_EXTENSION[normalized] ?? null;
+}
+
+function getUrlExtension(url: string): string | null {
+  try {
+    const pathname = new URL(url).pathname;
+    const filename = pathname.split('/').pop() ?? '';
+    const match = filename.match(/\.([a-zA-Z0-9]+)$/);
+    return match ? match[1].toLowerCase() : null;
   } catch {
-    const name = `asset-${index}.jpg`;
-    seenNames.add(name);
-    return name;
+    return null;
   }
+}
+
+function getFilenameFromUrl(
+  url: string,
+  index: number,
+  seenNames: Set<string>,
+  fallbackExtension: string
+): string {
+  let filename: string;
+
+  try {
+    const pathname = new URL(url).pathname;
+    const rawFilename = pathname.split('/').pop() ?? '';
+    filename = rawFilename.replace(/[^a-zA-Z0-9._-]/g, '_');
+
+    // Many provider/CDN URLs are extensionless. In that case, derive the
+    // extension from the downloaded blob's MIME type instead of assuming JPEG.
+    const hasExtension = /\.[a-zA-Z0-9]+$/.test(filename);
+    if (!filename || !hasExtension || filename.startsWith('.')) {
+      filename = `asset-${index}.${fallbackExtension}`;
+    }
+  } catch {
+    filename = `asset-${index}.${fallbackExtension}`;
+  }
+
+  const dotIndex = filename.lastIndexOf('.');
+  const base = dotIndex > 0 ? filename.slice(0, dotIndex) : filename;
+  const extension = dotIndex > 0 ? filename.slice(dotIndex + 1) : fallbackExtension;
+
+  let finalName = filename;
+  let counter = 1;
+  while (seenNames.has(finalName)) {
+    finalName = `${base}-${counter}.${extension}`;
+    counter++;
+  }
+
+  seenNames.add(finalName);
+  return finalName;
 }
 
 export async function downloadAssetsAsZip(assets: JobResultAsset[]): Promise<ZipResult> {
@@ -54,12 +84,39 @@ export async function downloadAssetsAsZip(assets: JobResultAsset[]): Promise<Zip
       if (!response.ok) {
         throw new Error(`Failed to fetch ${asset.image_url}: ${response.status}`);
       }
+
       const blob = await response.blob();
-      const filename = getFilenameFromUrl(asset.image_url, index, seenNames);
+      const contentType =
+        blob.type ||
+        response.headers.get('content-type') ||
+        '';
+
+      if (!contentType.toLowerCase().startsWith('image/')) {
+        throw new Error(
+          `Downloaded content is not an image (content-type: ${contentType || 'unknown'})`
+        );
+      }
+
+      const mimeExtension = extensionFromMimeType(contentType);
+      const fallbackExtension =
+        mimeExtension ??
+        getUrlExtension(asset.image_url) ??
+        'jpg';
+
+      const filename = getFilenameFromUrl(
+        asset.image_url,
+        index,
+        seenNames,
+        fallbackExtension
+      );
+
       zip.file(filename, blob);
       successfulAssets++;
     } catch (error) {
-      console.error(`Error downloading ${asset.provider} asset ${asset.provider_asset_id}:`, error);
+      console.error(
+        `Error downloading ${asset.provider} asset ${asset.provider_asset_id}:`,
+        error
+      );
     }
   });
 
@@ -70,20 +127,19 @@ export async function downloadAssetsAsZip(assets: JobResultAsset[]): Promise<Zip
       success: false,
       successfulAssets: 0,
       totalAssets: assets.length,
-      error: 'Failed to download any assets. This might be due to CORS restrictions.'
+      error: 'Failed to download any assets. Check image CORS restrictions or image URLs.'
     };
   }
 
   const zipBlob = await zip.generateAsync({ type: 'blob' });
   const objectUrl = URL.createObjectURL(zipBlob);
-  
+
   const link = document.createElement('a');
   link.href = objectUrl;
   link.download = 'assets.zip';
   document.body.appendChild(link);
   link.click();
-  
-  // Cleanup
+
   document.body.removeChild(link);
   setTimeout(() => URL.revokeObjectURL(objectUrl), 100);
 
@@ -91,8 +147,9 @@ export async function downloadAssetsAsZip(assets: JobResultAsset[]): Promise<Zip
     success: true,
     successfulAssets,
     totalAssets: assets.length,
-    error: successfulAssets < assets.length 
-      ? `ZIP created with ${successfulAssets} of ${assets.length} assets. ${assets.length - successfulAssets} asset(s) could not be downloaded.` 
-      : undefined
+    error:
+      successfulAssets < assets.length
+        ? `ZIP created with ${successfulAssets} of ${assets.length} assets. ${assets.length - successfulAssets} asset(s) could not be downloaded.`
+        : undefined,
   };
 }
