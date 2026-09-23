@@ -412,7 +412,7 @@ const AssetCard = ({
                   <Info className="w-5 h-5 sm:w-4 sm:h-4" />
                 </button>
                 <a 
-                  href={item.asset.source_url} 
+                  href={item.asset.source_url ?? undefined} 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="p-2 sm:p-1.5 rounded text-text-muted hover:text-text-main hover:bg-surface-muted transition-colors"
