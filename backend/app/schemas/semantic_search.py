@@ -11,6 +11,10 @@ class SemanticSearchRequest(BaseModel):
     provider: Optional[str] = None
 
 class SemanticSearchResultItem(BaseModel):
+    # Optional for generic semantic-search responses; job-results responses
+    # populate this with the persisted database Asset UUID so the frontend
+    # can maintain stable selection keys across pagination.
+    asset_id: Optional[str] = None
     asset: ProviderAsset
     similarity: float
     features: Optional[RankingFeatures] = None
