@@ -80,8 +80,21 @@ export interface Asset {
   created_at: string;
 }
 
+export interface JobResultAsset {
+  provider: string;
+  provider_asset_id: string;
+  image_url: string;
+  thumbnail_url: string;
+  alt_text?: string | null;
+  width?: number | null;
+  height?: number | null;
+  license?: string | null;
+  source_url?: string | null;
+}
+
 export interface SemanticSearchResult {
-  asset: Asset;
+  asset_id: string;
+  asset: JobResultAsset;
   similarity: number;
   features: RankingFeatures;
 }
