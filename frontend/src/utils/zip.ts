@@ -53,6 +53,13 @@ function getFilenameFromUrl(
     const hasExtension = /\.[a-zA-Z0-9]+$/.test(filename);
     if (!filename || !hasExtension || filename.startsWith('.')) {
       filename = `asset-${index}.${fallbackExtension}`;
+    } else {
+      // Prefer the actual MIME type when known because provider URLs can
+      // carry misleading or generic extensions (for example, a WebP payload
+      // served from a URL ending in ".jpg").
+      const dotIndex = filename.lastIndexOf('.');
+      const base = dotIndex > 0 ? filename.slice(0, dotIndex) : filename;
+      filename = `${base}.${fallbackExtension}`;
     }
   } catch {
     filename = `asset-${index}.${fallbackExtension}`;
