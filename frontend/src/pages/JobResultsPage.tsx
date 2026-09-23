@@ -45,8 +45,16 @@ export const JobResultsPage = () => {
     setDownloadMessage(null);
   }, [jobId]);
 
-  const isAssetSelected = (id: string) => {
-    return selectionMode === 'all' ? !selectedAssetIds.has(id) : selectedAssetIds.has(id);
+  // The /jobs/{job_id}/results API returns ProviderAsset, which does not include
+  // the database Asset UUID. Use the provider fingerprint as the stable selection
+  // key so every result has a unique, persistent key across pagination.
+  const getAssetSelectionKey = (asset: Asset) =>
+    `${asset.provider}:${asset.provider_asset_id}:${asset.url}`;
+
+  const isAssetSelected = (selectionKey: string) => {
+    return selectionMode === 'all'
+      ? !selectedAssetIds.has(selectionKey)
+      : selectedAssetIds.has(selectionKey);
   };
 
   const selectedCount = selectionMode === 'all' ? total - selectedAssetIds.size : selectedAssetIds.size;
@@ -58,8 +66,9 @@ export const JobResultsPage = () => {
     setSelectedAssetIds(prev => {
       const next = new Set(prev);
       results.forEach(r => {
-        if (selectionMode === 'all') next.delete(r.asset.id);
-        else next.add(r.asset.id);
+        const selectionKey = getAssetSelectionKey(r.asset);
+        if (selectionMode === 'all') next.delete(selectionKey);
+        else next.add(selectionKey);
       });
       return next;
     });
@@ -69,8 +78,9 @@ export const JobResultsPage = () => {
     setSelectedAssetIds(prev => {
       const next = new Set(prev);
       results.forEach(r => {
-        if (selectionMode === 'all') next.add(r.asset.id);
-        else next.delete(r.asset.id);
+        const selectionKey = getAssetSelectionKey(r.asset);
+        if (selectionMode === 'all') next.add(selectionKey);
+        else next.delete(selectionKey);
       });
       return next;
     });
@@ -86,11 +96,11 @@ export const JobResultsPage = () => {
     setSelectedAssetIds(new Set());
   };
 
-  const handleToggleSelection = (assetId: string) => {
+  const handleToggleSelection = (selectionKey: string) => {
     setSelectedAssetIds(prev => {
       const next = new Set(prev);
-      if (next.has(assetId)) next.delete(assetId);
-      else next.add(assetId);
+      if (next.has(selectionKey)) next.delete(selectionKey);
+      else next.add(selectionKey);
       return next;
     });
   };
@@ -108,7 +118,7 @@ export const JobResultsPage = () => {
       
       const pagesData = await Promise.all(promises);
       const allAssets = pagesData.flatMap(res => res.results.map(r => r.asset));
-      const assetsToDownload = allAssets.filter(a => isAssetSelected(a.id));
+      const assetsToDownload = allAssets.filter(a => isAssetSelected(getAssetSelectionKey(a)));
 
       const result = await downloadAssetsAsZip(assetsToDownload);
       if (result.success) {
@@ -288,11 +298,11 @@ export const JobResultsPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {results.map((item, idx) => (
               <AssetCard 
-                key={item.asset.id} 
+                key={getAssetSelectionKey(item.asset)} 
                 item={item} 
                 rank={(page - 1) * pageSize + idx + 1} 
-                isSelected={isAssetSelected(item.asset.id)}
-                onToggleSelection={() => handleToggleSelection(item.asset.id)}
+                isSelected={isAssetSelected(getAssetSelectionKey(item.asset))}
+                onToggleSelection={() => handleToggleSelection(getAssetSelectionKey(item.asset))}
               />
             ))}
           </div>
