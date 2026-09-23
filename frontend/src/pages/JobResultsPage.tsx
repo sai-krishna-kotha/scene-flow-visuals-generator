@@ -45,11 +45,9 @@ export const JobResultsPage = () => {
     setDownloadMessage(null);
   }, [jobId]);
 
-  // The /jobs/{job_id}/results API returns ProviderAsset, which does not include
-  // the database Asset UUID. Use the provider fingerprint as the stable selection
-  // key so every result has a unique, persistent key across pagination.
-  const getAssetSelectionKey = (asset: Asset) =>
-    `${asset.provider}:${asset.provider_asset_id}:${asset.url}`;
+  // The job-results API now returns the persisted database Asset UUID.
+  // Use it as the authoritative stable selection key across pagination.
+  const getAssetSelectionKey = (result: SemanticSearchResult) => result.asset_id;
 
   const isAssetSelected = (selectionKey: string) => {
     return selectionMode === 'all'
@@ -58,7 +56,7 @@ export const JobResultsPage = () => {
   };
 
   const selectedCount = selectionMode === 'all' ? total - selectedAssetIds.size : selectedAssetIds.size;
-  const currentPageSelectedCount = results.filter(r => isAssetSelected(getAssetSelectionKey(r.asset))).length;
+  const currentPageSelectedCount = results.filter(r => isAssetSelected(getAssetSelectionKey(r))).length;
   const isPageFullySelected = results.length > 0 && currentPageSelectedCount === results.length;
   const isGlobalFullySelected = selectionMode === 'all' && selectedAssetIds.size === 0;
 
@@ -66,7 +64,7 @@ export const JobResultsPage = () => {
     setSelectedAssetIds(prev => {
       const next = new Set(prev);
       results.forEach(r => {
-        const selectionKey = getAssetSelectionKey(r.asset);
+        const selectionKey = getAssetSelectionKey(r);
         if (selectionMode === 'all') next.delete(selectionKey);
         else next.add(selectionKey);
       });
@@ -117,8 +115,10 @@ export const JobResultsPage = () => {
       }
       
       const pagesData = await Promise.all(promises);
-      const allAssets = pagesData.flatMap(res => res.results.map(r => r.asset));
-      const assetsToDownload = allAssets.filter(a => isAssetSelected(getAssetSelectionKey(a)));
+      const allResults = pagesData.flatMap(res => res.results);
+      const assetsToDownload = allResults
+        .filter(result => isAssetSelected(getAssetSelectionKey(result)))
+        .map(result => result.asset);
 
       const result = await downloadAssetsAsZip(assetsToDownload);
       if (result.success) {
@@ -298,11 +298,11 @@ export const JobResultsPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {results.map((item, idx) => (
               <AssetCard 
-                key={getAssetSelectionKey(item.asset)} 
+                key={getAssetSelectionKey(item)} 
                 item={item} 
                 rank={(page - 1) * pageSize + idx + 1} 
-                isSelected={isAssetSelected(getAssetSelectionKey(item.asset))}
-                onToggleSelection={() => handleToggleSelection(getAssetSelectionKey(item.asset))}
+                isSelected={isAssetSelected(getAssetSelectionKey(item))}
+                onToggleSelection={() => handleToggleSelection(getAssetSelectionKey(item))}
               />
             ))}
           </div>
