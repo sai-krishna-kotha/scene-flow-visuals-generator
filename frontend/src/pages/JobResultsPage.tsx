@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Image as ImageIcon, ExternalLink, Info, ChevronLeft, Download, CheckSquare, Square } from 'lucide-react';
 import { downloadAssetsAsZip } from '../utils/zip';
 import { jobsApi } from '../services/api/jobs';
-import { SemanticSearchResult, SearchJobResponse, Scene, Script, Project, Asset } from '../types/api';
+import { SemanticSearchResult, SearchJobResponse, Scene, Script, Project } from '../types/api';
 import { Card, Loader, ErrorMessage, Button } from '../components/ui';
 import { PaginationControls } from '../components/ui/PaginationControls';
 import { scenesApi } from '../services/api/scenes';
@@ -76,7 +76,7 @@ export const JobResultsPage = () => {
     setSelectedAssetIds(prev => {
       const next = new Set(prev);
       results.forEach(r => {
-        const selectionKey = getAssetSelectionKey(r.asset);
+        const selectionKey = getAssetSelectionKey(r);
         if (selectionMode === 'all') next.add(selectionKey);
         else next.delete(selectionKey);
       });
@@ -339,7 +339,7 @@ const AssetCard = ({
   return (
     <div className="group rounded-xl h-full" style={{ perspective: '1000px' }}>
       <div 
-        data-testid={`flip-card-${item.asset.id}`}
+        data-testid={`flip-card-${item.asset_id}`}
         className="w-full h-full relative rounded-xl transition-transform duration-400 shadow-sm hover:shadow-xl grid" 
         style={{ 
           transformStyle: 'preserve-3d', 
