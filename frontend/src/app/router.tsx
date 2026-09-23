@@ -26,31 +26,54 @@ const Layout = () => {
   );
 };
 
+// Keep AuthProvider inside the data-router tree so every routed component
+// (including AuthGuard and public auth pages) consumes the exact same
+// AuthContext provider instance. This avoids context-boundary issues during
+// router rendering/HMR and keeps authentication available to every route.
+const AppProviders = () => {
+  return (
+    <AuthProvider>
+      <Outlet />
+    </AuthProvider>
+  );
+};
+
 const router = createBrowserRouter([
-  { path: '/login', element: <LoginPage /> },
-  { path: '/register', element: <RegisterPage /> },
   {
-    path: '/',
-    element: (
-      <AuthGuard />
-    ),
+    element: <AppProviders />,
     children: [
+      { path: '/login', element: <LoginPage /> },
+      { path: '/register', element: <RegisterPage /> },
       {
-        path: '',
-        element: (
-          <WorkspaceProvider>
-            <Layout />
-          </WorkspaceProvider>
-        ),
+        path: '/',
+        element: <AuthGuard />,
         children: [
-          { index: true, element: <DashboardPage /> },
-          { path: 'account', element: <AccountPage /> },
-          { path: 'projects/:projectId', element: <ProjectPage /> },
-          { path: 'projects/:projectId/scripts/:scriptId', element: <ScriptPage /> },
-          { path: 'scenes/:sceneId', element: <ScenePage /> },
-          { path: 'jobs/:jobId', element: <JobPollingPage /> },
-          { path: 'jobs/:jobId/results', element: <JobResultsPage /> },
-          { path: '*', element: <div className="p-8 text-center"><h1 className="text-2xl font-bold">404 Not Found</h1><p className="text-text-secondary">The requested page does not exist.</p></div> }
+          {
+            path: '',
+            element: (
+              <WorkspaceProvider>
+                <Layout />
+              </WorkspaceProvider>
+            ),
+            children: [
+              { index: true, element: <DashboardPage /> },
+              { path: 'account', element: <AccountPage /> },
+              { path: 'projects/:projectId', element: <ProjectPage /> },
+              { path: 'projects/:projectId/scripts/:scriptId', element: <ScriptPage /> },
+              { path: 'scenes/:sceneId', element: <ScenePage /> },
+              { path: 'jobs/:jobId', element: <JobPollingPage /> },
+              { path: 'jobs/:jobId/results', element: <JobResultsPage /> },
+              {
+                path: '*',
+                element: (
+                  <div className="p-8 text-center">
+                    <h1 className="text-2xl font-bold">404 Not Found</h1>
+                    <p className="text-text-secondary">The requested page does not exist.</p>
+                  </div>
+                )
+              }
+            ]
+          }
         ]
       }
     ]
@@ -58,9 +81,5 @@ const router = createBrowserRouter([
 ]);
 
 export const AppRouter = () => {
-  return (
-    <AuthProvider>
-      <RouterProvider router={router} />
-    </AuthProvider>
-  );
+  return <RouterProvider router={router} />;
 };
