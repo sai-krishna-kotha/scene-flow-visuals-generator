@@ -50,8 +50,6 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // Log the error for debugging
-    console.error('API Error:', error.response?.data || error.message);
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       // Don't intercept 401s for the login/register/refresh endpoints
@@ -93,7 +91,11 @@ apiClient.interceptors.response.use(
       } catch (err: any) {
         processQueue(err, null);
         setAccessToken(null);
-        // Dispatch an event to notify AuthContext to log out if refresh fails
+        console.error(
+          'Authentication refresh failed:',
+          err.response?.data || err.message
+        );
+        // Dispatch an event to notify AuthContext to clear the session.
         window.dispatchEvent(new Event('auth:unauthorized'));
         return Promise.reject(err);
       } finally {
