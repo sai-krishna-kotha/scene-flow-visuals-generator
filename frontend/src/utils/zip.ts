@@ -1,5 +1,5 @@
 import JSZip from 'jszip';
-import { Asset } from '../types/api';
+import { JobResultAsset } from '../types/api';
 
 export interface ZipResult {
   success: boolean;
@@ -43,23 +43,23 @@ function getFilenameFromUrl(url: string, index: number, seenNames: Set<string>):
   }
 }
 
-export async function downloadAssetsAsZip(assets: Asset[]): Promise<ZipResult> {
+export async function downloadAssetsAsZip(assets: JobResultAsset[]): Promise<ZipResult> {
   const zip = new JSZip();
   const seenNames = new Set<string>();
   let successfulAssets = 0;
 
   const promises = assets.map(async (asset, index) => {
     try {
-      const response = await fetch(asset.url);
+      const response = await fetch(asset.image_url);
       if (!response.ok) {
-        throw new Error(`Failed to fetch ${asset.url}: ${response.status}`);
+        throw new Error(`Failed to fetch ${asset.image_url}: ${response.status}`);
       }
       const blob = await response.blob();
-      const filename = getFilenameFromUrl(asset.url, index, seenNames);
+      const filename = getFilenameFromUrl(asset.image_url, index, seenNames);
       zip.file(filename, blob);
       successfulAssets++;
     } catch (error) {
-      console.error(`Error downloading asset ${asset.id}:`, error);
+      console.error(`Error downloading ${asset.provider} asset ${asset.provider_asset_id}:`, error);
     }
   });
 
