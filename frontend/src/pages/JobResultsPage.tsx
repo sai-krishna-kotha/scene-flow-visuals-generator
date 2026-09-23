@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Image as ImageIcon, ExternalLink, Info, ChevronLeft } from 'lucide-react';
+import { Image as ImageIcon, ExternalLink, Info, ChevronLeft, Download, CheckSquare, Square } from 'lucide-react';
+import { downloadAssetsAsZip } from '../utils/zip';
 import { jobsApi } from '../services/api/jobs';
-import { SemanticSearchResult, SearchJobResponse, Scene, Script, Project } from '../types/api';
+import { SemanticSearchResult, SearchJobResponse, Scene, Script, Project, Asset } from '../types/api';
 import { Card, Loader, ErrorMessage, Button } from '../components/ui';
 import { PaginationControls } from '../components/ui/PaginationControls';
 import { scenesApi } from '../services/api/scenes';
@@ -28,7 +29,104 @@ export const JobResultsPage = () => {
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
 
+  type SelectionMode = 'explicit' | 'all';
+  const [selectionMode, setSelectionMode] = useState<SelectionMode>('explicit');
+  const [selectedAssetIds, setSelectedAssetIds] = useState<Set<string>>(new Set());
+  
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadMessage, setDownloadMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+
   const { setContext, clearContext } = useWorkspace();
+
+  // Clear selection only on job change, NOT on page change
+  useEffect(() => {
+    setSelectionMode('explicit');
+    setSelectedAssetIds(new Set());
+    setDownloadMessage(null);
+  }, [jobId]);
+
+  const isAssetSelected = (id: string) => {
+    return selectionMode === 'all' ? !selectedAssetIds.has(id) : selectedAssetIds.has(id);
+  };
+
+  const selectedCount = selectionMode === 'all' ? total - selectedAssetIds.size : selectedAssetIds.size;
+  const currentPageSelectedCount = results.filter(r => isAssetSelected(r.asset.id)).length;
+  const isPageFullySelected = results.length > 0 && currentPageSelectedCount === results.length;
+  const isGlobalFullySelected = selectionMode === 'all' && selectedAssetIds.size === 0;
+
+  const handleSelectPage = () => {
+    setSelectedAssetIds(prev => {
+      const next = new Set(prev);
+      results.forEach(r => {
+        if (selectionMode === 'all') next.delete(r.asset.id);
+        else next.add(r.asset.id);
+      });
+      return next;
+    });
+  };
+
+  const handleClearPage = () => {
+    setSelectedAssetIds(prev => {
+      const next = new Set(prev);
+      results.forEach(r => {
+        if (selectionMode === 'all') next.add(r.asset.id);
+        else next.delete(r.asset.id);
+      });
+      return next;
+    });
+  };
+
+  const handleSelectAllResults = () => {
+    setSelectionMode('all');
+    setSelectedAssetIds(new Set());
+  };
+
+  const handleClearSelection = () => {
+    setSelectionMode('explicit');
+    setSelectedAssetIds(new Set());
+  };
+
+  const handleToggleSelection = (assetId: string) => {
+    setSelectedAssetIds(prev => {
+      const next = new Set(prev);
+      if (next.has(assetId)) next.delete(assetId);
+      else next.add(assetId);
+      return next;
+    });
+  };
+
+  const handleDownloadZip = async () => {
+    if (selectedCount === 0 || !jobId) return;
+    setIsDownloading(true);
+    setDownloadMessage(null);
+
+    try {
+      const promises = [];
+      for (let p = 1; p <= totalPages; p++) {
+        promises.push(jobsApi.getResults(jobId, p, pageSize));
+      }
+      
+      const pagesData = await Promise.all(promises);
+      const allAssets = pagesData.flatMap(res => res.results.map(r => r.asset));
+      const assetsToDownload = allAssets.filter(a => isAssetSelected(a.id));
+
+      const result = await downloadAssetsAsZip(assetsToDownload);
+      if (result.success) {
+        if (result.error) {
+          // Partial success
+          setDownloadMessage({ type: 'error', text: result.error });
+        } else {
+          setDownloadMessage({ type: 'success', text: `Successfully downloaded ${result.successfulAssets} assets.` });
+        }
+      } else {
+        setDownloadMessage({ type: 'error', text: result.error || 'Failed to download assets.' });
+      }
+    } catch (err: any) {
+      setDownloadMessage({ type: 'error', text: err.message || 'An unexpected error occurred during download.' });
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   useDocumentTitle('Visual Results');
 
@@ -108,8 +206,65 @@ export const JobResultsPage = () => {
             <span className="truncate">Visual Results</span>
           </h1>
         </div>
-        <div className="flex items-center gap-4 bg-surface px-4 py-2.5 sm:py-2 rounded-lg border border-border-main shadow-sm w-full md:w-auto justify-between md:justify-start mt-2 md:mt-0">
-          <span className="text-sm font-semibold text-text-secondary">{results.length} visual assets</span>
+        <div className="flex items-center gap-4 bg-surface px-4 py-2.5 sm:py-2 rounded-lg border border-border-main shadow-sm w-full md:w-auto justify-between md:justify-start mt-2 md:mt-0 flex-wrap">
+          <span className="text-sm font-semibold text-text-secondary">{total} visual assets</span>
+          
+          {total > 0 && (
+            <>
+              <div className="w-px h-6 bg-border-main hidden sm:block"></div>
+              
+              <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={isPageFullySelected ? handleClearPage : handleSelectPage}
+                  className="text-xs px-2"
+                >
+                  {isPageFullySelected ? 'Clear Page' : 'Select Page'}
+                </Button>
+                
+                {!isGlobalFullySelected && (
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={handleSelectAllResults}
+                    className="text-xs px-2"
+                  >
+                    Select All Results
+                  </Button>
+                )}
+                
+                {selectedCount > 0 && (
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={handleClearSelection}
+                    className="text-xs px-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+                  >
+                    Clear Selection
+                  </Button>
+                )}
+                
+                {selectedCount > 0 && (
+                  <span className="text-xs font-medium text-text-muted mx-1">
+                    {selectedCount} / {total} selected
+                  </span>
+                )}
+                
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={handleDownloadZip}
+                  disabled={selectedCount === 0 || isDownloading}
+                  className="gap-2 text-xs"
+                  aria-label="Download selected assets as ZIP"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  {isDownloading ? 'Zipping...' : 'Download ZIP'}
+                </Button>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
@@ -120,13 +275,24 @@ export const JobResultsPage = () => {
           <p className="mt-1">We couldn't find any relevant visual assets for this scene.</p>
         </div>
       ) : (
-        <div>
+        <div className="space-y-4">
+          {downloadMessage && (
+            <div className={`p-4 rounded-lg text-sm font-medium border ${
+              downloadMessage.type === 'success' 
+                ? 'bg-green-50 text-green-800 border-green-200' 
+                : 'bg-red-50 text-red-800 border-red-200'
+            }`}>
+              {downloadMessage.text}
+            </div>
+          )}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {results.map((item, idx) => (
               <AssetCard 
                 key={item.asset.id} 
                 item={item} 
                 rank={(page - 1) * pageSize + idx + 1} 
+                isSelected={isAssetSelected(item.asset.id)}
+                onToggleSelection={() => handleToggleSelection(item.asset.id)}
               />
             ))}
           </div>
@@ -146,7 +312,17 @@ export const JobResultsPage = () => {
   );
 };
 
-const AssetCard = ({ item, rank }: { item: SemanticSearchResult, rank: number }) => {
+const AssetCard = ({ 
+  item, 
+  rank, 
+  isSelected, 
+  onToggleSelection 
+}: { 
+  item: SemanticSearchResult, 
+  rank: number,
+  isSelected: boolean,
+  onToggleSelection: () => void
+}) => {
   const [imgError, setImgError] = useState(false);
   const [isFlipped, setIsFlipped] = useState(false);
 
@@ -180,7 +356,20 @@ const AssetCard = ({ item, rank }: { item: SemanticSearchResult, rank: number })
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               />
             )}
-            <div className="absolute top-3 left-3 bg-black/75 text-white text-xs font-bold px-2.5 py-1 rounded backdrop-blur-md">
+            
+            <button
+              aria-label={isSelected ? "Deselect asset" : "Select asset"}
+              onClick={(e) => { e.stopPropagation(); onToggleSelection(); }}
+              className={`absolute top-3 left-3 z-20 p-1.5 rounded transition-colors shadow-sm backdrop-blur-md ${
+                isSelected 
+                  ? 'bg-primary-600 text-white' 
+                  : 'bg-black/50 text-white/70 hover:bg-black/75 hover:text-white'
+              }`}
+            >
+              {isSelected ? <CheckSquare className="w-4 h-4" /> : <Square className="w-4 h-4" />}
+            </button>
+            
+            <div className="absolute top-3 left-12 bg-black/75 text-white text-xs font-bold px-2.5 py-1 rounded backdrop-blur-md">
               #{rank}
             </div>
             <div className="absolute top-3 right-3 bg-surface/90 text-text-main text-xs font-bold px-2.5 py-1 rounded shadow-sm capitalize backdrop-blur-md">
